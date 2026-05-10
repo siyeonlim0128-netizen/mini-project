@@ -201,7 +201,7 @@ button:disabled {
   height: 110px;
   margin: 30px auto;
   border-radius: 50%;
-  background: none;
+  background: #263e78;
   color: white;
   display: grid;
   place-items: center;
@@ -317,4 +317,8 @@ button:disabled {
   height: 210px;
   margin: 24px auto 30px;
   display: block;
+}
+
+input::placeholder {
+  color: #c7c7c7;
 }

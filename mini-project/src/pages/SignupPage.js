@@ -57,6 +57,7 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [nickname, setNickname] = useState("");
   const [nicknameChecked, setNicknameChecked] = useState(false);
+  const [nicknameTried, setNicknameTried] = useState(false);
   const [agree1, setAgree1] = useState(false);
   const [agree2, setAgree2] = useState(false);
 
@@ -64,7 +65,9 @@ export default function SignupPage() {
   const codeValid = code === "123456";
   const passwordValid = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(password);
   const passwordSame = password && password === passwordCheck;
-  const nicknameValid = nickname.length >= 2;
+  const nicknameValid = nickname.trim().length >= 2;
+  const duplicatedNicknames = ["admin", "test", "관리자", "hufs"];
+  const nicknameDuplicated = duplicatedNicknames.includes(nickname.trim());
 
   const canNext = useMemo(() => {
     if (step === 1) return emailChecked && codeChecked;
@@ -155,6 +158,7 @@ export default function SignupPage() {
             <div className="row">
               <input
                 value={code}
+                placeholder={emailChecked ? "숫자 6자리 입력" : ""}
                 onChange={(e) => {
                   setCode(e.target.value);
                   setCodeChecked(false);
@@ -289,22 +293,27 @@ export default function SignupPage() {
                 onChange={(e) => {
                   setNickname(e.target.value);
                   setNicknameChecked(false);
+                  setNicknameTried(false);
                 }}
+
               />
               <button
-                className="check-button"
-                onClick={() => setNicknameChecked(nicknameValid)}
-              >
-                확인
-              </button>
+              className="check-button"
+              onClick={() => {
+                setNicknameTried(true);
+                setNicknameChecked(nicknameValid && !nicknameDuplicated);
+              }}
+            >
+              확인
+            </button>
             </div>
 
             <p className={nicknameChecked ? "success" : "error"}>
-              {nicknameChecked
-                ? "사용가능한 닉네임입니다."
-                : nickname
-                  ? "이미 존재하는 닉네임입니다."
-                  : ""}
+              {nicknameTried
+              ? nicknameChecked
+              ? "사용가능한 닉네임입니다."
+              : "이미 존재하는 닉네임입니다."
+              : ""}
             </p>
 
             <h3>약관동의</h3>
@@ -358,4 +367,4 @@ export default function SignupPage() {
       </section>
     </main>
   );
-}
+} 
