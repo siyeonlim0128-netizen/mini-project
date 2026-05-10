@@ -40,7 +40,7 @@ h1 {
   justify-items: center;
   gap: 6px;
   color: #aaa;
-  font-size: 11px;
+  font-size: 14px;
 }
 
 .progress li::before {
@@ -57,15 +57,18 @@ h1 {
   display: none;
 }
 
-.progress li.done::before,
+.progress li.done::before {
+  background: #9bc894;
+}
+
 .progress li.active::before {
-  background: #8fbe8f;
+  background: #9bc894;
 }
 
 .progress span {
   z-index: 1;
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -73,12 +76,15 @@ h1 {
   font-weight: bold;
 }
 
-.progress .done span,
+.progress .done span {
+  background: #7fbd78;
+  color: white;
+}
+
 .progress .active span {
   background: #35a833;
   color: white;
 }
-
 .box {
   min-height: 285px;
   border: 2px solid #91a8ff;
@@ -321,4 +327,16 @@ button:disabled {
 
 input::placeholder {
   color: #c7c7c7;
+}
+
+.password-rule-message {
+  min-height: 18px;
+  margin: 8px 0 12px;
+  color: #e44b4b;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.nickname-label {
+  margin-top: 15px;
 }

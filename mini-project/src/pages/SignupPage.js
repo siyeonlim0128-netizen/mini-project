@@ -6,7 +6,7 @@ const steps = ["이메일", "학과", "비밀번호", "정보입력", "완료"];
 
 const majors = [
   "그리스·불가리아학과",
-  "GBT학부",
+  "Global Business & Technology학부",
   "글로벌스포츠산업학부",
   "국제금융학과",
   "기후변화융합학부",
@@ -63,8 +63,9 @@ export default function SignupPage() {
 
   const emailValid = /^[^\s@]+@hufs\.ac\.kr$/i.test(email);
   const codeValid = code === "123456";
-  const passwordValid = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(password);
-  const passwordSame = password && password === passwordCheck;
+  const passwordValid =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/.test(password);
+  const passwordSame = passwordValid && password && password === passwordCheck;
   const nicknameValid = nickname.trim().length >= 2;
   const duplicatedNicknames = ["admin", "test", "관리자", "hufs"];
   const nicknameDuplicated = duplicatedNicknames.includes(nickname.trim());
@@ -241,6 +242,12 @@ export default function SignupPage() {
               </button>
             </div>
 
+            <p className="password-rule-message">
+            {password && !passwordValid
+            ? "8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요."
+            : ""}
+            </p>
+
             <label>비밀번호 확인</label>
 
             <div className="row">
@@ -262,21 +269,23 @@ export default function SignupPage() {
               </div>
 
               <button
-                type="button"
-                className="check-button"
-                disabled={!passwordCheck}
-                onClick={() => setPasswordCheckTried(true)}
-              >
-                확인
-              </button>
+              type="button"
+              className="check-button"
+              disabled={!passwordValid || !passwordCheck}
+              onClick={() => setPasswordCheckTried(true)}
+            >
+              확인
+            </button>
             </div>
 
             <p className={passwordSame ? "success" : "error"}>
               {passwordCheckTried
-                ? passwordSame
-                  ? "비밀번호가 일치합니다."
-                  : "비밀번호가 일치하지 않습니다."
-                : ""}
+              ? !passwordValid
+              ? "8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요."
+              : passwordSame
+              ? "비밀번호가 일치합니다."
+              : "비밀번호가 일치하지 않습니다."
+              : ""}
             </p>
           </div>
         )}
@@ -286,7 +295,7 @@ export default function SignupPage() {
             <label>이름</label>
             <input value={name} onChange={(e) => setName(e.target.value)} />
 
-            <label>닉네임</label>
+            <label className="nickname-label">닉네임</label>
             <div className="row">
               <input
                 value={nickname}
@@ -298,14 +307,14 @@ export default function SignupPage() {
 
               />
               <button
-              className="check-button"
-              onClick={() => {
-                setNicknameTried(true);
-                setNicknameChecked(nicknameValid && !nicknameDuplicated);
-              }}
-            >
-              확인
-            </button>
+  className="check-button"
+  onClick={() => {
+    setNicknameTried(true);
+    setNicknameChecked(nicknameValid && !nicknameDuplicated);
+  }}
+>
+  확인
+</button>
             </div>
 
             <p className={nicknameChecked ? "success" : "error"}>
