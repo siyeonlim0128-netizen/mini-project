@@ -1,4 +1,5 @@
-/* ===== 전역 초기화 ===== */
+@import url('https://fonts.googleapis.com/css2?family=Intel+One+Mono:wght@400;500;600;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -6,7 +7,8 @@
 }
 
 body {
-  background-color: #e8ebff;
+  background-color: #D4E1FD;
+  font-family: 'Intel One Mono', monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
