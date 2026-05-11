@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Check, Eye, EyeOff } from "lucide-react";
 import "./SignupPage.css";
+import booImage from "../components/Boo8.svg";
 
 const steps = ["이메일", "학과", "비밀번호", "정보입력", "완료"];
 
@@ -360,9 +361,9 @@ export default function SignupPage() {
             </h2>
             <img
             className="complete-image"
-            src="/images/hufs-owl.png"
+            src={booImage}
             alt="HUFS 마스코트"
-        />
+          />
             <button onClick={() => setStep(1)}>닫기</button>
           </div>
         )}
