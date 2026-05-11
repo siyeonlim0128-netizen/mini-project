@@ -214,7 +214,7 @@ export default function SignupPage() {
                 onClick={() => setMajorOpen(!majorOpen)}
               >
                 <span>{major || "선택해주세요"}</span>
-                <span className="select-arrow">⌄</span>
+                <span className="select-arrow">⌵</span>
               </button>
 
               {majorOpen && (
