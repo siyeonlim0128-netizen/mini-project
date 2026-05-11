@@ -5,33 +5,42 @@ import "./SignupPage.css";
 const steps = ["이메일", "학과", "비밀번호", "정보입력", "완료"];
 
 const majors = [
-  "그리스·불가리아학과",
-  "Global Business & Technology학부",
-  "글로벌스포츠산업학부",
   "국제금융학과",
+  "그리스·불가리아학과",
+  "글로벌스포츠산업학부",
   "기후변화융합학부",
+  "독일어통번역학과",
   "디지털콘텐츠학부",
   "루마니아학과",
+  "말레이·인도네시아어통번역학과",
   "바이오메디컬공학부",
   "반도체전자공학부(반도체공학전공)",
   "반도체전자공학부(전자공학전공)",
   "사학과",
+  "산업경영공학과",
   "생명공학과",
   "세르비아·크로아티아학과",
   "수학과",
-  "산업경영공학과",
-  "언어인지과학과",
-  "AI데이터융합학부",
+  "스페인어통번역학과",
+  "아랍어통번역학과",
   "아프리카학부",
+  "언어인지과학과",
+  "영어통번역학부",
   "우크라이나학과",
   "융합인재학부",
+  "이탈리아어통번역학과",
+  "일본어통번역학과",
   "전자물리학과",
   "정보통신공학과",
+  "중국어통번역학과",
   "중앙아시아학과",
   "체코·슬로바키아학과",
   "철학과",
   "컴퓨터공학부",
+  "태국어통번역학과",
   "통계학과",
+  "AI데이터융합학부",
+  "Global Business & Technology학부",
 ];
 
 export default function SignupPage() {
@@ -63,9 +72,7 @@ export default function SignupPage() {
 
   const emailValid = /^[^\s@]+@hufs\.ac\.kr$/i.test(email);
   const codeValid = code === "123456";
-  const passwordValid =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/.test(password);
-  const passwordSame = passwordValid && password && password === passwordCheck;
+  const passwordSame = password && password === passwordCheck;
   const nicknameValid = nickname.trim().length >= 2;
   const duplicatedNicknames = ["admin", "test", "관리자", "hufs"];
   const nicknameDuplicated = duplicatedNicknames.includes(nickname.trim());
@@ -73,7 +80,7 @@ export default function SignupPage() {
   const canNext = useMemo(() => {
     if (step === 1) return emailChecked && codeChecked;
     if (step === 2) return major !== "";
-    if (step === 3) return passwordValid && passwordSame && passwordCheckTried;
+    if (step === 3) return passwordSame && passwordCheckTried;
     if (step === 4) {
       return name.length >= 2 && nicknameChecked && agree1 && agree2;
     }
@@ -84,7 +91,6 @@ export default function SignupPage() {
     emailChecked,
     codeChecked,
     major,
-    passwordValid,
     passwordSame,
     passwordCheckTried,
     name,
@@ -151,7 +157,7 @@ export default function SignupPage() {
             </div>
 
             <p className="error">
-              {emailTried && !emailValid ? "존재하지 않는 이메일입니다." : ""}
+              {emailTried && !emailValid ? "유효하지 않는 이메일입니다." : ""}
             </p>
 
             <label>인증번호</label>
@@ -242,12 +248,6 @@ export default function SignupPage() {
               </button>
             </div>
 
-            <p className="password-rule-message">
-            {password && !passwordValid
-            ? "8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요."
-            : ""}
-            </p>
-
             <label>비밀번호 확인</label>
 
             <div className="row">
@@ -271,7 +271,7 @@ export default function SignupPage() {
               <button
               type="button"
               className="check-button"
-              disabled={!passwordValid || !passwordCheck}
+              disabled={!passwordCheck}
               onClick={() => setPasswordCheckTried(true)}
             >
               확인
@@ -280,9 +280,7 @@ export default function SignupPage() {
 
             <p className={passwordSame ? "success" : "error"}>
               {passwordCheckTried
-              ? !passwordValid
-              ? "8~16자 영문 대 소문자, 숫자, 특수문자를 사용하세요."
-              : passwordSame
+              ? passwordSame
               ? "비밀번호가 일치합니다."
               : "비밀번호가 일치하지 않습니다."
               : ""}

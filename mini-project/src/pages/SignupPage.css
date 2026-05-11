@@ -38,7 +38,7 @@ h1 {
   position: relative;
   display: grid;
   justify-items: center;
-  gap: 6px;
+  gap: 4px;
   color: #aaa;
   font-size: 14px;
 }
@@ -46,7 +46,7 @@ h1 {
 .progress li::before {
   content: "";
   position: absolute;
-  top: 13px;
+  top: 20px;
   left: -50%;
   width: 100%;
   height: 4px;
@@ -65,10 +65,18 @@ h1 {
   background: #9bc894;
 }
 
+.progress li.done {
+  color: #8FBE8F;
+}
+
+.progress li.active {
+  color: #35A833;
+}
+
 .progress span {
   z-index: 1;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -340,3 +348,5 @@ input::placeholder {
 .nickname-label {
   margin-top: 15px;
 }
+
+
