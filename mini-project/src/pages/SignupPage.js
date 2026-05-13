@@ -80,7 +80,6 @@ export default function SignupPage() {
   const [agree2, setAgree2] = useState(false);
 
   const emailValid = /^[^\s@]+@hufs\.ac\.kr$/i.test(email);
-  const codeValid = code === "123456";
   const passwordSame = password && password === passwordCheck;
   const nicknameValid = nickname.trim().length >= 2;
   const duplicatedNicknames = ["admin", "test", "관리자", "hufs"];
@@ -107,6 +106,49 @@ export default function SignupPage() {
     agree1,
     agree2,
   ]);
+
+  const sendEmailCode = async () => {
+  setEmailTried(true);
+
+  if (!emailValid) {
+    setEmailChecked(false);
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:4000/api/send-code", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    setEmailChecked(response.ok);
+    setCodeChecked(false);
+    setCodeTried(false);
+  } catch (error) {
+    setEmailChecked(false);
+  }
+};
+
+const verifyEmailCode = async () => {
+  setCodeTried(true);
+
+  try {
+    const response = await fetch("http://localhost:4000/api/verify-code", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, code }),
+    });
+
+    setCodeChecked(response.ok);
+  } catch (error) {
+    setCodeChecked(false);
+  }
+};
 
   const next = () => {
     if (canNext) {
@@ -156,10 +198,7 @@ export default function SignupPage() {
 
               <button
                 className="check-button"
-                onClick={() => {
-                  setEmailTried(true);
-                  setEmailChecked(emailValid);
-                }}
+                onClick={sendEmailCode}
               >
                 인증하기
               </button>
@@ -185,22 +224,19 @@ export default function SignupPage() {
               <button
                 className="check-button"
                 disabled={!emailChecked}
-                onClick={() => {
-                  setCodeTried(true);
-                  setCodeChecked(codeValid);
-                }}
+                onClick={verifyEmailCode}
               >
                 확인
               </button>
             </div>
 
             <p className={codeChecked ? "success" : "error"}>
-              {codeChecked
-                ? "이메일 인증이 완료되었습니다."
-                : codeTried && !codeValid
-                  ? "인증번호가 일치하지 않습니다."
-                  : ""}
-            </p>
+            {codeChecked
+            ? "이메일 인증이 완료되었습니다."
+            : codeTried
+            ? "인증번호가 일치하지 않습니다."
+            : ""}
+          </p>
           </div>
         )}
 
