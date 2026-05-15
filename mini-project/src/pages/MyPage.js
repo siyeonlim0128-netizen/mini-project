@@ -10,6 +10,7 @@ import {
   List,
   User,
   Settings,
+  ChevronLeft,
 } from "lucide-react";
 import "./MyPage.css";
 
@@ -19,21 +20,75 @@ const posts = [
   { id: 3, category: "교재", likes: 45, comments: 12 },
 ];
 
-const nickname = localStorage.getItem("nickname") || "닉네임";
+const majors = [
+  "국제금융학과",
+  "그리스·불가리아학과",
+  "글로벌스포츠산업학부",
+  "기후변화융합학부",
+  "독일어통번역학과",
+  "디지털콘텐츠학부",
+  "루마니아학과",
+  "말레이·인도네시아어통번역학과",
+  "바이오메디컬공학부",
+  "반도체전자공학부(반도체공학전공)",
+  "반도체전자공학부(전자공학전공)",
+  "사학과",
+  "산업경영공학과",
+  "생명공학과",
+  "세르비아·크로아티아학과",
+  "수학과",
+  "스페인어통번역학과",
+  "아랍어통번역학과",
+  "아프리카학부",
+  "언어인지과학과",
+  "영어통번역학부",
+  "우크라이나학과",
+  "융합인재학부",
+  "이탈리아어통번역학과",
+  "일본어통번역학과",
+  "자유전공학부(글로벌)",
+  "전자물리학과",
+  "정보통신공학과",
+  "중국어통번역학과",
+  "중앙아시아학과",
+  "체코·슬로바키아학과",
+  "철학과",
+  "컴퓨터공학부",
+  "태국어통번역학과",
+  "통계학과",
+  "투어리즘 & 웰니스학부",
+  "폴란드학과",
+  "한국학과",
+  "화학과",
+  "환경학과",
+  "헝가리학과",
+  "AI데이터융합학부",
+  "Finance & AI융합학부",
+  "Global Business & Technology학부",
+];
 
 function ProfileSummary() {
-  const nickname = localStorage.getItem("nickname") || "닉네임";
+  const userName = localStorage.getItem("userName") || "이름";
+  const userNickname = localStorage.getItem("userNickname") || "닉네임";
+  const userMajor = localStorage.getItem("userMajor") || "본전공";
+  const userProfileImage = localStorage.getItem("userProfileImage");
 
   return (
     <section className="card profile-card">
-      <div className="avatar" />
+      <div className="avatar">
+        {userProfileImage && (
+          <img src={userProfileImage} alt="프로필 이미지" />
+        )}
+      </div>
 
       <div className="profile-info">
         <div className="name-row">
-          <strong>{nickname}</strong>
+          <strong>{userNickname}</strong>
           <span className="verified">●</span>
         </div>
-        <p>성재우 · 컴퓨터공학부</p>
+        <p>
+          {userName} · {userMajor}
+        </p>
       </div>
 
       <button className="icon-button" aria-label="설정">
@@ -135,46 +190,146 @@ function MainMyPage({ onMove }) {
 }
 
 function EditProfilePage({ onMove }) {
+  const [editName, setEditName] = useState(
+    localStorage.getItem("userName") || ""
+  );
+  const [editNickname, setEditNickname] = useState(
+    localStorage.getItem("userNickname") || ""
+  );
+  const [editMajor, setEditMajor] = useState(
+    localStorage.getItem("userMajor") || ""
+  );
+  const [profileImage, setProfileImage] = useState(
+    localStorage.getItem("userProfileImage") || ""
+  );
+
+  const [nicknameChecked, setNicknameChecked] = useState(false);
+const [nicknameTried, setNicknameTried] = useState(false);
+
+const duplicatedNicknames = ["admin", "test", "관리자", "hufs"];
+const nicknameDuplicated = duplicatedNicknames.includes(editNickname.trim());
+
+  const [editMajorOpen, setEditMajorOpen] = useState(false);
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const imageUrl = reader.result;
+      setProfileImage(imageUrl);
+      localStorage.setItem("userProfileImage", imageUrl);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const handleNicknameCheck = () => {
+  setNicknameTried(true);
+  setNicknameChecked(!nicknameDuplicated);
+};
+
+  const handleSave = () => {
+    localStorage.setItem("userName", editName);
+    localStorage.setItem("userNickname", editNickname);
+    localStorage.setItem("userMajor", editMajor);
+    localStorage.setItem("userProfileImage", profileImage);
+
+    onMove("main");
+  };
+
   return (
-    <div className="phone">
-      <section className="card edit-top">
-        <button className="back-button" onClick={() => onMove("main")}>
-          ‹
+    <div className="phone edit-phone">
+      <section className="edit-photo-card">
+        <button className="edit-back-button" onClick={() => onMove("main")}>
+          <ChevronLeft size={28} strokeWidth={2.6} />
         </button>
-        <div className="large-avatar" />
+
+        <label className="edit-avatar">
+          {profileImage && <img src={profileImage} alt="프로필 이미지" />}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+        </label>
       </section>
 
-      <section className="card form-card">
-        <label>
-          닉네임
-          <div className="input-row">
-            <input />
-            <button>중복확인</button>
-          </div>
-          <small>사용가능한 닉네임입니다.</small>
-        </label>
+      <section className="edit-form-card">
+        <label className="edit-label">닉네임</label>
+        <div className="edit-nickname-row">
+          <input
+            value={editNickname}
+            onChange={(e) => {
+  setEditNickname(e.target.value);
+  setNicknameChecked(false);
+  setNicknameTried(false);
+}}
+          />
+          <button type="button" onClick={handleNicknameCheck}>
+            중복확인
+          </button>
+        </div>
 
-        <label>
-          이름
-          <input />
-        </label>
+        <p className={nicknameChecked ? "edit-success" : "edit-error"}>
+  {nicknameTried
+    ? nicknameChecked
+      ? "사용가능한 닉네임입니다."
+      : "사용가능하지 않은 닉네임입니다."
+    : ""}
+</p>
 
-        <label>
-          본전공
-          <select defaultValue="">
-            <option value="" disabled />
-            <option>컴퓨터공학부</option>
-            <option>소프트웨어학부</option>
-            <option>디자인학부</option>
-          </select>
-        </label>
+        <label className="edit-label">이름</label>
+        <input
+          className="edit-input"
+          value={editName}
+          onChange={(e) => setEditName(e.target.value)}
+        />
 
-        <button className="wide-button">비밀번호 변경하러 가기</button>
+        <label className="edit-label">본전공</label>
+
+<div className="custom-select edit-major-select">
+  <button
+    type="button"
+    className="select-button"
+    onClick={() => setEditMajorOpen(!editMajorOpen)}
+  >
+    <span>{editMajor || "선택해주세요"}</span>
+    <span className="select-arrow">⌵</span>
+  </button>
+
+  {editMajorOpen && (
+    <ul className="select-list">
+      {majors.map((item) => (
+        <li key={item}>
+          <button
+            type="button"
+            onClick={() => {
+              setEditMajor(item);
+              setEditMajorOpen(false);
+            }}
+          >
+            {item}
+          </button>
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
+        <button className="password-change-button" type="button">
+          비밀번호 변경하러 가기
+        </button>
       </section>
 
-      <button className="submit-button" onClick={() => onMove("main")}>
-        수정 완료
-      </button>
+      <section className="edit-submit-card">
+        <button className="edit-submit-button" onClick={handleSave}>
+          수정 완료
+        </button>
+      </section>
     </div>
   );
 }

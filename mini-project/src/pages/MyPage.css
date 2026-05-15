@@ -23,6 +23,7 @@ body {
 button {
   font-family: inherit;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 #root {
@@ -61,6 +62,14 @@ button {
   border: 2px solid #111;
   border-radius: 50%;
   background: #e5e5e5;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .profile-info {
@@ -240,4 +249,244 @@ button {
 
 .icon-button svg {
   display: block;
+}
+
+/* 회원정보 수정 페이지 */
+
+.edit-phone {
+  padding: 18px 20px 14px;
+}
+
+.edit-photo-card {
+  position: relative;
+  width: 100%;
+  height: 170px;
+  display: grid;
+  place-items: center;
+  border: 3px solid #5b9df5;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.edit-back-button {
+  position: absolute;
+  top: 20px;
+  left: 22px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #283241;
+  padding: 0;
+}
+
+.edit-avatar {
+  width: 112px;
+  height: 112px;
+  display: block;
+  border: 2px solid #111;
+  border-radius: 50%;
+  background: #d9d9d9;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.edit-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.edit-avatar input {
+  display: none;
+}
+
+.edit-form-card {
+  width: 100%;
+  margin-top: 12px;
+  padding: 24px 26px 22px;
+  border: 2px solid #6c4c4c;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.edit-label {
+  display: block;
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #111;
+}
+
+.edit-nickname-row {
+  display: grid;
+  grid-template-columns: 1fr 82px;
+  gap: 16px;
+}
+
+.edit-nickname-row input {
+  width: 100%;
+  height: 42px;
+  border: 2px solid #111;
+  border-radius: 7px;
+  background: #fff;
+  padding: 0 12px;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.edit-input {
+  width: 100%;
+  height: 42px;
+  border: 2px solid #111;
+  border-radius: 7px;
+  background: #fff;
+  padding: 0 12px;
+  font-size: 15px;
+  font-family: inherit;
+  margin-bottom: 18px;
+}
+
+.edit-nickname-row button {
+  height: 42px;
+  border: 2px solid #111;
+  border-radius: 7px;
+  background: #f6f6f6;
+  color: #111;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.edit-success,
+.edit-error {
+  min-height: 0;
+  margin: 6px 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.edit-success {
+  color: #35a833;
+}
+
+.edit-error {
+  color: #e44b4b;
+}
+
+.edit-select-wrap {
+  position: relative;
+  margin-bottom: 46px;
+}
+
+.edit-select {
+  appearance: none;
+  padding-right: 42px;
+}
+
+.edit-select-icon {
+  position: absolute;
+  right: 14px;
+  top: 10px;
+  color: #c7c7c7;
+  pointer-events: none;
+}
+
+.password-change-button {
+  width: 100%;
+  height: 42px;
+  border: 2px solid #6c4c4c;
+  border-radius: 7px;
+  background: #a28f8f;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.edit-submit-card {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 14px;
+  border: 2px solid #6c4c4c;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.edit-submit-button {
+  width: 100%;
+  height: 44px;
+  border: 2px solid #6c4c4c;
+  border-radius: 12px;
+  background: #a28f8f;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.edit-major-select {
+  margin-bottom: 34px;
+}
+
+.edit-form-card .custom-select {
+  position: relative;
+}
+
+.edit-form-card .select-button {
+  width: 100%;
+  height: 42px;
+  border: 2px solid #222;
+  border-radius: 7px;
+  background: #fff;
+  color: #111;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.edit-form-card .select-list {
+  position: absolute;
+  z-index: 20;
+  top: 48px;
+  left: 0;
+  right: 0;
+  max-height: 150px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 2px solid #222;
+  border-radius: 5px;
+  background: #fff;
+}
+
+.edit-form-card .select-list li button {
+  width: 100%;
+  height: 36px;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #111;
+  text-align: left;
+  padding: 0 10px;
+  font-size: 15px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.edit-form-card .select-list li button:hover {
+  background: #e6f0ff;
+}
+
+.edit-form-card .select-arrow {
+  font-size: 17px;
+  line-height: 1;
+  margin-right: 4px;
+  transform: translateY(-2px);
 }
