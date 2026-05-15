@@ -152,6 +152,11 @@ const verifyEmailCode = async () => {
 
   const next = () => {
     if (canNext) {
+      if (step === 4) {
+      localStorage.setItem("nickname", nickname);
+      localStorage.setItem("name", name);
+      localStorage.setItem("major", major);
+    }
       setMajorOpen(false);
       setStep(step + 1);
     }
