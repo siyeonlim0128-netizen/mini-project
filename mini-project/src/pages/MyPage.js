@@ -1,4 +1,16 @@
+
 import React, { useState } from "react";
+import {
+  UserRoundCog,
+  FileText,
+  Flag,
+  LogOut,
+  Trash2,
+  Home,
+  List,
+  User,
+  Settings,
+} from "lucide-react";
 import "./MyPage.css";
 
 const posts = [
@@ -7,21 +19,25 @@ const posts = [
   { id: 3, category: "교재", likes: 45, comments: 12 },
 ];
 
+const nickname = localStorage.getItem("nickname") || "닉네임";
+
 function ProfileSummary() {
+  const nickname = localStorage.getItem("nickname") || "닉네임";
+
   return (
     <section className="card profile-card">
       <div className="avatar" />
 
       <div className="profile-info">
         <div className="name-row">
-          <strong>마프 3조</strong>
+          <strong>{nickname}</strong>
           <span className="verified">●</span>
         </div>
         <p>성재우 · 컴퓨터공학부</p>
       </div>
 
       <button className="icon-button" aria-label="설정">
-        ⚙
+        <Settings size={30} strokeWidth={2.5} />
       </button>
 
       <div className="stats">
@@ -46,31 +62,41 @@ function MenuList({ onMove }) {
   return (
     <section className="card menu-card">
       <button className="menu-item" onClick={() => onMove("edit")}>
-        <span className="menu-icon">♙</span>
+        <span className="menu-icon">
+          <UserRoundCog size={17} strokeWidth={2.4} />
+        </span>
         <span>회원 정보 수정</span>
         <span className="chevron">›</span>
       </button>
 
       <button className="menu-item" onClick={() => onMove("posts")}>
-        <span className="menu-icon">▣</span>
+        <span className="menu-icon">
+          <FileText size={17} strokeWidth={2.4} />
+        </span>
         <span>내가 쓴 글</span>
         <span className="chevron">›</span>
       </button>
 
       <button className="menu-item">
-        <span className="menu-icon">⚑</span>
+        <span className="menu-icon">
+          <Flag size={17} strokeWidth={2.4} />
+        </span>
         <span>신고하기</span>
         <span className="chevron">›</span>
       </button>
 
       <button className="menu-item">
-        <span className="menu-icon">↪</span>
+        <span className="menu-icon">
+          <LogOut size={17} strokeWidth={2.4} />
+        </span>
         <span>로그아웃</span>
         <span className="chevron">›</span>
       </button>
 
       <button className="menu-item danger">
-        <span className="menu-icon">♧</span>
+        <span className="menu-icon">
+          <Trash2 size={17} strokeWidth={2.4} />
+        </span>
         <span>회원 탈퇴</span>
       </button>
     </section>
@@ -81,18 +107,18 @@ function BottomNav({ onMove }) {
   return (
     <nav className="bottom-nav">
       <button>
-        <span>⌂</span>
-        홈
+        <Home size={24} strokeWidth={2.2} />
+        <span>홈</span>
       </button>
 
       <button onClick={() => onMove("posts")}>
-        <span>▤</span>
-        내 글
+        <List size={24} strokeWidth={2.2} />
+        <span>내 글</span>
       </button>
 
       <button className="active" onClick={() => onMove("main")}>
-        <span>●</span>
-        마이
+        <User size={24} strokeWidth={2.2} fill="currentColor" />
+        <span>마이</span>
       </button>
     </nav>
   );
@@ -101,7 +127,6 @@ function BottomNav({ onMove }) {
 function MainMyPage({ onMove }) {
   return (
     <div className="phone">
-      <h2 className="page-title">마이페이지-기본</h2>
       <ProfileSummary />
       <MenuList onMove={onMove} />
       <BottomNav onMove={onMove} />
