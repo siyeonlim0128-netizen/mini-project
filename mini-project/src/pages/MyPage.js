@@ -7,8 +7,9 @@ import {
   LogOut,
   Trash2,
   Home,
-  List,
-  User,
+  Heart,
+  MessageCircle,
+  UserRound,
   Settings,
   ChevronLeft,
 } from "lucide-react";
@@ -158,22 +159,37 @@ function MenuList({ onMove }) {
   );
 }
 
-function BottomNav({ onMove }) {
+function BottomNav({ activeTab = "mypage", onMove }) {
+  const goHome = () => {
+    window.location.href = "/";
+  };
+
   return (
     <nav className="bottom-nav">
-      <button>
-        <Home size={24} strokeWidth={2.2} />
-        <span>홈</span>
+      <button
+        className={activeTab === "home" ? "active" : ""}
+        onClick={goHome}
+      >
+        <Home size={30} strokeWidth={2.8} />
+        <span>홈버튼</span>
       </button>
 
-      <button onClick={() => onMove("posts")}>
-        <List size={24} strokeWidth={2.2} />
-        <span>내 글</span>
+      <button className={activeTab === "favorite" ? "active" : ""}>
+        <Heart size={32} strokeWidth={2.8} />
+        <span>관심상품</span>
       </button>
 
-      <button className="active" onClick={() => onMove("main")}>
-        <User size={24} strokeWidth={2.2} fill="currentColor" />
-        <span>마이</span>
+      <button className={activeTab === "message" ? "active" : ""}>
+        <MessageCircle size={32} strokeWidth={2.8} />
+        <span>메세지</span>
+      </button>
+
+      <button
+        className={activeTab === "mypage" ? "active" : ""}
+        onClick={() => onMove("main")}
+      >
+        <UserRound size={30} strokeWidth={2.8} />
+        <span>마이페이지</span>
       </button>
     </nav>
   );
