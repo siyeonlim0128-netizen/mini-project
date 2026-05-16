@@ -1,0 +1,924 @@
+/* ===== 전체 컨테이너 ===== */
+.container {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: #D4E1FD;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Intel One Mono', monospace;
+  position: relative;
+}
+
+/* ===== 헤더 (스카이라인 + 부엉이) ===== */
+.header {
+  background: linear-gradient(180deg, #c2d5f7 0%, #D4E1FD 100%);
+  padding: 0;
+  position: relative;
+  min-height: 140px;
+  overflow: visible;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 0;
+  position: relative;
+  z-index: 5;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #644141;
+  padding: 4px 8px;
+  font-weight: 700;
+}
+
+.headerTitle {
+  font-size: 18px;
+  font-weight: 800;
+  color: #644141;
+  margin: 0;
+}
+
+.headerSpacer {
+  width: 36px;
+}
+
+/* 스카이라인 */
+.skyline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  opacity: 0.5;
+}
+
+.skylineSvg {
+  width: 100%;
+  height: 100%;
+}
+
+/* 부엉이 캐릭터 - 헤더 하단에 겹침 */
+.headerOwlWrapper {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.headerOwl {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* ===== 메인 폼 카드 ===== */
+.formCard {
+  flex: 1;
+  background: #ffffff;
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+  margin-top: 10px;
+  padding: 50px 20px 0;
+  position: relative;
+  z-index: 3;
+}
+
+.formScroll {
+  padding-bottom: 100px;
+}
+
+/* ===== 이미지 업로드 ===== */
+.imageSection {
+  background: #f5f7fb;
+  border: 1.5px dashed #A28F8F;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.imageUploadPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.imageUploadPlaceholder:hover {
+  background: #eef2fa;
+}
+
+.cameraCircle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #e8ecf4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.uploadText {
+  font-size: 14px;
+  font-weight: 700;
+  color: #644141;
+  margin: 0 0 4px;
+}
+
+.uploadSub {
+  font-size: 11px;
+  color: #A28F8F;
+  margin: 0;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.imagePreviewRow {
+  display: flex;
+  gap: 8px;
+  padding: 14px;
+  overflow-x: auto;
+}
+
+.imagePreviewItem {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid #E5E5EA;
+}
+
+.previewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.removeImageBtn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #F60A0A;
+  color: #fff;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.addMoreImage {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border: 1.5px dashed #A28F8F;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #A28F8F;
+  font-size: 24px;
+  gap: 2px;
+}
+
+.imageCount {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* ===== 필드 그룹 ===== */
+.fieldGroup {
+  margin-bottom: 20px;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #644141;
+  margin-bottom: 8px;
+}
+
+.required {
+  color: #F60A0A;
+  margin-left: 2px;
+}
+
+.hintText {
+  font-size: 11px;
+  color: #A28F8F;
+  margin: 6px 0 0;
+  line-height: 1.4;
+}
+
+/* ===== 텍스트 인풋 ===== */
+.inputWrapper {
+  position: relative;
+}
+
+.textInput {
+  width: 100%;
+  padding: 12px 50px 12px 14px;
+  background: #ffffff;
+  border: 1.5px solid #E5E5EA;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #644141;
+  outline: none;
+  font-family: 'Intel One Mono', monospace;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.textInput:focus {
+  border-color: #7999E9;
+}
+
+.textInput::placeholder {
+  color: #A28F8F;
+}
+
+.charCount {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: #A28F8F;
+}
+
+/* ===== 셀렉트 버튼 ===== */
+.selectButton {
+  width: 100%;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1.5px solid #E5E5EA;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: 'Intel One Mono', monospace;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.selectButton:hover {
+  border-color: #7999E9;
+}
+
+.selectTextPlaceholder {
+  color: #A28F8F;
+}
+
+.selectTextActive {
+  color: #644141;
+  font-weight: 600;
+}
+
+.selectArrow {
+  color: #A28F8F;
+  font-size: 12px;
+}
+
+/* ===== 별점 ===== */
+.starRow {
+  display: flex;
+  gap: 8px;
+}
+
+.starButton {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 28px;
+  transition: transform 0.15s;
+  line-height: 1;
+}
+
+.starButton:hover {
+  transform: scale(1.15);
+}
+
+.starFilled {
+  color: #F5A623;
+}
+
+.starEmpty {
+  color: #E5E5EA;
+}
+
+/* ===== 가격 ===== */
+.priceRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.priceInputBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1.5px solid #E5E5EA;
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: border-color 0.2s;
+}
+
+.priceInputBox:focus-within {
+  border-color: #7999E9;
+}
+
+.priceInput {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 13px;
+  color: #644141;
+  background: transparent;
+  font-family: 'Intel One Mono', monospace;
+  min-width: 0;
+}
+
+.priceInput::placeholder {
+  color: #A28F8F;
+}
+
+.priceInput:disabled {
+  color: #A28F8F;
+}
+
+.priceUnit {
+  font-size: 13px;
+  color: #A28F8F;
+  font-weight: 600;
+  margin-left: 6px;
+  flex-shrink: 0;
+}
+
+/* 체크박스 (무료나눔) */
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.checkbox {
+  display: none;
+}
+
+.checkboxCustom {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #A28F8F;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.checkbox:checked + .checkboxCustom {
+  background: #3B5FE0;
+  border-color: #3B5FE0;
+}
+
+.checkMark {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.checkboxText {
+  font-size: 12px;
+  color: #644141;
+  font-weight: 600;
+}
+
+/* ===== 거래 희망 장소 ===== */
+.locationInputBox {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1.5px solid #E5E5EA;
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: border-color 0.2s;
+}
+
+.locationInputBox:focus-within {
+  border-color: #7999E9;
+}
+
+.locationIcon {
+  font-size: 16px;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.locationInput {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 13px;
+  color: #644141;
+  background: transparent;
+  font-family: 'Intel One Mono', monospace;
+}
+
+.locationInput::placeholder {
+  color: #A28F8F;
+}
+
+/* ===== 연락 방법 ===== */
+.contactButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #ffffff;
+  border: 1.5px solid #E5E5EA;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #644141;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+  transition: all 0.2s;
+}
+
+.contactButton:hover {
+  border-color: #7999E9;
+  background: #f0f4ff;
+}
+
+.contactIcon {
+  font-size: 16px;
+}
+
+/* ===== 상세 설명 ===== */
+.textareaWrapper {
+  position: relative;
+}
+
+.textArea {
+  width: 100%;
+  padding: 12px 14px 30px;
+  background: #ffffff;
+  border: 1.5px solid #E5E5EA;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #644141;
+  outline: none;
+  font-family: 'Intel One Mono', monospace;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+  transition: border-color 0.2s;
+}
+
+.textArea:focus {
+  border-color: #7999E9;
+}
+
+.textArea::placeholder {
+  color: #A28F8F;
+}
+
+.charCountArea {
+  position: absolute;
+  right: 14px;
+  bottom: 10px;
+  font-size: 11px;
+  color: #A28F8F;
+}
+
+/* ===== 하단 버튼 ===== */
+.bottomActions {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px 24px;
+  background: #ffffff;
+  border-top: 1px solid #E5E5EA;
+  box-sizing: border-box;
+  z-index: 20;
+}
+
+.cancelButton {
+  flex: 1;
+  padding: 14px;
+  background: #ffffff;
+  border: 1.5px solid #7999E9;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #7999E9;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+  transition: background 0.2s;
+}
+
+.cancelButton:hover {
+  background: #f0f4ff;
+}
+
+.submitButton {
+  flex: 1.5;
+  padding: 14px;
+  background: #3B5FE0;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.submitButton:hover {
+  background: #2D4CC0;
+}
+
+.submitButton:active {
+  transform: scale(0.98);
+}
+
+/* ===== 오버레이 공통 ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ===== 카테고리 모달 ===== */
+.modal {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 85%;
+  max-width: 340px;
+  overflow: hidden;
+  animation: slideUp 0.25s ease;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid #E5E5EA;
+}
+
+.modalTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #644141;
+  margin: 0;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #A28F8F;
+  padding: 2px 6px;
+}
+
+.modalBody {
+  padding: 6px 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.modalOption {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 14px;
+  font-weight: 500;
+  color: #644141;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+  transition: background 0.15s;
+}
+
+.modalOption:last-child {
+  border-bottom: none;
+}
+
+.modalOption:hover {
+  background: #f0f4ff;
+}
+
+.modalOptionActive {
+  background: #D4E1FD;
+  font-weight: 700;
+}
+
+.modalCheck {
+  font-size: 16px;
+  color: #7999E9;
+  font-weight: 700;
+}
+
+.modalFooter {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px 18px;
+  border-top: 1px solid #E5E5EA;
+}
+
+.modalCancelBtn {
+  flex: 1;
+  padding: 12px;
+  background: #ffffff;
+  border: 1.5px solid #644141;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #644141;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+}
+
+.modalConfirmBtn {
+  flex: 1;
+  padding: 12px;
+  background: #3B5FE0;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+}
+
+/* ===== 쪽지 연락 모달 ===== */
+.contactModal {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 75%;
+  max-width: 300px;
+  padding: 30px 24px 20px;
+  text-align: center;
+  animation: slideUp 0.25s ease;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.contactOwl {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}
+
+.contactModalTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #644141;
+  margin: 0 0 16px;
+}
+
+.contactInfoList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  text-align: left;
+}
+
+.contactInfoList li {
+  font-size: 13px;
+  color: #644141;
+  padding: 8px 0;
+  padding-left: 28px;
+  position: relative;
+}
+
+.contactInfoList li::before {
+  content: '✓';
+  position: absolute;
+  left: 4px;
+  color: #7999E9;
+  font-weight: 700;
+}
+
+.contactConfirmBtn {
+  width: 100%;
+  padding: 14px;
+  background: #3B5FE0;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+  margin-bottom: 10px;
+}
+
+.contactDismiss {
+  font-size: 11px;
+  color: #A28F8F;
+  margin: 0;
+  cursor: pointer;
+}
+
+.contactDismiss:hover {
+  text-decoration: underline;
+}
+
+/* ===== 취소 확인 다이얼로그 ===== */
+.cancelDialog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 85%;
+  max-width: 300px;
+  animation: slideUp 0.25s ease;
+}
+
+.cancelOwl {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: -15px;
+  z-index: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.cancelBox {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 30px 24px 20px;
+  text-align: center;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+
+.cancelTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #644141;
+  margin: 0 0 6px;
+}
+
+.cancelSub {
+  font-size: 12px;
+  color: #A28F8F;
+  margin: 0 0 20px;
+}
+
+.cancelActions {
+  display: flex;
+  gap: 10px;
+}
+
+.cancelNo {
+  flex: 1;
+  padding: 12px;
+  background: #ffffff;
+  border: 1.5px solid #644141;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #644141;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+}
+
+.cancelYes {
+  flex: 1;
+  padding: 12px;
+  background: #F60A0A;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+}
+
+/* ===== 등록 완료 화면 ===== */
+.successScreen {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #D4E1FD;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Intel One Mono', monospace;
+}
+
+.successContent {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.successTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: #644141;
+  margin: 0 0 30px;
+  line-height: 1.4;
+}
+
+.successOwl {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 40px;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+}
+
+.successButton {
+  padding: 14px 60px;
+  background: #ffffff;
+  border: 1.5px solid #644141;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #644141;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+  transition: background 0.2s;
+}
+
+.successButton:hover {
+  background: #f5f5f5;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 430px) {
+  .bottomActions {
+    left: 0;
+    transform: none;
+    width: 100%;
+  }
+}

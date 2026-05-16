@@ -1,64 +1,43 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { GoHome, GoHeart, GoCommentDiscussion, GoPerson } from 'react-icons/go';
 import styles from './MainPage.module.css';
 
-// 카테고리 목록
 const CATEGORIES = [
   '전체 카테고리',
   '전공책',
   '교양책',
-  '의류',
+  '일반물품',
   '분실물',
+  '생활용품',
   '대여',
   '기타',
 ];
 
-// 정렬 옵션
 const SORT_OPTIONS = ['최신순', '관심순', '가격 낮은 순'];
 
-// 더미 게시글 데이터 (나중에 API 연동 시 교체)
 const DUMMY_POSTS = [
-  {
-    id: 1,
-    title: '경영학원론 교재 팝니다',
-    price: '12,000원',
-    category: '전공책',
-    image: null,
-  },
-  {
-    id: 2,
-    title: '과잠 L사이즈 거의 새거',
-    price: '25,000원',
-    category: '의류',
-    image: null,
-  },
-  {
-    id: 3,
-    title: '일본어 교양 교재',
-    price: '8,000원',
-    category: '교양책',
-    image: null,
-  },
+  { id: 1, title: '경영학원론 교재 팝니다', price: '12,000원', category: '전공책', image: null },
+  { id: 2, title: '과잠 L사이즈 거의 새거', price: '25,000원', category: '일반물품', image: null },
+  { id: 3, title: '일본어 교양 교재', price: '8,000원', category: '교양책', image: null },
 ];
 
 function MainPage() {
+  const navigate = useNavigate();
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('전체 카테고리');
   const [activeSort, setActiveSort] = useState('최신순');
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [likedPosts, setLikedPosts] = useState([]); // 관심상품 목록
+  const [likedPosts, setLikedPosts] = useState([]);
 
-  // 하트 토글 함수
   const toggleLike = (postId) => {
     if (likedPosts.includes(postId)) {
-      // 이미 좋아요 했으면 취소
       setLikedPosts(likedPosts.filter((id) => id !== postId));
     } else {
-      // 좋아요 추가
       setLikedPosts([...likedPosts, postId]);
     }
   };
 
-  // 카테고리 필터링
   const filteredPosts = DUMMY_POSTS.filter((post) => {
     if (selectedCategory !== '전체 카테고리') {
       return post.category === selectedCategory;
@@ -66,7 +45,6 @@ function MainPage() {
     return true;
   });
 
-  // 검색 필터링
   const searchedPosts = filteredPosts.filter((post) =>
     post.title.includes(searchText)
   );
@@ -75,10 +53,7 @@ function MainPage() {
     <div className={styles.container}>
       {/* ===== 헤더 ===== */}
       <header className={styles.header}>
-        <h1 className={styles.logo}>
-          BOO-Market
-          <span className={styles.logoIcon}>🦉</span>
-        </h1>
+        <h1 className={styles.logo}>BOO-Market</h1>
       </header>
 
       {/* ===== 검색바 ===== */}
@@ -124,7 +99,6 @@ function MainPage() {
           )}
         </div>
 
-        {/* ===== 정렬 필터 ===== */}
         <div className={styles.sortButtons}>
           {SORT_OPTIONS.map((option) => (
             <button
@@ -156,7 +130,6 @@ function MainPage() {
                 <p className={styles.postTitle}>{post.title}</p>
                 <p className={styles.postPrice}>{post.price}</p>
               </div>
-              {/* ===== 하트 버튼 ===== */}
               <button
                 className={styles.likeButton}
                 onClick={() => toggleLike(post.id)}
@@ -173,32 +146,26 @@ function MainPage() {
       </div>
 
       {/* ===== 플로팅 버튼 (글쓰기) ===== */}
-      <button
-        className={styles.fab}
-        onClick={() => {
-          // TODO: react-router 연결 후 navigate('/create') 로 변경
-          alert('게시글 등록 페이지로 이동합니다.');
-        }}
-      >
+      <button className={styles.fab} onClick={() => navigate('/create')}>
         +
       </button>
 
       {/* ===== 하단 네비게이션 바 ===== */}
       <nav className={styles.bottomNav}>
         <button className={`${styles.navItem} ${styles.navItemActive}`}>
-          <span className={styles.navIcon}>🏠</span>
+          <GoHome className={styles.navIcon} />
           <span className={styles.navLabel}>홈버튼</span>
         </button>
         <button className={styles.navItem}>
-          <span className={styles.navIcon}>♡</span>
+          <GoHeart className={styles.navIcon} />
           <span className={styles.navLabel}>관심상품</span>
         </button>
         <button className={styles.navItem}>
-          <span className={styles.navIcon}>💬</span>
+          <GoCommentDiscussion className={styles.navIcon} />
           <span className={styles.navLabel}>메세지</span>
         </button>
         <button className={styles.navItem}>
-          <span className={styles.navIcon}>👤</span>
+          <GoPerson className={styles.navIcon} />
           <span className={styles.navLabel}>마이페이지</span>
         </button>
       </nav>
