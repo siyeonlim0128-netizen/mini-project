@@ -69,9 +69,9 @@ const majors = [
 ];
 
 function ProfileSummary() {
-  const userName = localStorage.getItem("userName") || "이름";
-  const userNickname = localStorage.getItem("userNickname") || "닉네임";
-  const userMajor = localStorage.getItem("userMajor") || "본전공";
+  const userName = localStorage.getItem("name") || "이름";
+const userNickname = localStorage.getItem("nickname") || "닉네임";
+const userMajor = localStorage.getItem("major") || "본전공";
   const userProfileImage = localStorage.getItem("userProfileImage");
 
   return (
@@ -115,47 +115,98 @@ function ProfileSummary() {
 }
 
 function MenuList({ onMove }) {
+  const [modalType, setModalType] = useState(null);
+
+  const closeModal = () => {
+    setModalType(null);
+  };
+
+
+  const handleLogout = () => {
+    setModalType(null);
+    alert("로그아웃되었습니다.");
+    // 필요하면 로그인 페이지로 이동
+    // window.location.href = "/";
+  };
+
+  const handleWithdraw = () => {
+    localStorage.clear();
+    setModalType(null);
+    alert("탈퇴 처리되었습니다.");
+    // 필요하면 회원가입/로그인 페이지로 이동
+    // window.location.href = "/";
+  };
+
+  const modalMessage =
+    modalType === "logout"
+      ? "정말로 로그아웃하시겠습니까?"
+      : "정말로 탈퇴하시겠습니까?";
+
+  const confirmText = modalType === "logout" ? "확인" : "탈퇴";
+
   return (
-    <section className="card menu-card">
-      <button className="menu-item" onClick={() => onMove("edit")}>
-        <span className="menu-icon">
-          <UserRoundCog size={17} strokeWidth={2.4} />
-        </span>
-        <span>회원 정보 수정</span>
-        <span className="chevron">›</span>
-      </button>
+    <>
+      <section className="card menu-card">
+        <button className="menu-item" onClick={() => onMove("edit")}>
+          <span className="menu-icon">
+            <UserRoundCog size={17} strokeWidth={2.4} />
+          </span>
+          <span className="menu-label">회원 정보 수정</span>
+          <span className="chevron">›</span>
+        </button>
 
-      <button className="menu-item" onClick={() => onMove("posts")}>
-        <span className="menu-icon">
-          <FileText size={17} strokeWidth={2.4} />
-        </span>
-        <span>내가 쓴 글</span>
-        <span className="chevron">›</span>
-      </button>
+        <button className="menu-item" onClick={() => onMove("posts")}>
+          <span className="menu-icon">
+            <FileText size={17} strokeWidth={2.4} />
+          </span>
+          <span className="menu-label">내가 쓴 글</span>
+          <span className="chevron">›</span>
+        </button>
 
-      <button className="menu-item">
-        <span className="menu-icon">
-          <Flag size={17} strokeWidth={2.4} />
-        </span>
-        <span>신고하기</span>
-        <span className="chevron">›</span>
-      </button>
+        <button className="menu-item">
+          <span className="menu-icon">
+            <Flag size={17} strokeWidth={2.4} />
+          </span>
+          <span className="menu-label">신고하기</span>
+          <span className="chevron">›</span>
+        </button>
 
-      <button className="menu-item">
-        <span className="menu-icon">
-          <LogOut size={17} strokeWidth={2.4} />
-        </span>
-        <span>로그아웃</span>
-        <span className="chevron">›</span>
-      </button>
+        <button className="menu-item" onClick={() => setModalType("logout")}>
+          <span className="menu-icon">
+            <LogOut size={17} strokeWidth={2.4} />
+          </span>
+          <span className="menu-label">로그아웃</span>
+          <span className="chevron">›</span>
+        </button>
 
-      <button className="menu-item danger">
-        <span className="menu-icon">
-          <Trash2 size={17} strokeWidth={2.4} />
-        </span>
-        <span>회원 탈퇴</span>
-      </button>
-    </section>
+        <button className="menu-item danger" onClick={() => setModalType("withdraw")}>
+          <span className="menu-icon">
+            <Trash2 size={17} strokeWidth={2.4} />
+          </span>
+          <span className="menu-label">회원 탈퇴</span>
+        </button>
+      </section>
+
+      {modalType && (
+        <div className="modal-overlay">
+          <div className="withdraw-modal">
+            <p>{modalMessage}</p>
+
+            <div className="modal-actions">
+  <button type="button" onClick={closeModal}>
+    취소
+  </button>
+  <button
+    type="button"
+    onClick={modalType === "logout" ? handleLogout : handleWithdraw}
+  >
+    {confirmText}
+  </button>
+</div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -197,61 +248,69 @@ function BottomNav({ activeTab = "mypage", onMove }) {
 
 function MainMyPage({ onMove }) {
   return (
-    <div className="phone">
+    <div className="phone main-phone">
       <ProfileSummary />
       <MenuList onMove={onMove} />
-      <BottomNav onMove={onMove} />
+      <BottomNav activeTab="mypage" onMove={onMove} />
     </div>
   );
 }
 
 function EditProfilePage({ onMove }) {
-  const [editName, setEditName] = useState(
-    localStorage.getItem("userName") || ""
-  );
-  const [editNickname, setEditNickname] = useState(
-    localStorage.getItem("userNickname") || ""
-  );
-  const [editMajor, setEditMajor] = useState(
-    localStorage.getItem("userMajor") || ""
-  );
+  const originalNickname = localStorage.getItem("nickname") || "";
+
+  const [editName, setEditName] = useState(localStorage.getItem("name") || "");
+  const [editNickname, setEditNickname] = useState(originalNickname);
+  const [editMajor, setEditMajor] = useState(localStorage.getItem("major") || "");
   const [profileImage, setProfileImage] = useState(
     localStorage.getItem("userProfileImage") || ""
   );
-
   const [nicknameChecked, setNicknameChecked] = useState(false);
-const [nicknameTried, setNicknameTried] = useState(false);
-
-const duplicatedNicknames = ["admin", "test", "관리자", "hufs"];
-const nicknameDuplicated = duplicatedNicknames.includes(editNickname.trim());
-
+  const [nicknameTried, setNicknameTried] = useState(false);
   const [editMajorOpen, setEditMajorOpen] = useState(false);
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
+  const nicknameChanged = editNickname.trim() !== originalNickname.trim();
+  const canSave = !nicknameChanged || nicknameChecked;
 
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      const imageUrl = reader.result;
-      setProfileImage(imageUrl);
-      localStorage.setItem("userProfileImage", imageUrl);
-    };
-
-    reader.readAsDataURL(file);
-  };
+  const duplicatedNicknames = ["admin", "test", "관리자", "hufs"];
 
   const handleNicknameCheck = () => {
-  setNicknameTried(true);
-  setNicknameChecked(!nicknameDuplicated);
+    setNicknameTried(true);
+
+    const nicknameDuplicated = duplicatedNicknames.includes(editNickname.trim());
+    setNicknameChecked(!nicknameDuplicated);
+  };
+
+  const handleImageChange = (event) => {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    const imageUrl = reader.result;
+    setProfileImage(imageUrl);
+    localStorage.setItem("userProfileImage", imageUrl);
+  };
+
+  reader.readAsDataURL(file);
 };
 
+  const handleNicknameBlur = () => {
+    if (nicknameChanged && !nicknameChecked) {
+      setEditNickname(originalNickname);
+      setNicknameTried(false);
+      setNicknameChecked(false);
+    }
+  };
+
   const handleSave = () => {
-    localStorage.setItem("userName", editName);
-    localStorage.setItem("userNickname", editNickname);
-    localStorage.setItem("userMajor", editMajor);
+    if (!canSave) return;
+
+    localStorage.setItem("name", editName);
+    localStorage.setItem("nickname", editNickname);
+    localStorage.setItem("major", editMajor);
     localStorage.setItem("userProfileImage", profileImage);
 
     onMove("main");
@@ -278,25 +337,33 @@ const nicknameDuplicated = duplicatedNicknames.includes(editNickname.trim());
         <label className="edit-label">닉네임</label>
         <div className="edit-nickname-row">
           <input
-            value={editNickname}
-            onChange={(e) => {
-  setEditNickname(e.target.value);
-  setNicknameChecked(false);
-  setNicknameTried(false);
-}}
-          />
-          <button type="button" onClick={handleNicknameCheck}>
-            중복확인
-          </button>
+  value={editNickname}
+  onChange={(e) => {
+    setEditNickname(e.target.value);
+    setNicknameChecked(false);
+    setNicknameTried(false);
+  }}
+  onBlur={handleNicknameBlur}
+/>
+
+<button
+  type="button"
+  onMouseDown={(e) => e.preventDefault()}
+  onClick={handleNicknameCheck}
+  disabled={!nicknameChanged}
+>
+  중복확인
+</button>
         </div>
 
-        <p className={nicknameChecked ? "edit-success" : "edit-error"}>
-  {nicknameTried
-    ? nicknameChecked
+  
+  {nicknameTried && (
+  <p className={nicknameChecked ? "edit-success" : "edit-error"}>
+    {nicknameChecked
       ? "사용가능한 닉네임입니다."
-      : "사용가능하지 않은 닉네임입니다."
-    : ""}
-</p>
+      : "사용가능하지 않은 닉네임입니다."}
+  </p>
+)}
 
         <label className="edit-label">이름</label>
         <input
@@ -342,9 +409,13 @@ const nicknameDuplicated = duplicatedNicknames.includes(editNickname.trim());
       </section>
 
       <section className="edit-submit-card">
-        <button className="edit-submit-button" onClick={handleSave}>
-          수정 완료
-        </button>
+        <button
+  className="edit-submit-button"
+  onClick={handleSave}
+  disabled={!canSave}
+>
+  수정 완료
+</button>
       </section>
     </div>
   );
