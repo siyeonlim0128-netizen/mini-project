@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   UserRoundCog,
@@ -15,11 +14,55 @@ import {
 } from "lucide-react";
 import "./MyPage.css";
 
-const posts = [
-  { id: 1, category: "교재", likes: 12, comments: 3 },
-  { id: 2, category: "분실물", likes: 8, comments: 1 },
-  { id: 3, category: "교재", likes: 45, comments: 12 },
-];
+const getMyPosts = () => {
+  const savedPosts = localStorage.getItem("myPosts");
+
+  if (savedPosts) {
+    try {
+      return JSON.parse(savedPosts);
+    } catch {
+      return [];
+    }
+  }
+
+  return [1, 2, 3]
+    .map((id) => {
+      const category = localStorage.getItem(`postCategory${id}`);
+      const description = localStorage.getItem(`postDescription${id}`);
+      const image = localStorage.getItem(`postImage${id}`);
+
+      if (!category && !description && !image) {
+        return null;
+      }
+
+      return {
+        id,
+        category: category || "전공책",
+        description: description || "",
+        image,
+        likes: Number(localStorage.getItem(`postLikes${id}`)) || 0,
+        comments: Number(localStorage.getItem(`postComments${id}`)) || 0,
+      };
+    })
+    .filter(Boolean);
+};
+
+const saveMyPosts = (posts) => {
+  localStorage.setItem("myPosts", JSON.stringify(posts));
+};
+
+const removeStoredPost = (postId, posts) => {
+  const nextPosts = posts.filter((post) => post.id !== postId);
+
+  saveMyPosts(nextPosts);
+  localStorage.removeItem(`postCategory${postId}`);
+  localStorage.removeItem(`postDescription${postId}`);
+  localStorage.removeItem(`postImage${postId}`);
+  localStorage.removeItem(`postLikes${postId}`);
+  localStorage.removeItem(`postComments${postId}`);
+
+  return nextPosts;
+};
 
 const majors = [
   "국제금융학과",
@@ -68,18 +111,23 @@ const majors = [
   "Global Business & Technology학부",
 ];
 
+const NAV_PATHS = {
+  home: "/",
+  favorite: "/favorites",
+  message: "/messages",
+  mypage: "/mypage",
+};
+
 function ProfileSummary() {
   const userName = localStorage.getItem("name") || "이름";
-const userNickname = localStorage.getItem("nickname") || "닉네임";
-const userMajor = localStorage.getItem("major") || "본전공";
+  const userNickname = localStorage.getItem("nickname") || "닉네임";
+  const userMajor = localStorage.getItem("major") || "본전공";
   const userProfileImage = localStorage.getItem("userProfileImage");
 
   return (
     <section className="card profile-card">
       <div className="avatar">
-        {userProfileImage && (
-          <img src={userProfileImage} alt="프로필 이미지" />
-        )}
+        {userProfileImage && <img src={userProfileImage} alt="프로필 이미지" />}
       </div>
 
       <div className="profile-info">
@@ -121,20 +169,15 @@ function MenuList({ onMove }) {
     setModalType(null);
   };
 
-
   const handleLogout = () => {
     setModalType(null);
     alert("로그아웃되었습니다.");
-    // 필요하면 로그인 페이지로 이동
-    // window.location.href = "/";
   };
 
   const handleWithdraw = () => {
     localStorage.clear();
     setModalType(null);
     alert("탈퇴 처리되었습니다.");
-    // 필요하면 회원가입/로그인 페이지로 이동
-    // window.location.href = "/";
   };
 
   const modalMessage =
@@ -142,7 +185,7 @@ function MenuList({ onMove }) {
       ? "정말로 로그아웃하시겠습니까?"
       : "정말로 탈퇴하시겠습니까?";
 
-  const confirmText = modalType === "logout" ? "확인" : "탈퇴";
+  const confirmText = modalType === "logout" ? "로그아웃" : "탈퇴";
 
   return (
     <>
@@ -163,7 +206,12 @@ function MenuList({ onMove }) {
           <span className="chevron">›</span>
         </button>
 
-        <button className="menu-item">
+        <button
+          className="menu-item"
+          onClick={() => {
+            window.location.href = "/report";
+          }}
+        >
           <span className="menu-icon">
             <Flag size={17} strokeWidth={2.4} />
           </span>
@@ -179,7 +227,10 @@ function MenuList({ onMove }) {
           <span className="chevron">›</span>
         </button>
 
-        <button className="menu-item danger" onClick={() => setModalType("withdraw")}>
+        <button
+          className="menu-item danger"
+          onClick={() => setModalType("withdraw")}
+        >
           <span className="menu-icon">
             <Trash2 size={17} strokeWidth={2.4} />
           </span>
@@ -193,16 +244,16 @@ function MenuList({ onMove }) {
             <p>{modalMessage}</p>
 
             <div className="modal-actions">
-  <button type="button" onClick={closeModal}>
-    취소
-  </button>
-  <button
-    type="button"
-    onClick={modalType === "logout" ? handleLogout : handleWithdraw}
-  >
-    {confirmText}
-  </button>
-</div>
+              <button type="button" onClick={closeModal}>
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={modalType === "logout" ? handleLogout : handleWithdraw}
+              >
+                {confirmText}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -211,33 +262,45 @@ function MenuList({ onMove }) {
 }
 
 function BottomNav({ activeTab = "mypage", onMove }) {
-  const goHome = () => {
-    window.location.href = "/";
+  const moveToTab = (tab) => {
+    if (tab === "mypage") {
+      window.history.pushState(null, "", NAV_PATHS.mypage);
+      onMove("main");
+      return;
+    }
+
+    window.location.href = NAV_PATHS[tab];
   };
 
   return (
     <nav className="bottom-nav">
       <button
         className={activeTab === "home" ? "active" : ""}
-        onClick={goHome}
+        onClick={() => moveToTab("home")}
       >
         <Home size={30} strokeWidth={2.8} />
         <span>홈버튼</span>
       </button>
 
-      <button className={activeTab === "favorite" ? "active" : ""}>
+      <button
+        className={activeTab === "favorite" ? "active" : ""}
+        onClick={() => moveToTab("favorite")}
+      >
         <Heart size={32} strokeWidth={2.8} />
         <span>관심상품</span>
       </button>
 
-      <button className={activeTab === "message" ? "active" : ""}>
+      <button
+        className={activeTab === "message" ? "active" : ""}
+        onClick={() => moveToTab("message")}
+      >
         <MessageCircle size={32} strokeWidth={2.8} />
         <span>메세지</span>
       </button>
 
       <button
         className={activeTab === "mypage" ? "active" : ""}
-        onClick={() => onMove("main")}
+        onClick={() => moveToTab("mypage")}
       >
         <UserRound size={30} strokeWidth={2.8} />
         <span>마이페이지</span>
@@ -261,7 +324,9 @@ function EditProfilePage({ onMove }) {
 
   const [editName, setEditName] = useState(localStorage.getItem("name") || "");
   const [editNickname, setEditNickname] = useState(originalNickname);
-  const [editMajor, setEditMajor] = useState(localStorage.getItem("major") || "");
+  const [editMajor, setEditMajor] = useState(
+    localStorage.getItem("major") || ""
+  );
   const [profileImage, setProfileImage] = useState(
     localStorage.getItem("userProfileImage") || ""
   );
@@ -282,20 +347,20 @@ function EditProfilePage({ onMove }) {
   };
 
   const handleImageChange = (event) => {
-  const file = event.target.files[0];
+    const file = event.target.files[0];
 
-  if (!file) return;
+    if (!file) return;
 
-  const reader = new FileReader();
+    const reader = new FileReader();
 
-  reader.onload = () => {
-    const imageUrl = reader.result;
-    setProfileImage(imageUrl);
-    localStorage.setItem("userProfileImage", imageUrl);
+    reader.onload = () => {
+      const imageUrl = reader.result;
+      setProfileImage(imageUrl);
+      localStorage.setItem("userProfileImage", imageUrl);
+    };
+
+    reader.readAsDataURL(file);
   };
-
-  reader.readAsDataURL(file);
-};
 
   const handleNicknameBlur = () => {
     if (nicknameChanged && !nicknameChecked) {
@@ -325,11 +390,7 @@ function EditProfilePage({ onMove }) {
 
         <label className="edit-avatar">
           {profileImage && <img src={profileImage} alt="프로필 이미지" />}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-          />
+          <input type="file" accept="image/*" onChange={handleImageChange} />
         </label>
       </section>
 
@@ -337,71 +398,69 @@ function EditProfilePage({ onMove }) {
         <label className="edit-label">닉네임</label>
         <div className="edit-nickname-row">
           <input
-  value={editNickname}
-  onChange={(e) => {
-    setEditNickname(e.target.value);
-    setNicknameChecked(false);
-    setNicknameTried(false);
-  }}
-  onBlur={handleNicknameBlur}
-/>
+            value={editNickname}
+            onChange={(event) => {
+              setEditNickname(event.target.value);
+              setNicknameChecked(false);
+              setNicknameTried(false);
+            }}
+            onBlur={handleNicknameBlur}
+          />
 
-<button
-  type="button"
-  onMouseDown={(e) => e.preventDefault()}
-  onClick={handleNicknameCheck}
-  disabled={!nicknameChanged}
->
-  중복확인
-</button>
+          <button
+            type="button"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={handleNicknameCheck}
+            disabled={!nicknameChanged}
+          >
+            중복확인
+          </button>
         </div>
 
-  
-  {nicknameTried && (
-  <p className={nicknameChecked ? "edit-success" : "edit-error"}>
-    {nicknameChecked
-      ? "사용가능한 닉네임입니다."
-      : "사용가능하지 않은 닉네임입니다."}
-  </p>
-)}
+        {nicknameTried && (
+          <p className={nicknameChecked ? "edit-success" : "edit-error"}>
+            {nicknameChecked
+              ? "사용가능한 닉네임입니다."
+              : "사용가능하지 않은 닉네임입니다."}
+          </p>
+        )}
 
         <label className="edit-label">이름</label>
         <input
           className="edit-input"
           value={editName}
-          onChange={(e) => setEditName(e.target.value)}
+          onChange={(event) => setEditName(event.target.value)}
         />
 
         <label className="edit-label">본전공</label>
-
-<div className="custom-select edit-major-select">
-  <button
-    type="button"
-    className="select-button"
-    onClick={() => setEditMajorOpen(!editMajorOpen)}
-  >
-    <span>{editMajor || "선택해주세요"}</span>
-    <span className="select-arrow">⌵</span>
-  </button>
-
-  {editMajorOpen && (
-    <ul className="select-list">
-      {majors.map((item) => (
-        <li key={item}>
+        <div className="custom-select edit-major-select">
           <button
             type="button"
-            onClick={() => {
-              setEditMajor(item);
-              setEditMajorOpen(false);
-            }}
+            className="select-button"
+            onClick={() => setEditMajorOpen(!editMajorOpen)}
           >
-            {item}
+            <span>{editMajor || "선택해주세요"}</span>
+            <span className="select-arrow">⌵</span>
           </button>
-        </li>
-      ))}
-    </ul>
-  )}
-</div>
+
+          {editMajorOpen && (
+            <ul className="select-list">
+              {majors.map((item) => (
+                <li key={item}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditMajor(item);
+                      setEditMajorOpen(false);
+                    }}
+                  >
+                    {item}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         <button className="password-change-button" type="button">
           비밀번호 변경하러 가기
@@ -410,64 +469,127 @@ function EditProfilePage({ onMove }) {
 
       <section className="edit-submit-card">
         <button
-  className="edit-submit-button"
-  onClick={handleSave}
-  disabled={!canSave}
->
-  수정 완료
-</button>
+          className="edit-submit-button"
+          onClick={handleSave}
+          disabled={!canSave}
+        >
+          수정 완료
+        </button>
       </section>
     </div>
   );
 }
 
-function MyPostCard({ post }) {
+function MyPostCard({ post, onDeleteRequest }) {
+  const handleEditPost = () => {
+    localStorage.setItem("editingPostId", String(post.id));
+    window.location.href = `/posts/edit/${post.id}`;
+  };
+
   return (
     <article className="post-card">
       <div className="post-body">
-        <div className="post-image" />
+        <div className="post-image">
+          {post.image && <img src={post.image} alt="게시글 이미지" />}
+        </div>
 
         <div className="post-content">
           <span className="badge">{post.category}</span>
-          <p>
-            설명
-            <br />
-            및
-            <br />
-            가격
-          </p>
+          <p>{post.description}</p>
         </div>
       </div>
 
       <div className="post-meta">
-        <span>♡ {post.likes}</span>
-        <span>▢ {post.comments}</span>
+        <span>
+          <Heart size={15} strokeWidth={2.4} />
+          {post.likes}
+        </span>
+        <span>
+          <MessageCircle size={15} strokeWidth={2.4} />
+          {post.comments}
+        </span>
       </div>
 
       <div className="post-actions">
-        <button>✎ 수정</button>
-        <button className="delete">⌫ 삭제</button>
+        <button onClick={handleEditPost}>✎ 수정</button>
+        <button className="delete" onClick={() => onDeleteRequest(post)}>
+          ⌫ 삭제
+        </button>
       </div>
     </article>
   );
 }
 
 function MyPostsPage({ onMove }) {
+  const [myPosts, setMyPosts] = useState(getMyPosts);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteDone, setDeleteDone] = useState(false);
+
+  const closeDeleteConfirm = () => {
+    setDeleteTarget(null);
+  };
+
+  const confirmDeletePost = () => {
+    if (!deleteTarget) return;
+
+    const nextPosts = removeStoredPost(deleteTarget.id, myPosts);
+    setMyPosts(nextPosts);
+    setDeleteTarget(null);
+    setDeleteDone(true);
+  };
+
   return (
     <div className="phone posts-phone">
       <header className="posts-header">
         <button className="posts-back-button" onClick={() => onMove("main")}>
-          ‹
+          <ChevronLeft size={24} strokeWidth={2.6} />
         </button>
         <strong>내가 쓴 글</strong>
-        <span>5개</span>
+        <span>{myPosts.length}개</span>
       </header>
 
       <div className="post-list">
-        {posts.map((post) => (
-          <MyPostCard key={post.id} post={post} />
+        {myPosts.map((post) => (
+          <MyPostCard
+            key={post.id}
+            post={post}
+            onDeleteRequest={setDeleteTarget}
+          />
         ))}
       </div>
+
+      {deleteTarget && (
+        <div className="post-modal-overlay">
+          <div className="post-delete-modal">
+            <p>정말로 삭제하시겠습니까?</p>
+
+            <div className="post-delete-actions">
+              <button type="button" onClick={closeDeleteConfirm}>
+                취소
+              </button>
+              <button
+                type="button"
+                className="post-delete-confirm"
+                onClick={confirmDeletePost}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteDone && (
+        <div className="post-modal-overlay">
+          <div className="post-delete-modal post-delete-complete">
+            <p>삭제되었습니다.</p>
+
+            <button type="button" onClick={() => setDeleteDone(false)}>
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -485,4 +607,3 @@ export default function MyPage() {
 
   return <MainMyPage onMove={setPage} />;
 }
-

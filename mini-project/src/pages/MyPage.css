@@ -45,7 +45,7 @@ body,
 .phone {
   width: min(504px, 100vw);
   height: 100svh;
-  min-height: 701px;
+  max-height: 100svh;
   background: #dfe8ff;
   padding: 24px 28px 18px;
   overflow: hidden;
@@ -60,7 +60,7 @@ body,
 
 .main-phone {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto auto auto;
   row-gap: 14px;
 }
 
@@ -79,7 +79,7 @@ body,
 }
 
 .profile-card {
-  padding: 24px 14px 18px;
+  padding: clamp(14px, 2.4svh, 24px) 14px clamp(12px, 1.8svh, 18px);
   display: grid;
   grid-template-columns: 72px 1fr 34px;
   gap: 8px;
@@ -148,7 +148,7 @@ body,
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
-  margin-top: 22px;
+  margin-top: clamp(12px, 2svh, 22px);
 }
 
 .stats div {
@@ -173,13 +173,16 @@ body,
 }
 
 .menu-card {
-  margin-top: 12px;
-  padding: 36px 28px 34px;
+  margin-top: 0;
+  padding: clamp(18px, 3svh, 30px) 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .menu-item {
   width: 100%;
-  height: 58px;
+  height: clamp(50px, 7.4svh, 58px);
   display: grid;
   grid-template-columns: 42px 1fr 24px;
   align-items: center;
@@ -236,7 +239,7 @@ body,
 
 .bottom-nav {
   height: 58px;
-  margin-top: 12px;
+  margin-top: 0;
   padding: 5px 10px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -244,6 +247,65 @@ body,
   border: 2px solid #111;
   border-radius: 12px;
   background: #fff;
+}
+
+@media (max-width: 600px) {
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #root {
+    height: 100svh;
+    min-height: 0;
+  }
+
+  .main-phone {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    row-gap: clamp(8px, 1.4svh, 14px);
+  }
+
+  .menu-card {
+    padding-top: clamp(14px, 2.4svh, 24px);
+    padding-bottom: clamp(14px, 2.4svh, 24px);
+  }
+
+  .menu-item {
+    height: clamp(48px, 7.2svh, 56px);
+  }
+
+  .posts-phone {
+    padding: clamp(18px, 3.4svh, 28px) 34px 18px;
+  }
+
+  .post-list {
+    gap: clamp(8px, 1.8svh, 14px);
+  }
+
+  .post-body {
+    grid-template-columns: clamp(76px, 28vw, 96px) 1fr;
+  }
+
+  .post-meta {
+    padding-left: clamp(78px, 28vw, 98px);
+  }
+
+  .edit-phone {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+
+  .edit-form-card {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .edit-nickname-row {
+    grid-template-columns: 1fr 76px;
+    gap: 10px;
+  }
 }
 
 .bottom-nav button {
@@ -288,13 +350,16 @@ body,
 /* 회원정보 수정 페이지 */
 
 .edit-phone {
-  padding: 18px 20px 14px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  row-gap: clamp(10px, 1.8svh, 14px);
+  padding: clamp(14px, 2.4svh, 18px) 44px clamp(12px, 2svh, 14px);
 }
 
 .edit-photo-card {
   position: relative;
   width: 100%;
-  height: 170px;
+  height: clamp(140px, 22svh, 180px);
   display: grid;
   place-items: center;
   border: 3px solid #5b9df5;
@@ -317,8 +382,8 @@ body,
 }
 
 .edit-avatar {
-  width: 112px;
-  height: 112px;
+  width: clamp(90px, 14svh, 112px);
+  height: clamp(90px, 14svh, 112px);
   display: block;
   border: 2px solid #111;
   border-radius: 50%;
@@ -340,16 +405,18 @@ body,
 
 .edit-form-card {
   width: 100%;
-  margin-top: 12px;
-  padding: 24px 26px 22px;
+  margin-top: 0;
+  padding: clamp(18px, 3.2svh, 28px) 28px clamp(18px, 3.2svh, 28px);
   border: 2px solid #6c4c4c;
   border-radius: 16px;
   background: #fff;
+  display: flex;
+  flex-direction: column;
 }
 
 .edit-label {
   display: block;
-  margin: 0 0 8px;
+  margin: 0 0 clamp(8px, 1.4svh, 12px);
   font-size: 17px;
   font-weight: 700;
   color: #111;
@@ -357,13 +424,14 @@ body,
 
 .edit-nickname-row {
   display: grid;
-  grid-template-columns: 1fr 82px;
-  gap: 16px;
+  grid-template-columns: 1fr 78px;
+  gap: 14px;
+  margin-bottom: clamp(18px, 3.2svh, 26px);
 }
 
 .edit-nickname-row input {
   width: 100%;
-  height: 42px;
+  height: clamp(38px, 5.8svh, 44px);
   border: 2px solid #111;
   border-radius: 7px;
   background: #fff;
@@ -374,18 +442,18 @@ body,
 
 .edit-input {
   width: 100%;
-  height: 42px;
+  height: clamp(38px, 5.8svh, 44px);
   border: 2px solid #111;
   border-radius: 7px;
   background: #fff;
   padding: 0 12px;
   font-size: 15px;
   font-family: inherit;
-  margin-bottom: 18px;
+  margin-bottom: clamp(20px, 3.6svh, 30px);
 }
 
 .edit-nickname-row button {
-  height: 42px;
+  height: clamp(38px, 5.8svh, 44px);
   border: 2px solid #6c4c4c;
   border-radius: 7px;
   background: #a28f8f;
@@ -401,10 +469,244 @@ body,
   cursor: not-allowed;
 }
 
+/* 내가 쓴 글 페이지 */
+
+.posts-phone {
+  padding: clamp(24px, 4svh, 36px) 54px 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.posts-page-title {
+  margin: 0 0 18px;
+  color: #999;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.posts-header {
+  position: relative;
+  width: 100%;
+  height: clamp(42px, 6.8svh, 48px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px solid #6c4c4c;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.posts-header strong {
+  color: #111;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.posts-header span {
+  color: #777;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.posts-back-button {
+  position: absolute;
+  left: 12px;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: transparent;
+  color: #283241;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+}
+
+.post-list {
+  min-height: 0;
+  margin-top: clamp(12px, 2.4svh, 18px);
+  display: grid;
+  gap: clamp(10px, 2.2svh, 18px);
+  overflow: hidden;
+}
+
+.post-card {
+  overflow: hidden;
+  border: 2px solid #6c4c4c;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.post-body {
+  display: grid;
+  grid-template-columns: clamp(82px, 26vw, 110px) 1fr;
+  min-height: clamp(82px, 15.8svh, 110px);
+}
+
+.post-image {
+  min-height: clamp(82px, 15.8svh, 110px);
+  border-right: 2px solid #111;
+  border-bottom: 2px solid #111;
+  border-radius: 8px;
+  background: #d9d9d9;
+  overflow: hidden;
+}
+
+.post-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.post-content {
+  padding: clamp(6px, 1.4svh, 10px) 10px 4px;
+}
+
+.badge {
+  min-width: 48px;
+  height: clamp(20px, 3.4svh, 24px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #6c4c4c;
+  border-radius: 8px;
+  background: #a28f8f;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.post-content p {
+  margin: clamp(6px, 1.4svh, 10px) 0 0;
+  color: #111;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: pre-line;
+}
+
+.post-meta {
+  height: clamp(24px, 4.2svh, 30px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: clamp(84px, 26vw, 112px);
+  border-bottom: 2px solid #111;
+  color: #6f7682;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.post-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.post-meta svg {
+  display: block;
+}
+
+.post-actions {
+  height: clamp(30px, 5.2svh, 38px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.post-actions button {
+  height: clamp(30px, 5.2svh, 38px);
+  border: 0;
+  border-right: 2px solid #111;
+  border-radius: 0;
+  background: transparent;
+  color: #333;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 0;
+}
+
+.post-actions button:last-child {
+  border-right: 0;
+}
+
+.post-actions .delete {
+  color: #b94b4b;
+}
+
+.post-modal-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 120;
+}
+
+.post-delete-modal {
+  width: 230px;
+  min-height: 116px;
+  padding: 28px 24px 18px;
+  border: 2px solid #d8d8d8;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.22);
+  text-align: center;
+}
+
+.post-delete-modal p {
+  margin: 0 0 24px;
+  color: #111;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.post-delete-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+}
+
+.post-delete-actions button,
+.post-delete-complete button {
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #999;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 0;
+}
+
+.post-delete-actions .post-delete-confirm {
+  color: #ff5252;
+}
+
+.post-delete-complete {
+  min-height: 120px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: 26px 24px;
+}
+
+.post-delete-complete p {
+  margin-bottom: 18px;
+}
+
+.post-delete-complete button {
+  width: 64px;
+  background: #e3e3e3;
+  color: #111;
+}
+
 .edit-success,
 .edit-error {
   min-height: 0;
-  margin: 6px 0 8px;
+  margin: -18px 0 14px;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.2;
@@ -438,7 +740,8 @@ body,
 
 .password-change-button {
   width: 100%;
-  height: 42px;
+  height: clamp(38px, 5.4svh, 44px);
+  margin-top: auto;
   border: 2px solid #6c4c4c;
   border-radius: 7px;
   background: #a28f8f;
@@ -449,8 +752,8 @@ body,
 
 .edit-submit-card {
   width: 100%;
-  margin-top: 10px;
-  padding: 10px 14px;
+  margin-top: 0;
+  padding: clamp(10px, 1.8svh, 14px) 14px;
   border: 2px solid #6c4c4c;
   border-radius: 14px;
   background: #fff;
@@ -458,7 +761,7 @@ body,
 
 .edit-submit-button {
   width: 100%;
-  height: 44px;
+  height: clamp(44px, 7svh, 52px);
   border: 2px solid #6c4c4c;
   border-radius: 12px;
   background: #a28f8f;
@@ -468,7 +771,7 @@ body,
 }
 
 .edit-major-select {
-  margin-bottom: 34px;
+  margin-bottom: 0;
 }
 
 .edit-form-card .custom-select {
@@ -477,7 +780,7 @@ body,
 
 .edit-form-card .select-button {
   width: 100%;
-  height: 42px;
+  height: clamp(38px, 5.8svh, 44px);
   border: 2px solid #222;
   border-radius: 7px;
   background: #fff;
