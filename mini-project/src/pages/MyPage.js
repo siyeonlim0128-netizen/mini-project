@@ -9,7 +9,6 @@ import {
   Heart,
   MessageCircle,
   UserRound,
-  Settings,
   ChevronLeft,
 } from "lucide-react";
 import "./MyPage.css";
@@ -112,7 +111,7 @@ const majors = [
 ];
 
 const NAV_PATHS = {
-  home: "/",
+  home: "/main",
   favorite: "/favorites",
   message: "/messages",
   mypage: "/mypage",
@@ -139,10 +138,6 @@ function ProfileSummary() {
           {userName} · {userMajor}
         </p>
       </div>
-
-      <button className="icon-button" aria-label="설정">
-        <Settings size={30} strokeWidth={2.5} />
-      </button>
 
       <div className="stats">
         <div>
