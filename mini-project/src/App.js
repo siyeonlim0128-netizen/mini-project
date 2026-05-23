@@ -1,7 +1,7 @@
-import MyPage from "./pages/MyPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 function App() {
-  return <MyPage />;
+  return <ResetPasswordPage />;
 }
 
 export default App;
