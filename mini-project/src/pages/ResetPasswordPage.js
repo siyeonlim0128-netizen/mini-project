@@ -1,17 +1,28 @@
 import React, { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import "./ResetPasswordPage.css";
 import Boo9 from "../components/Boo9.svg";
 
 function ResetPasswordPage() {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
+  const [emailTried, setEmailTried] = useState(false);
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
+  const [passwordCheckTried, setPasswordCheckTried] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const emailValid = /^[^\s@]+@hufs\.ac\.kr$/i.test(email.trim());
   const passwordMatched =
     password.length > 0 && passwordCheck.length > 0 && password === passwordCheck;
+  const passwordConfirmed = passwordCheckTried && passwordMatched;
+
+  const sendEmailCode = () => {
+    setEmailTried(true);
+    if (!emailValid) return;
+    setStep(2);
+  };
 
   const handleNext = () => {
     if (step < 4) setStep(step + 1);
@@ -55,13 +66,20 @@ function ResetPasswordPage() {
             <div className="row">
               <input
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  setEmailTried(false);
+                }}
                 type="email"
+                placeholder="example@hufs.ac.kr"
               />
-              <button type="button" onClick={handleNext}>
+              <button type="button" onClick={sendEmailCode}>
                 인증하기
               </button>
             </div>
+            {emailTried && !emailValid && (
+              <p className="error-text">유효하지 않은 이메일입니다.</p>
+            )}
           </div>
         )}
 
@@ -72,8 +90,16 @@ function ResetPasswordPage() {
 
             <label>인증번호</label>
             <div className="row">
-              <input value={code} onChange={(event) => setCode(event.target.value)} />
-              <button type="button" onClick={handleNext}>
+              <input
+                value={code}
+                inputMode="numeric"
+                maxLength={6}
+                placeholder="숫자 6자리 입력"
+                onChange={(event) =>
+                  setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                }
+              />
+              <button type="button" onClick={handleNext} disabled={code.length !== 6}>
                 확인
               </button>
             </div>
@@ -93,17 +119,20 @@ function ResetPasswordPage() {
           <div className="form-box">
             <label>학교 이메일</label>
             <input className="disabled-input" value={email} disabled />
-            <p className="success-text">이메일 인증이 완료되었습니다</p>
+            <p className="success-text">이메일 인증이 완료되었습니다.</p>
 
             <label>새 비밀번호</label>
             <div className="password-wrap">
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                  setPasswordCheckTried(false);
+                }}
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? "숨김" : "보기"}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
 
@@ -113,24 +142,33 @@ function ResetPasswordPage() {
                 <input
                   type={showPassword ? "text" : "password"}
                   value={passwordCheck}
-                  onChange={(event) => setPasswordCheck(event.target.value)}
+                  onChange={(event) => {
+                    setPasswordCheck(event.target.value);
+                    setPasswordCheckTried(false);
+                  }}
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? "숨김" : "보기"}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
 
-              <button type="button" disabled={!passwordMatched}>
+              <button type="button" onClick={() => setPasswordCheckTried(true)}>
                 확인
               </button>
             </div>
 
-            {passwordMatched && <p className="success-text">비밀번호가 일치합니다.</p>}
+            {passwordCheckTried && (
+              <p className={passwordMatched ? "success-text" : "error-text"}>
+                {passwordMatched
+                  ? "비밀번호가 일치합니다."
+                  : "비밀번호가 일치하지 않습니다."}
+              </p>
+            )}
 
             <button
               type="button"
               className="submit-btn"
-              disabled={!passwordMatched}
+              disabled={!passwordConfirmed}
               onClick={handleNext}
             >
               비밀번호 변경하기
@@ -155,7 +193,7 @@ function ResetPasswordPage() {
               완료되었습니다.
             </h3>
             <img src={Boo9} alt="완료 캐릭터" />
-            <button type="button" onClick={() => window.history.back()}>
+            <button type="button" onClick={() => (window.location.href = "/login")}>
               닫기
             </button>
           </div>
