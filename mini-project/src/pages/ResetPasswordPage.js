@@ -7,7 +7,9 @@ function ResetPasswordPage() {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [emailTried, setEmailTried] = useState(false);
+  const [emailSendFailed, setEmailSendFailed] = useState(false);
   const [code, setCode] = useState("");
+  const [codeTried, setCodeTried] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
   const [passwordCheckTried, setPasswordCheckTried] = useState(false);
@@ -18,10 +20,54 @@ function ResetPasswordPage() {
     password.length > 0 && passwordCheck.length > 0 && password === passwordCheck;
   const passwordConfirmed = passwordCheckTried && passwordMatched;
 
-  const sendEmailCode = () => {
+  const sendEmailCode = async () => {
     setEmailTried(true);
+    setEmailSendFailed(false);
+
     if (!emailValid) return;
-    setStep(2);
+
+    try {
+      const response = await fetch("http://localhost:4000/api/send-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        setEmailSendFailed(true);
+        return;
+      }
+
+      setCode("");
+      setCodeTried(false);
+      setStep(2);
+    } catch (error) {
+      setEmailSendFailed(true);
+    }
+  };
+
+  const verifyEmailCode = async () => {
+    setCodeTried(true);
+
+    if (code.length !== 6) return;
+
+    try {
+      const response = await fetch("http://localhost:4000/api/verify-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, code }),
+      });
+
+      if (response.ok) {
+        setStep(3);
+      }
+    } catch (error) {
+      // codeTried already shows the same mismatch message.
+    }
   };
 
   const handleNext = () => {
@@ -69,6 +115,9 @@ function ResetPasswordPage() {
                 onChange={(event) => {
                   setEmail(event.target.value);
                   setEmailTried(false);
+                  setEmailSendFailed(false);
+                  setCode("");
+                  setCodeTried(false);
                 }}
                 type="email"
                 placeholder="example@hufs.ac.kr"
@@ -79,6 +128,9 @@ function ResetPasswordPage() {
             </div>
             {emailTried && !emailValid && (
               <p className="error-text">유효하지 않은 이메일입니다.</p>
+            )}
+            {emailSendFailed && (
+              <p className="error-text">인증번호 전송에 실패했습니다.</p>
             )}
           </div>
         )}
@@ -95,14 +147,18 @@ function ResetPasswordPage() {
                 inputMode="numeric"
                 maxLength={6}
                 placeholder="숫자 6자리 입력"
-                onChange={(event) =>
-                  setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-                }
+                onChange={(event) => {
+                  setCode(event.target.value.replace(/\D/g, "").slice(0, 6));
+                  setCodeTried(false);
+                }}
               />
-              <button type="button" onClick={handleNext} disabled={code.length !== 6}>
+              <button type="button" onClick={verifyEmailCode} disabled={code.length !== 6}>
                 확인
               </button>
             </div>
+            {codeTried && (
+              <p className="error-text">인증번호가 일치하지 않습니다.</p>
+            )}
 
             <div className="bottom-buttons">
               <button type="button" onClick={handlePrev}>
