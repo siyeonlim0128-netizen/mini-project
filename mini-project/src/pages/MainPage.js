@@ -12,15 +12,6 @@ const CATEGORIES = [
   '기타',
 ];
 
-const CATEGORY_ICONS = {
-  '전공책': '📘',
-  '교양책': '📗',
-  '생활용품': '🏠',
-  '분실물': '🔍',
-  '대여': '🔄',
-  '기타': '📦',
-};
-
 const SORT_OPTIONS = ['최신순', '관심순', '가격 낮은 순'];
 
 const DUMMY_POSTS = [
@@ -29,8 +20,6 @@ const DUMMY_POSTS = [
     title: '경영학원론 교재 팝니다',
     price: '12,000원',
     category: '전공책',
-    location: '서울캠퍼스',
-    time: '5분 전',
     image: null,
   },
   {
@@ -38,8 +27,6 @@ const DUMMY_POSTS = [
     title: '과잠 L사이즈 거의 새거',
     price: '25,000원',
     category: '의류',
-    location: '글로벌캠퍼스',
-    time: '15분 전',
     image: null,
   },
   {
@@ -47,8 +34,6 @@ const DUMMY_POSTS = [
     title: '일본어 교양 교재',
     price: '8,000원',
     category: '교양책',
-    location: '서울캠퍼스',
-    time: '1시간 전',
     image: null,
   },
 ];
@@ -84,14 +69,12 @@ function MainPage({ onCreateClick }) {
     likedPosts.includes(post.id)
   );
 
-  // ===== 관심상품 페이지 =====
   if (currentTab === 'likes') {
     return (
       <div className={styles.container}>
         <header className={styles.header}>
           <h1 className={styles.logoCenter}>관심상품</h1>
         </header>
-
         <div className={styles.postList}>
           {likedPostsList.length > 0 ? (
             likedPostsList.map((post) => (
@@ -100,27 +83,19 @@ function MainPage({ onCreateClick }) {
                   <span className={styles.imagePlaceholder}>사진</span>
                 </div>
                 <div className={styles.postInfo}>
-                  <span className={styles.postCategory}>{post.category}</span>
                   <p className={styles.postTitle}>{post.title}</p>
                   <p className={styles.postPrice}>{post.price}</p>
-                  <p className={styles.postMeta}>📍 {post.location} · {post.time}</p>
                 </div>
-                <button
-                  className={styles.likeButton}
-                  onClick={() => toggleLike(post.id)}
-                >
-                  ❤️
-                </button>
+                <button className={styles.likeButton} onClick={() => toggleLike(post.id)}>❤️</button>
               </div>
             ))
           ) : (
             <div className={styles.emptyState}>
               <p>관심상품이 없습니다.</p>
-              <p className={styles.emptySubText}>홈에서 ♡를 눌러 관심상품을 추가해보세요!</p>
+              <p className={styles.emptySubText}>홈에서 하트를 눌러 추가해보세요!</p>
             </div>
           )}
         </div>
-
         <nav className={styles.bottomNav}>
           <button className={styles.navItem} onClick={() => setCurrentTab('home')}>
             <svg className={styles.navSvg} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
@@ -143,16 +118,11 @@ function MainPage({ onCreateClick }) {
     );
   }
 
-  // ===== 홈 페이지 =====
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <div className={styles.headerTop}>
-          <h1 className={styles.logoCenter}>
-            BOO-Market
-            <img src={owlHeader} alt="부엉이" className={styles.logoImage} />
-          </h1>
-        </div>
+        <h1 className={styles.logo}>BOO-Market</h1>
+        <img src={owlHeader} alt="부엉이" className={styles.owlCharacter} />
       </header>
 
       <div className={styles.searchBar}>
@@ -160,75 +130,53 @@ function MainPage({ onCreateClick }) {
         <input
           type="text"
           className={styles.searchInput}
-          placeholder="검색어를 입력해주세요"
+          placeholder="검색어를 입력하세요"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
         />
       </div>
 
-      <div className={styles.categoryIcons}>
-        {['전공책', '교양책', '생활용품', '분실물', '대여'].map((cat) => (
-          <button
-            key={cat}
-            className={`${styles.categoryIconButton} ${
-              selectedCategory === cat ? styles.categoryIconActive : ''
-            }`}
-            onClick={() =>
-              setSelectedCategory(selectedCategory === cat ? '전체 카테고리' : cat)
-            }
-          >
-            <span className={styles.categoryEmoji}>
-              {CATEGORY_ICONS[cat]}
-            </span>
-            <span className={styles.categoryIconLabel}>{cat}</span>
-          </button>
-        ))}
-      </div>
-
       <div className={styles.filterSection}>
-        <div className={styles.filterRow}>
-          <div className={styles.categoryWrapper}>
+        <div className={styles.categoryWrapper}>
+          <button
+            className={styles.categoryButton}
+            onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+          >
+            {selectedCategory}
+            <span className={styles.arrow}>▾</span>
+          </button>
+          {isCategoryOpen && (
+            <ul className={styles.categoryDropdown}>
+              {CATEGORIES.map((cat) => (
+                <li
+                  key={cat}
+                  className={`${styles.categoryItem} ${
+                    selectedCategory === cat ? styles.categoryItemActive : ''
+                  }`}
+                  onClick={() => {
+                    setSelectedCategory(cat);
+                    setIsCategoryOpen(false);
+                  }}
+                >
+                  {cat}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className={styles.sortButtons}>
+          {SORT_OPTIONS.map((option) => (
             <button
-              className={styles.categoryButton}
-              onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+              key={option}
+              className={`${styles.sortButton} ${
+                activeSort === option ? styles.sortButtonActive : ''
+              }`}
+              onClick={() => setActiveSort(option)}
             >
-              {selectedCategory}
-              <span className={styles.arrow}>▾</span>
+              {option}
             </button>
-
-            {isCategoryOpen && (
-              <ul className={styles.categoryDropdown}>
-                {CATEGORIES.map((cat) => (
-                  <li
-                    key={cat}
-                    className={`${styles.categoryItem} ${
-                      selectedCategory === cat ? styles.categoryItemActive : ''
-                    }`}
-                    onClick={() => {
-                      setSelectedCategory(cat);
-                      setIsCategoryOpen(false);
-                    }}
-                  >
-                    {cat}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className={styles.sortButtons}>
-            {SORT_OPTIONS.map((option) => (
-              <button
-                key={option}
-                className={`${styles.sortButton} ${
-                  activeSort === option ? styles.sortButtonActive : ''
-                }`}
-                onClick={() => setActiveSort(option)}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
 
@@ -244,10 +192,8 @@ function MainPage({ onCreateClick }) {
                 )}
               </div>
               <div className={styles.postInfo}>
-                <span className={styles.postCategory}>{post.category}</span>
                 <p className={styles.postTitle}>{post.title}</p>
                 <p className={styles.postPrice}>{post.price}</p>
-                <p className={styles.postMeta}>📍 {post.location} · {post.time}</p>
               </div>
               <button
                 className={styles.likeButton}
@@ -264,9 +210,7 @@ function MainPage({ onCreateClick }) {
         )}
       </div>
 
-      <button className={styles.fab} onClick={onCreateClick}>
-        +
-      </button>
+      <button className={styles.fab} onClick={onCreateClick}>+</button>
 
       <nav className={styles.bottomNav}>
         <button className={`${styles.navItem} ${styles.navItemActive}`}>

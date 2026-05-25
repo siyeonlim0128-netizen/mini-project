@@ -1,212 +1,125 @@
-/* ===== 전체 컨테이너 ===== */
 .container {
   max-width: 430px;
   margin: 0 auto;
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: #D4E1FD;
+  border-left: 3px solid #7999E9;
+  border-right: 3px solid #7999E9;
   font-family: 'Intel One Mono', monospace;
-  padding-bottom: 90px;
-  position: relative;
+  padding: 16px 16px 90px;
 }
 
-/* ===== 헤더 ===== */
-.header {
+.formCard {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 2px solid #7999E9;
+  padding: 20px;
+}
+
+.formHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 16px;
-  background: #D4E1FD;
+  margin-bottom: 20px;
 }
 
 .backButton {
   background: none;
   border: none;
-  font-size: 24px;
-  color: #333333;
+  font-size: 22px;
+  color: #7D7D7D;
   cursor: pointer;
   padding: 4px 8px;
-  line-height: 1;
 }
 
 .headerTitle {
   font-size: 18px;
   font-weight: 700;
-  color: #333333;
+  color: #7D7D7D;
   margin: 0;
 }
 
 .headerSpacer {
-  width: 40px;
+  width: 36px;
 }
 
-/* ===== 상단 배너 ===== */
-.headerBanner {
-  width: 100%;
-  height: 140px;
-  background: linear-gradient(180deg, #b8c9f0 0%, #d0dcf5 60%, #e8edfb 100%);
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  position: relative;
-  padding-right: 16px;
-  overflow: visible;
-}
-
-.bannerImage {
-  width: 180px;
-  height: 180px;
-  object-fit: contain;
-  position: relative;
-  bottom: -40px;
-}
-
-/* ===== 폼 영역 ===== */
-.formArea {
-  background: #ffffff;
-  padding: 24px 20px;
-  margin-top: 10px;
-}
-
-/* ===== 사진 업로드 ===== */
 .imageUpload {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 36px 0;
-  border: 2px dashed #c0cbe6;
-  border-radius: 20px;
-  margin-bottom: 28px;
+  padding: 28px 0;
+  border: 2px solid #7999E9;
+  border-radius: 16px;
+  margin-bottom: 24px;
   cursor: pointer;
-  background: #fafbff;
+  background: #ffffff;
   transition: background 0.2s;
 }
 
 .imageUpload:hover {
-  background: #f0f3ff;
+  background: #e8eeff;
 }
 
 .cameraIcon {
-  width: 52px;
-  height: 52px;
-  background: #4A7BF7;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  margin-bottom: 12px;
-  color: #ffffff;
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: #7D7D7D;
 }
 
 .uploadText {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
-  color: #333333;
+  color: #7D7D7D;
   margin: 0 0 4px;
 }
 
 .uploadSubText {
-  font-size: 12px;
-  color: #999999;
+  font-size: 11px;
+  color: #7D7D7D;
   margin: 0;
 }
 
-/* ===== 필드 그룹 ===== */
 .fieldGroup {
-  margin-bottom: 26px;
+  margin-bottom: 22px;
 }
 
 .label {
   display: block;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
-  color: #333333;
-  margin-bottom: 10px;
+  color: #7D7D7D;
+  margin-bottom: 8px;
 }
 
-.required {
-  color: #F60A0A;
-  margin-left: 2px;
-  font-size: 12px;
-}
-
-/* ===== 입력 필드 ===== */
-.inputWrapper {
-  position: relative;
-}
-
-.input {
+.inputBox {
   width: 100%;
-  padding: 14px 16px;
-  border: none;
-  border-bottom: 1.5px solid #E0E0E0;
-  border-radius: 0;
-  font-size: 14px;
-  color: #333333;
+  padding: 12px 14px;
+  border: 2px solid #7999E9;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #7D7D7D;
   background: #ffffff;
   outline: none;
   font-family: 'Intel One Mono', monospace;
-  transition: border-color 0.2s;
   box-sizing: border-box;
-}
-
-.input:focus {
-  border-bottom-color: #4A7BF7;
-}
-
-.input::placeholder {
-  color: #bbbbbb;
-}
-
-.charCount {
-  position: absolute;
-  right: 0;
-  bottom: -20px;
-  font-size: 12px;
-  color: #999999;
-}
-
-/* ===== 셀렉트 ===== */
-.select {
-  width: 100%;
-  padding: 14px 16px;
-  border: none;
-  border-bottom: 1.5px solid #E0E0E0;
-  border-radius: 0;
-  font-size: 14px;
-  color: #333333;
-  background: #ffffff;
-  outline: none;
-  font-family: 'Intel One Mono', monospace;
-  cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%23999' d='M7 10L1 4h12z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  box-sizing: border-box;
 }
 
-.select:focus {
-  border-bottom-color: #4A7BF7;
+.inputBox:focus {
+  border-color: #5a7abf;
 }
 
-/* ===== 도움말 텍스트 ===== */
-.helperText {
-  font-size: 11px;
-  color: #999999;
-  margin: 8px 0 0;
-  line-height: 1.5;
+.inputBox::placeholder {
+  color: #aaaaaa;
 }
 
-/* ===== 별점 ===== */
 .starRating {
   display: flex;
-  gap: 10px;
-  margin-top: 4px;
+  gap: 8px;
 }
 
 .star {
-  font-size: 34px;
+  font-size: 30px;
   color: #D0D0D0;
   cursor: pointer;
   transition: color 0.15s, transform 0.15s;
@@ -221,62 +134,44 @@
   color: #FFD700;
 }
 
-/* ===== 가격 ===== */
 .priceRow {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
-.priceInputWrapper {
+.priceRow .inputBox {
   flex: 1;
-  position: relative;
-}
-
-.priceInputWrapper .input {
-  padding-right: 40px;
-}
-
-.wonSign {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 14px;
-  color: #666666;
-  font-weight: 600;
 }
 
 .freeLabel {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #333333;
+  gap: 6px;
+  font-size: 13px;
+  color: #7D7D7D;
   white-space: nowrap;
   cursor: pointer;
-  font-weight: 500;
 }
 
 .checkbox {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   cursor: pointer;
-  accent-color: #4A7BF7;
+  accent-color: #7999E9;
 }
 
-/* ===== 연락 방법 ===== */
 .contactMethod {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   width: 100%;
-  padding: 16px;
-  border: 2px solid #4A7BF7;
+  padding: 14px;
+  border: 2px solid #7999E9;
   border-radius: 30px;
-  font-size: 15px;
-  color: #4A7BF7;
+  font-size: 14px;
+  color: #7999E9;
   background: #ffffff;
   font-weight: 700;
   cursor: pointer;
@@ -285,51 +180,37 @@
 }
 
 .contactMethod:hover {
-  background: #f0f4ff;
+  background: #e8eeff;
 }
 
 .contactIcon {
-  font-size: 20px;
+  font-size: 18px;
 }
 
-/* ===== 상세 설명 ===== */
-.textareaWrapper {
-  position: relative;
-}
-
-.textarea {
+.textareaBox {
   width: 100%;
-  padding: 16px;
-  border: 1.5px solid #E0E0E0;
-  border-radius: 16px;
-  font-size: 14px;
-  color: #333333;
+  padding: 14px;
+  border: 2px solid #7999E9;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #7D7D7D;
   background: #ffffff;
   outline: none;
   font-family: 'Intel One Mono', monospace;
   resize: vertical;
-  min-height: 140px;
-  line-height: 1.7;
+  min-height: 120px;
+  line-height: 1.6;
   box-sizing: border-box;
 }
 
-.textarea:focus {
-  border-color: #4A7BF7;
+.textareaBox:focus {
+  border-color: #5a7abf;
 }
 
-.textarea::placeholder {
-  color: #bbbbbb;
+.textareaBox::placeholder {
+  color: #aaaaaa;
 }
 
-.textareaCount {
-  position: absolute;
-  right: 16px;
-  bottom: 14px;
-  font-size: 12px;
-  color: #999999;
-}
-
-/* ===== 하단 버튼 ===== */
 .bottomActions {
   position: fixed;
   bottom: 0;
@@ -340,100 +221,112 @@
   display: flex;
   gap: 12px;
   padding: 14px 16px 24px;
-  background: #ffffff;
-  border-top: 1px solid #f0f0f0;
+  background: #D4E1FD;
+  border-left: 3px solid #7999E9;
+  border-right: 3px solid #7999E9;
   box-sizing: border-box;
 }
 
 .cancelButton {
   flex: 1;
-  padding: 16px;
+  padding: 14px;
   background: #ffffff;
-  border: 1.5px solid #4A7BF7;
+  border: 2px solid #7999E9;
   border-radius: 14px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
-  color: #4A7BF7;
+  color: #7D7D7D;
   cursor: pointer;
   font-family: 'Intel One Mono', monospace;
-  transition: background 0.2s;
 }
 
 .cancelButton:hover {
-  background: #f0f4ff;
+  background: #e8eeff;
 }
 
 .submitButton {
   flex: 1.5;
-  padding: 16px;
-  background: #4A7BF7;
+  padding: 14px;
+  background: #7999E9;
   border: none;
   border-radius: 14px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: #ffffff;
   cursor: pointer;
   font-family: 'Intel One Mono', monospace;
-  transition: background 0.2s;
 }
 
 .submitButton:hover {
-  background: #3a6ae0;
+  background: #6485d6;
 }
 
-/* ===== 등록 완료 화면 ===== */
 .successContainer {
   max-width: 430px;
   margin: 0 auto;
   min-height: 100vh;
   background-color: #D4E1FD;
+  border-left: 3px solid #7999E9;
+  border-right: 3px solid #7999E9;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   font-family: 'Intel One Mono', monospace;
-  padding: 20px;
+  padding: 30px;
+}
+
+.successCard {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 2px solid #7999E9;
+  padding: 40px 28px;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .successText {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
-  color: #333333;
+  color: #7D7D7D;
   text-align: center;
   line-height: 1.6;
-  margin: 0 0 30px;
+  margin: 0 0 24px;
 }
 
 .successImage {
-  width: 220px;
-  height: 220px;
+  width: 180px;
+  height: 180px;
   object-fit: contain;
-  margin-bottom: 40px;
+  margin-bottom: 28px;
 }
 
 .confirmButton {
-  padding: 16px 70px;
+  width: 100%;
+  padding: 14px;
   background: #ffffff;
-  border: 1.5px solid #333333;
-  border-radius: 30px;
+  border: 2.5px solid #7999E9;
+  border-radius: 12px;
   font-size: 16px;
   font-weight: 700;
-  color: #333333;
+  color: #7D7D7D;
   cursor: pointer;
   font-family: 'Intel One Mono', monospace;
-  transition: background 0.2s;
 }
 
 .confirmButton:hover {
-  background: #f0f0f0;
+  background: #e8eeff;
 }
 
-/* ===== 쪽지 연락 모달 ===== */
 .contactModal {
   max-width: 430px;
   margin: 0 auto;
   min-height: 100vh;
-  background: linear-gradient(180deg, #c8d8f8 0%, #e4ecff 40%, #f0f4ff 100%);
+  background: #D4E1FD;
+  border-left: 3px solid #7999E9;
+  border-right: 3px solid #7999E9;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -443,13 +336,13 @@
 
 .contactModalContent {
   background: #ffffff;
-  border-radius: 28px;
+  border-radius: 20px;
+  border: 2px solid #7999E9;
   padding: 32px 24px;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
 
 .contactOwlImage {
@@ -462,13 +355,13 @@
 .contactModalTitle {
   font-size: 22px;
   font-weight: 700;
-  color: #333333;
+  color: #7D7D7D;
   margin: 0 0 8px;
 }
 
 .contactModalDesc {
   font-size: 13px;
-  color: #777777;
+  color: #7D7D7D;
   text-align: center;
   line-height: 1.6;
   margin: 0 0 24px;
@@ -487,14 +380,15 @@
   align-items: flex-start;
   gap: 14px;
   padding: 16px;
-  background: #f4f7ff;
+  background: #e8eeff;
   border-radius: 16px;
+  border: 1.5px solid #7999E9;
 }
 
 .contactFeatureIcon {
   width: 40px;
   height: 40px;
-  background: #4A7BF7;
+  background: #7999E9;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -506,13 +400,13 @@
 .contactFeatureTitle {
   font-size: 14px;
   font-weight: 700;
-  color: #333333;
+  color: #7D7D7D;
   margin: 0 0 4px;
 }
 
 .contactFeatureDesc {
   font-size: 11px;
-  color: #888888;
+  color: #7D7D7D;
   margin: 0;
   line-height: 1.5;
 }
@@ -520,7 +414,7 @@
 .contactConfirmButton {
   width: 100%;
   padding: 16px;
-  background: #4A7BF7;
+  background: #7999E9;
   border: none;
   border-radius: 14px;
   font-size: 16px;
@@ -529,32 +423,44 @@
   cursor: pointer;
   font-family: 'Intel One Mono', monospace;
   margin-bottom: 12px;
-  transition: background 0.2s;
 }
 
 .contactConfirmButton:hover {
-  background: #3a6ae0;
+  background: #6485d6;
 }
 
 .contactDismiss {
   background: none;
   border: none;
   font-size: 13px;
-  color: #999999;
+  color: #7D7D7D;
   cursor: pointer;
   font-family: 'Intel One Mono', monospace;
   padding: 4px;
 }
 
 .contactDismiss:hover {
-  color: #666666;
+  color: #7999E9;
 }
 
-/* ===== 반응형 ===== */
 @media (max-width: 430px) {
+  .container {
+    border-left: none;
+    border-right: none;
+  }
   .bottomActions {
     left: 0;
     transform: none;
     width: 100%;
+    border-left: none;
+    border-right: none;
+  }
+  .successContainer {
+    border-left: none;
+    border-right: none;
+  }
+  .contactModal {
+    border-left: none;
+    border-right: none;
   }
 }

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styles from './PostCreatePage.module.css';
-import owlHeader from '../assets/owl_header.svg';
-import owlSuccess from '../assets/owl_success.svg';
+import owlSuccess from '../assets/owl_wink_heart.svg';
 import owlContact from '../assets/owl_contact.svg';
 
 const CATEGORIES = ['전공책', '교양책', '생활용품', '분실물', '대여', '기타'];
@@ -28,16 +27,15 @@ function PostCreatePage({ onBack }) {
   if (isSubmitted) {
     return (
       <div className={styles.successContainer}>
-        <p className={styles.successText}>
-          게시물이<br />등록되었어요!
-        </p>
-        <img src={owlSuccess} alt="등록 완료" className={styles.successImage} />
-        <button
-          className={styles.confirmButton}
-          onClick={onBack}
-        >
-          확인
-        </button>
+        <div className={styles.successCard}>
+          <p className={styles.successText}>
+            게시물이<br />등록되었어요!
+          </p>
+          <img src={owlSuccess} alt="등록 완료" className={styles.successImage} />
+          <button className={styles.confirmButton} onClick={onBack}>
+            확인
+          </button>
+        </div>
       </div>
     );
   }
@@ -51,7 +49,6 @@ function PostCreatePage({ onBack }) {
           <p className={styles.contactModalDesc}>
             안전하고 편리한 거래를 위해<br />앱 내 쪽지를 이용해 주세요!
           </p>
-
           <div className={styles.contactFeatureList}>
             <div className={styles.contactFeature}>
               <div className={styles.contactFeatureIcon}>🔒</div>
@@ -60,7 +57,6 @@ function PostCreatePage({ onBack }) {
                 <p className={styles.contactFeatureDesc}>전화번호, 메일 없이도 개인정보를 안전하게 보호할 수 있어요.</p>
               </div>
             </div>
-
             <div className={styles.contactFeature}>
               <div className={styles.contactFeatureIcon}>💬</div>
               <div>
@@ -68,7 +64,6 @@ function PostCreatePage({ onBack }) {
                 <p className={styles.contactFeatureDesc}>구매 문의, 가격 협의 등 모든 대화를 앱 내 쪽지에서 간편하게!</p>
               </div>
             </div>
-
             <div className={styles.contactFeature}>
               <div className={styles.contactFeatureIcon}>🛡️</div>
               <div>
@@ -77,17 +72,10 @@ function PostCreatePage({ onBack }) {
               </div>
             </div>
           </div>
-
-          <button
-            className={styles.contactConfirmButton}
-            onClick={() => setShowContact(false)}
-          >
+          <button className={styles.contactConfirmButton} onClick={() => setShowContact(false)}>
             확인
           </button>
-          <button
-            className={styles.contactDismiss}
-            onClick={() => setShowContact(false)}
-          >
+          <button className={styles.contactDismiss} onClick={() => setShowContact(false)}>
             다시 보지 않기
           </button>
         </div>
@@ -97,48 +85,35 @@ function PostCreatePage({ onBack }) {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <button className={styles.backButton} onClick={onBack}>
-          ←
-        </button>
-        <h1 className={styles.headerTitle}>게시글 등록</h1>
-        <div className={styles.headerSpacer} />
-      </header>
+      <div className={styles.formCard}>
+        <div className={styles.formHeader}>
+          <button className={styles.backButton} onClick={onBack}>←</button>
+          <h1 className={styles.headerTitle}>게시물 등록</h1>
+          <div className={styles.headerSpacer} />
+        </div>
 
-      <div className={styles.headerBanner}>
-        <img src={owlHeader} alt="부엉이" className={styles.bannerImage} />
-      </div>
-
-      <div className={styles.formArea}>
         <div className={styles.imageUpload}>
           <div className={styles.cameraIcon}>📷</div>
-          <p className={styles.uploadText}>사진을 추가해주세요</p>
-          <p className={styles.uploadSubText}>여러 장을 등록할 수 있어요</p>
+          <p className={styles.uploadText}>사진을 추가해주세요.</p>
+          <p className={styles.uploadSubText}>최대 5장을 등록할 수 있어요.</p>
         </div>
 
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>
-            제목 <span className={styles.required}>*</span>
-          </label>
-          <div className={styles.inputWrapper}>
-            <input
-              type="text"
-              className={styles.input}
-              placeholder="제목을 입력해주세요 (최대 50자)"
-              maxLength={50}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <span className={styles.charCount}>{title.length}/50</span>
-          </div>
+          <label className={styles.label}>제목</label>
+          <input
+            type="text"
+            className={styles.inputBox}
+            placeholder="제목을 입력해주세요"
+            maxLength={50}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </div>
 
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>
-            카테고리 <span className={styles.required}>*</span>
-          </label>
+          <label className={styles.label}>카테고리</label>
           <select
-            className={styles.select}
+            className={styles.inputBox}
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
@@ -147,15 +122,10 @@ function PostCreatePage({ onBack }) {
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
-          <p className={styles.helperText}>
-            전공책, 교양책, 생활용품, 분실물, 대여 중 선택할 수 있어요
-          </p>
         </div>
 
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>
-            물품 상태 <span className={styles.required}>*</span>
-          </label>
+          <label className={styles.label}>물품 상태</label>
           <div className={styles.starRating}>
             {[1, 2, 3, 4, 5].map((star) => (
               <span
@@ -167,27 +137,19 @@ function PostCreatePage({ onBack }) {
               </span>
             ))}
           </div>
-          <p className={styles.helperText}>
-            별 1개(아쉬워요) ~ 5개(거의 새것이에요)로 상태를 알려주세요
-          </p>
         </div>
 
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>
-            가격 <span className={styles.required}>*</span>
-          </label>
+          <label className={styles.label}>가격</label>
           <div className={styles.priceRow}>
-            <div className={styles.priceInputWrapper}>
-              <input
-                type="text"
-                className={styles.input}
-                placeholder="가격을 입력해주세요"
-                value={isFree ? '' : price}
-                onChange={(e) => setPrice(e.target.value)}
-                disabled={isFree}
-              />
-              <span className={styles.wonSign}>원</span>
-            </div>
+            <input
+              type="text"
+              className={styles.inputBox}
+              placeholder="가격을 입력해주세요"
+              value={isFree ? '' : price}
+              onChange={(e) => setPrice(e.target.value)}
+              disabled={isFree}
+            />
             <label className={styles.freeLabel}>
               <input
                 type="checkbox"
@@ -198,77 +160,43 @@ function PostCreatePage({ onBack }) {
               무료나눔
             </label>
           </div>
-          <p className={styles.helperText}>
-            체크 시 가격이 0원으로 설정돼요
-          </p>
         </div>
 
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>
-            거래 희망 장소 <span className={styles.required}>*</span>
-          </label>
+          <label className={styles.label}>거래 희망 장소</label>
           <input
             type="text"
-            className={styles.input}
+            className={styles.inputBox}
             placeholder="예) 서울캠퍼스 학생회관 앞"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
           />
-          <p className={styles.helperText}>
-            직접 거래를 위한 장소를 알려주세요
-          </p>
         </div>
 
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>
-            연락 방법 <span className={styles.required}>*</span>
-          </label>
-          <button
-            className={styles.contactMethod}
-            onClick={() => setShowContact(true)}
-          >
+          <label className={styles.label}>연락 방법</label>
+          <button className={styles.contactMethod} onClick={() => setShowContact(true)}>
             <span className={styles.contactIcon}>💬</span>
             쪽지로 연락받기
           </button>
-          <p className={styles.helperText}>
-            안전한 거래를 위해 외대당근 쪽지로만 연락을 주고받아요
-          </p>
         </div>
 
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>
-            상세 설명 <span className={styles.required}>*</span>
-          </label>
-          <div className={styles.textareaWrapper}>
-            <textarea
-              className={styles.textarea}
-              placeholder={'상품에 대해 자세히 설명해주세요 (최대 1000자)'}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              maxLength={1000}
-              rows={5}
-            />
-            <span className={styles.textareaCount}>{description.length}/1000</span>
-          </div>
-          <p className={styles.helperText}>
-            구성품, 사용 기간, 하자 여부 등 자세히 적어주시면 거래가 더 잘 성사돼요!
-          </p>
+          <label className={styles.label}>상세 설명</label>
+          <textarea
+            className={styles.textareaBox}
+            placeholder={'상품에 대해 자세히 설명해주세요'}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            maxLength={1000}
+            rows={4}
+          />
         </div>
       </div>
 
       <div className={styles.bottomActions}>
-        <button
-          className={styles.cancelButton}
-          onClick={onBack}
-        >
-          취소
-        </button>
-        <button
-          className={styles.submitButton}
-          onClick={handleSubmit}
-        >
-          등록하기
-        </button>
+        <button className={styles.cancelButton} onClick={onBack}>취소</button>
+        <button className={styles.submitButton} onClick={handleSubmit}>등록하기</button>
       </div>
     </div>
   );
