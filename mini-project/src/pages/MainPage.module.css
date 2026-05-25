@@ -1,4 +1,4 @@
-/* ===== 전체 컨테이너 (모바일 중심 레이아웃) ===== */
+/* ===== 전체 컨테이너 ===== */
 .container {
   max-width: 430px;
   margin: 0 auto;
@@ -14,31 +14,60 @@
 /* ===== 헤더 ===== */
 .header {
   background: #D4E1FD;
-  padding: 20px 16px 14px;
-  text-align: center;
+  padding: 16px 16px 4px;
+  display: flex;
+  justify-content: center;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0px;
 }
 
 .logo {
+  font-size: 26px;
+  font-weight: 800;
+  color: #7D7D7D;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Intel One Mono', monospace;
+}
+
+.logoCenter {
   font-size: 24px;
   font-weight: 800;
   color: #7D7D7D;
   margin: 0;
-  letter-spacing: 1px;
+  text-align: center;
+  font-family: 'Intel One Mono', monospace;
+}
+
+.logoImage {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-left: 0px;
+  vertical-align: middle;
+  display: inline;
 }
 
 /* ===== 검색바 ===== */
 .searchBar {
-  margin: 14px 16px 10px;
+  margin: 6px 16px 12px;
   display: flex;
   align-items: center;
   background: #ffffff;
   border: 2px solid #000000;
   border-radius: 12px;
-  padding: 10px 14px;
+  padding: 11px 16px;
 }
 
 .searchIcon {
-  font-size: 16px;
+  font-size: 15px;
   margin-right: 8px;
   color: #7D7D7D;
 }
@@ -47,7 +76,7 @@
   border: none;
   outline: none;
   flex: 1;
-  font-size: 14px;
+  font-size: 13px;
   color: #7D7D7D;
   background: transparent;
   font-family: 'Intel One Mono', monospace;
@@ -57,44 +86,102 @@
   color: #7D7D7D;
 }
 
+/* ===== 카테고리 아이콘 ===== */
+.categoryIcons {
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 16px 12px;
+  gap: 4px;
+}
+
+.categoryIconButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 6px;
+  border-radius: 12px;
+  transition: background 0.2s;
+  font-family: 'Intel One Mono', monospace;
+}
+
+.categoryIconButton:hover {
+  background: #c8d6f8;
+}
+
+.categoryIconActive {
+  background: #c8d6f8;
+}
+
+.categoryEmoji {
+  width: 44px;
+  height: 44px;
+  background: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.categoryIconActive .categoryEmoji {
+  background: #7999E9;
+  border-color: #7999E9;
+}
+
+.categoryIconLabel {
+  font-size: 10px;
+  color: #7D7D7D;
+  font-weight: 600;
+}
+
 /* ===== 필터 섹션 ===== */
 .filterSection {
-  padding: 0 16px;
-  margin-bottom: 10px;
+  padding: 4px 16px 8px;
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .categoryWrapper {
   position: relative;
-  margin-bottom: 10px;
 }
 
 .categoryButton {
   background: #ffffff;
   border: 2px solid #000000;
   border-radius: 20px;
-  padding: 8px 16px;
-  font-size: 13px;
+  padding: 7px 14px;
+  font-size: 12px;
   color: #7D7D7D;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   font-weight: 600;
   font-family: 'Intel One Mono', monospace;
 }
 
 .categoryButton:hover {
-  background: #eef3ff;
+  background: #c8d6f8;
 }
 
 .arrow {
-  font-size: 12px;
+  font-size: 10px;
   color: #7D7D7D;
 }
 
 .categoryDropdown {
   position: absolute;
-  top: 42px;
+  top: 38px;
   left: 0;
   background: #ffffff;
   border: 2px solid #000000;
@@ -103,7 +190,7 @@
   padding: 6px 0;
   margin: 0;
   z-index: 10;
-  min-width: 160px;
+  min-width: 150px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
@@ -125,17 +212,18 @@
   background: #D4E1FD;
 }
 
+/* ===== 정렬 버튼 ===== */
 .sortButtons {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .sortButton {
   background: #ffffff;
   border: 2px solid #000000;
   border-radius: 20px;
-  padding: 7px 14px;
-  font-size: 12px;
+  padding: 7px 12px;
+  font-size: 11px;
   color: #7D7D7D;
   cursor: pointer;
   font-weight: 500;
@@ -144,7 +232,7 @@
 }
 
 .sortButton:hover {
-  background: #eef3ff;
+  background: #D4E1FD;
 }
 
 .sortButtonActive {
@@ -156,30 +244,28 @@
 /* ===== 게시글 리스트 ===== */
 .postList {
   flex: 1;
-  padding: 6px 16px;
-  overflow-y: auto;
+  padding: 4px 16px;
 }
 
 .postCard {
   display: flex;
   align-items: center;
   background: #ffffff;
-  border: 2px solid #E5E5EA;
+  border: 1.5px solid #E5E5EA;
   border-radius: 16px;
-  padding: 12px;
+  padding: 14px 12px;
   margin-bottom: 10px;
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition: transform 0.15s;
 }
 
 .postCard:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .postImage {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   background: #D4E1FD;
   border-radius: 12px;
   display: flex;
@@ -196,7 +282,7 @@
 }
 
 .imagePlaceholder {
-  font-size: 13px;
+  font-size: 12px;
   color: #7D7D7D;
   font-weight: 500;
 }
@@ -206,20 +292,39 @@
   flex: 1;
 }
 
+.postCategory {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #7999E9;
+  background: #EEF1FF;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
 .postTitle {
   font-size: 14px;
   font-weight: 600;
   color: #7D7D7D;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
+  line-height: 1.3;
 }
 
 .postPrice {
   font-size: 15px;
   font-weight: 700;
   color: #7999E9;
+  margin: 0 0 4px;
+}
+
+.postMeta {
+  font-size: 11px;
+  color: #7D7D7D;
   margin: 0;
 }
 
+/* ===== 빈 상태 ===== */
 .emptyState {
   text-align: center;
   padding: 60px 0;
@@ -227,34 +332,39 @@
   font-size: 14px;
 }
 
-/* ===== 플로팅 액션 버튼 ===== */
+.emptySubText {
+  font-size: 12px;
+  color: #999999;
+  margin-top: 8px;
+}
+
+/* ===== 플로팅 버튼 ===== */
 .fab {
   position: fixed;
   bottom: 85px;
   right: calc(50% - 195px);
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: #ffffff;
   color: #000000;
-  border: 2px solid #E5E5EA;
-  font-size: 28px;
+  border: 2px solid #7999E9;
+  font-size: 26px;
   font-weight: 300;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s;
   z-index: 20;
 }
 
 .fab:hover {
   transform: scale(1.08);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* ===== 하단 네비게이션 바 ===== */
+/* ===== 하단 네비 ===== */
 .bottomNav {
   position: fixed;
   bottom: 0;
@@ -270,7 +380,7 @@
   border-top-right-radius: 20px;
   display: flex;
   justify-content: space-around;
-  padding: 8px 0 12px;
+  padding: 8px 0 14px;
   z-index: 10;
 }
 
@@ -295,20 +405,22 @@
   color: #000000;
 }
 
-.navIcon {
-  font-size: 22px;
+.navSvg {
+  width: 24px;
+  height: 24px;
 }
 
 .navLabel {
   font-size: 10px;
   font-weight: 600;
+  color: #7D7D7D;
 }
 
 /* ===== 하트 버튼 ===== */
 .likeButton {
   background: none;
   border: none;
-  font-size: 22px;
+  font-size: 20px;
   cursor: pointer;
   padding: 4px;
   margin-left: 8px;
@@ -320,6 +432,7 @@
   transform: scale(1.2);
 }
 
+/* ===== 반응형 ===== */
 @media (max-width: 430px) {
   .fab {
     right: 20px;
