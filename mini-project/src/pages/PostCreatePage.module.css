@@ -1,0 +1,466 @@
+.container {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: #D4E1FD;
+  border-left: 3px solid #7999E9;
+  border-right: 3px solid #7999E9;
+  font-family: 'Intel One Mono', monospace;
+  padding: 16px 16px 90px;
+}
+
+.formCard {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 2px solid #7999E9;
+  padding: 20px;
+}
+
+.formHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #7D7D7D;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.headerTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #7D7D7D;
+  margin: 0;
+}
+
+.headerSpacer {
+  width: 36px;
+}
+
+.imageUpload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 0;
+  border: 2px solid #7999E9;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  background: #ffffff;
+  transition: background 0.2s;
+}
+
+.imageUpload:hover {
+  background: #e8eeff;
+}
+
+.cameraIcon {
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: #7D7D7D;
+}
+
+.uploadText {
+  font-size: 15px;
+  font-weight: 700;
+  color: #7D7D7D;
+  margin: 0 0 4px;
+}
+
+.uploadSubText {
+  font-size: 11px;
+  color: #7D7D7D;
+  margin: 0;
+}
+
+.fieldGroup {
+  margin-bottom: 22px;
+}
+
+.label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #7D7D7D;
+  margin-bottom: 8px;
+}
+
+.inputBox {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #7999E9;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #7D7D7D;
+  background: #ffffff;
+  outline: none;
+  font-family: 'Intel One Mono', monospace;
+  box-sizing: border-box;
+  appearance: none;
+}
+
+.inputBox:focus {
+  border-color: #5a7abf;
+}
+
+.inputBox::placeholder {
+  color: #aaaaaa;
+}
+
+.starRating {
+  display: flex;
+  gap: 8px;
+}
+
+.star {
+  font-size: 30px;
+  color: #D0D0D0;
+  cursor: pointer;
+  transition: color 0.15s, transform 0.15s;
+  line-height: 1;
+}
+
+.star:hover {
+  transform: scale(1.15);
+}
+
+.starActive {
+  color: #FFD700;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.priceRow .inputBox {
+  flex: 1;
+}
+
+.freeLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #7D7D7D;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #7999E9;
+}
+
+.contactMethod {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #7999E9;
+  border-radius: 30px;
+  font-size: 14px;
+  color: #7999E9;
+  background: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+  transition: background 0.2s;
+}
+
+.contactMethod:hover {
+  background: #e8eeff;
+}
+
+.contactIcon {
+  font-size: 18px;
+}
+
+.textareaBox {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #7999E9;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #7D7D7D;
+  background: #ffffff;
+  outline: none;
+  font-family: 'Intel One Mono', monospace;
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.textareaBox:focus {
+  border-color: #5a7abf;
+}
+
+.textareaBox::placeholder {
+  color: #aaaaaa;
+}
+
+.bottomActions {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px 24px;
+  background: #D4E1FD;
+  border-left: 3px solid #7999E9;
+  border-right: 3px solid #7999E9;
+  box-sizing: border-box;
+}
+
+.cancelButton {
+  flex: 1;
+  padding: 14px;
+  background: #ffffff;
+  border: 2px solid #7999E9;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #7D7D7D;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+}
+
+.cancelButton:hover {
+  background: #e8eeff;
+}
+
+.submitButton {
+  flex: 1.5;
+  padding: 14px;
+  background: #7999E9;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+}
+
+.submitButton:hover {
+  background: #6485d6;
+}
+
+.successContainer {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: #D4E1FD;
+  border-left: 3px solid #7999E9;
+  border-right: 3px solid #7999E9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Intel One Mono', monospace;
+  padding: 30px;
+}
+
+.successCard {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 2px solid #7999E9;
+  padding: 40px 28px;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.successText {
+  font-size: 22px;
+  font-weight: 700;
+  color: #7D7D7D;
+  text-align: center;
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+
+.successImage {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  margin-bottom: 28px;
+}
+
+.confirmButton {
+  width: 100%;
+  padding: 14px;
+  background: #ffffff;
+  border: 2.5px solid #7999E9;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #7D7D7D;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+}
+
+.confirmButton:hover {
+  background: #e8eeff;
+}
+
+.contactModal {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #D4E1FD;
+  border-left: 3px solid #7999E9;
+  border-right: 3px solid #7999E9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Intel One Mono', monospace;
+  padding: 20px;
+}
+
+.contactModalContent {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 2px solid #7999E9;
+  padding: 32px 24px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contactOwlImage {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  margin-bottom: 16px;
+}
+
+.contactModalTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #7D7D7D;
+  margin: 0 0 8px;
+}
+
+.contactModalDesc {
+  font-size: 13px;
+  color: #7D7D7D;
+  text-align: center;
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+
+.contactFeatureList {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.contactFeature {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  background: #e8eeff;
+  border-radius: 16px;
+  border: 1.5px solid #7999E9;
+}
+
+.contactFeatureIcon {
+  width: 40px;
+  height: 40px;
+  background: #7999E9;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.contactFeatureTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #7D7D7D;
+  margin: 0 0 4px;
+}
+
+.contactFeatureDesc {
+  font-size: 11px;
+  color: #7D7D7D;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.contactConfirmButton {
+  width: 100%;
+  padding: 16px;
+  background: #7999E9;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+  margin-bottom: 12px;
+}
+
+.contactConfirmButton:hover {
+  background: #6485d6;
+}
+
+.contactDismiss {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #7D7D7D;
+  cursor: pointer;
+  font-family: 'Intel One Mono', monospace;
+  padding: 4px;
+}
+
+.contactDismiss:hover {
+  color: #7999E9;
+}
+
+@media (max-width: 430px) {
+  .container {
+    border-left: none;
+    border-right: none;
+  }
+  .bottomActions {
+    left: 0;
+    transform: none;
+    width: 100%;
+    border-left: none;
+    border-right: none;
+  }
+  .successContainer {
+    border-left: none;
+    border-right: none;
+  }
+  .contactModal {
+    border-left: none;
+    border-right: none;
+  }
+}
