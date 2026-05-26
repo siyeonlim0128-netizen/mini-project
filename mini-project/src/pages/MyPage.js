@@ -457,7 +457,13 @@ function EditProfilePage({ onMove }) {
           )}
         </div>
 
-        <button className="password-change-button" type="button">
+        <button
+          className="password-change-button"
+          type="button"
+          onClick={() => {
+            window.location.href = "/password-reset";
+          }}
+        >
           비밀번호 변경하러 가기
         </button>
       </section>
