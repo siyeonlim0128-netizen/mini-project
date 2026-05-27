@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Wishlist from "./pages/Wishlist";
 import PostDetail from "./pages/PostDetail";
 import MyPage from "./pages/MyPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 // 다른 팀원이 만드는 페이지들 — 완성되면 주석 해제!
 // import LandingPage from "./pages/LandingPage";
@@ -20,6 +21,7 @@ function App() {
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/post/:id" element={<PostDetail />} />
         <Route path="/mypage" element={<MyPage />} />
+        <Route path="/password-reset" element={<ResetPasswordPage />} />
       </Routes>
     </BrowserRouter>
   );
