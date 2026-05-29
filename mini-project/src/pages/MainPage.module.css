@@ -46,16 +46,6 @@
   font-family: 'Intel One Mono', monospace;
 }
 
-.logoCenter {
-  font-size: 24px;
-  font-weight: 800;
-  color: #7D7D7D;
-  margin: 0;
-  text-align: center;
-  padding: 18px 0 12px;
-  font-family: 'Intel One Mono', monospace;
-}
-
 .owlCharacter {
   width: 100px;
   height: 100px;
@@ -279,12 +269,6 @@
   padding: 60px 0;
   color: #7D7D7D;
   font-size: 14px;
-}
-
-.emptySubText {
-  font-size: 12px;
-  color: #999999;
-  margin-top: 8px;
 }
 
 .fab {
