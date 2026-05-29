@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import "./ResetPasswordPage.css";
+import { apiFetch } from "../api";
 import Boo9 from "../assets/owl_wink_heart.svg";
 
 function ResetPasswordPage() {
@@ -14,6 +15,7 @@ function ResetPasswordPage() {
   const [passwordCheck, setPasswordCheck] = useState("");
   const [passwordCheckTried, setPasswordCheckTried] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordResetFailed, setPasswordResetFailed] = useState(false);
 
   const emailValid = /^[^\s@]+@hufs\.ac\.kr$/i.test(email.trim());
   const passwordMatched =
@@ -27,18 +29,10 @@ function ResetPasswordPage() {
     if (!emailValid) return;
 
     try {
-      const response = await fetch("http://localhost:4000/api/send-code", {
+      await apiFetch("/api/auth/password/email/send", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
+        body: { email },
       });
-
-      if (!response.ok) {
-        setEmailSendFailed(true);
-        return;
-      }
 
       setCode("");
       setCodeTried(false);
@@ -54,23 +48,32 @@ function ResetPasswordPage() {
     if (code.length !== 6) return;
 
     try {
-      const response = await fetch("http://localhost:4000/api/verify-code", {
+      await apiFetch("/api/auth/email/verify", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, code }),
+        body: { email, verification_code: code },
       });
 
-      if (response.ok) {
-        setStep(3);
-      }
+      setStep(3);
     } catch (error) {
       // codeTried already shows the same mismatch message.
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    setPasswordResetFailed(false);
+
+    if (step === 3) {
+      try {
+        await apiFetch("/api/auth/password", {
+          method: "PATCH",
+          body: { new_password: password },
+        });
+      } catch (error) {
+        setPasswordResetFailed(true);
+        return;
+      }
+    }
+
     if (step < 4) setStep(step + 1);
   };
 
@@ -219,6 +222,9 @@ function ResetPasswordPage() {
                   ? "비밀번호가 일치합니다."
                   : "비밀번호가 일치하지 않습니다."}
               </p>
+            )}
+            {passwordResetFailed && (
+              <p className="error-text">비밀번호 변경에 실패했습니다.</p>
             )}
 
             <button

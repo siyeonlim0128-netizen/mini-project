@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, Eye, EyeOff } from "lucide-react";
 import "./SignupPage.css";
+import { apiFetch } from "../api";
 import booImage from "../assets/owl_wink_heart.svg";
 
 const steps = ["이메일", "학과", "비밀번호", "정보입력", "완료"];
@@ -54,6 +55,8 @@ const majors = [
 
 export default function SignupPage() {
   const [step, setStep] = useState(1);
+  const [majorOptions, setMajorOptions] = useState([]);
+  const [submitError, setSubmitError] = useState("");
 
   const [email, setEmail] = useState("");
   const [emailChecked, setEmailChecked] = useState(false);
@@ -84,10 +87,25 @@ export default function SignupPage() {
   const nicknameValid = nickname.trim().length >= 2;
   const duplicatedNicknames = ["admin", "test", "관리자", "hufs"];
   const nicknameDuplicated = duplicatedNicknames.includes(nickname.trim());
+  const selectedMajor = majorOptions.find((item) => item.name === major);
+  const majorId = selectedMajor?.id;
+
+  useEffect(() => {
+    const fetchMajors = async () => {
+      try {
+        const response = await apiFetch("/api/majors");
+        setMajorOptions(response?.data || []);
+      } catch (error) {
+        setMajorOptions(majors.map((name, index) => ({ id: index + 1, name })));
+      }
+    };
+
+    fetchMajors();
+  }, []);
 
   const canNext = useMemo(() => {
     if (step === 1) return emailChecked && codeChecked;
-    if (step === 2) return major !== "";
+    if (step === 2) return Boolean(majorId);
     if (step === 3) return passwordSame && passwordCheckTried;
     if (step === 4) {
       return name.length >= 2 && nicknameChecked && agree1 && agree2;
@@ -98,7 +116,7 @@ export default function SignupPage() {
     step,
     emailChecked,
     codeChecked,
-    major,
+    majorId,
     passwordSame,
     passwordCheckTried,
     name,
@@ -116,15 +134,9 @@ export default function SignupPage() {
   }
 
   try {
-    const response = await fetch("http://localhost:4000/api/send-code", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email }),
-    });
+    await apiFetch(`/api/auth/email/send?email=${encodeURIComponent(email)}`);
 
-    setEmailChecked(response.ok);
+    setEmailChecked(true);
     setCodeChecked(false);
     setCodeTried(false);
   } catch (error) {
@@ -136,27 +148,44 @@ const verifyEmailCode = async () => {
   setCodeTried(true);
 
   try {
-    const response = await fetch("http://localhost:4000/api/verify-code", {
+    await apiFetch("/api/auth/email/verify", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, code }),
+      body: { email, verification_code: code },
     });
 
-    setCodeChecked(response.ok);
+    setCodeChecked(true);
   } catch (error) {
     setCodeChecked(false);
   }
 };
 
-  const next = () => {
+  const next = async () => {
     if (canNext) {
       if (step === 4) {
-      localStorage.setItem("nickname", nickname);
-      localStorage.setItem("name", name);
-      localStorage.setItem("major", major);
-    }
+        setSubmitError("");
+
+        try {
+          await apiFetch("/api/auth/signup", {
+            method: "POST",
+            body: {
+              email,
+              password,
+              password2: passwordCheck,
+              name,
+              nickname,
+              major_id: majorId,
+              is_agreed: agree1 && agree2,
+            },
+          });
+
+          localStorage.setItem("nickname", nickname);
+          localStorage.setItem("name", name);
+          localStorage.setItem("major", major);
+        } catch (error) {
+          setSubmitError(error.message);
+          return;
+        }
+      }
       setMajorOpen(false);
       setStep(step + 1);
     }
@@ -261,16 +290,16 @@ const verifyEmailCode = async () => {
 
               {majorOpen && (
                 <ul className="select-list">
-                  {majors.map((item) => (
-                    <li key={item}>
+              {(majorOptions.length ? majorOptions : majors.map((name, index) => ({ id: index + 1, name }))).map((item) => (
+                    <li key={item.id}>
                       <button
                         type="button"
                         onClick={() => {
-                          setMajor(item);
+                          setMajor(item.name);
                           setMajorOpen(false);
                         }}
                       >
-                        {item}
+                        {item.name}
                       </button>
                     </li>
                   ))}
@@ -372,6 +401,7 @@ const verifyEmailCode = async () => {
               : "이미 존재하는 닉네임입니다."
               : ""}
             </p>
+            <p className="error">{submitError}</p>
 
             <h3>약관동의</h3>
             <label className="check">
