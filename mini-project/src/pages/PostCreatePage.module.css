@@ -286,6 +286,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .successText {
@@ -298,14 +300,20 @@
 }
 
 .successImage {
+  display: block;
   width: 180px;
   height: 180px;
   object-fit: contain;
-  margin-bottom: 28px;
+  object-position: center;
+  margin: 0 auto 28px;
+  align-self: center;
 }
 
 .confirmButton {
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 14px;
   background: #ffffff;
   border: 2.5px solid #7999E9;
@@ -315,6 +323,8 @@
   color: #7D7D7D;
   cursor: pointer;
   font-family: 'Intel One Mono', monospace;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .confirmButton:hover {
@@ -344,13 +354,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .contactOwlImage {
+  display: block;
   width: 160px;
   height: 160px;
   object-fit: contain;
-  margin-bottom: 16px;
+  object-position: center;
+  margin: 0 auto 16px;
+  align-self: center;
 }
 
 .contactModalTitle {
@@ -414,6 +429,9 @@
 
 .contactConfirmButton {
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 16px;
   background: #7999E9;
   border: none;
@@ -424,6 +442,8 @@
   cursor: pointer;
   font-family: 'Intel One Mono', monospace;
   margin-bottom: 12px;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .contactConfirmButton:hover {
@@ -431,6 +451,9 @@
 }
 
 .contactDismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   font-size: 13px;
@@ -438,6 +461,8 @@
   cursor: pointer;
   font-family: 'Intel One Mono', monospace;
   padding: 4px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .contactDismiss:hover {
