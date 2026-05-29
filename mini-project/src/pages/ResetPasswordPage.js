@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import "./ResetPasswordPage.css";
-import Boo9 from "../components/Boo9.svg";
+import Boo9 from "../assets/owl_contact.svg";
 
 function ResetPasswordPage() {
   const [step, setStep] = useState(1);

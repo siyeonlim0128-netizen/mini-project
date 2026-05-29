@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Check, Eye, EyeOff } from "lucide-react";
 import "./SignupPage.css";
-import booImage from "../components/Boo8.svg";
+import booImage from "../assets/owl_wink_heart.svg";
 
 const steps = ["이메일", "학과", "비밀번호", "정보입력", "완료"];
 

@@ -100,10 +100,13 @@
 
 .filterSection {
   padding: 0 16px 10px;
+  position: relative;
+  z-index: 50;
 }
 
 .categoryWrapper {
   position: relative;
+  width: fit-content;
   margin-bottom: 10px;
 }
 
@@ -133,17 +136,17 @@
 
 .categoryDropdown {
   position: absolute;
-  top: 42px;
+  top: calc(100% + 8px);
   left: 0;
+  width: 170px;
   background: #ffffff;
   border: 2px solid #7999E9;
   border-radius: 12px;
   list-style: none;
   padding: 6px 0;
   margin: 0;
-  z-index: 10;
-  min-width: 160px;
-  box-shadow: 0 4px 16px rgba(121, 153, 233, 0.15);
+  z-index: 60;
+  box-shadow: 0 8px 20px rgba(121, 153, 233, 0.2);
 }
 
 .categoryItem {
@@ -162,6 +165,12 @@
   color: #7999E9;
   font-weight: 700;
   background: #e8eeff;
+}
+
+.sortButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .sortButton {
@@ -202,6 +211,8 @@
 .postList {
   flex: 1;
   padding: 4px 16px 120px;
+  position: relative;
+  z-index: 1;
 }
 
 .postCard {
