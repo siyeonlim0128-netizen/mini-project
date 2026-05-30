@@ -7,50 +7,57 @@ import booImage from "../assets/owl_wink_heart.svg";
 const steps = ["이메일", "학과", "비밀번호", "정보입력", "완료"];
 
 const majors = [
-  "국제금융학과",
-  "그리스·불가리아학과",
-  "글로벌스포츠산업학부",
-  "기후변화융합학부",
-  "독일어통번역학과",
-  "디지털콘텐츠학부",
-  "루마니아학과",
-  "말레이·인도네시아어통번역학과",
-  "바이오메디컬공학부",
-  "반도체전자공학부(반도체공학전공)",
-  "반도체전자공학부(전자공학전공)",
-  "사학과",
-  "산업경영공학과",
-  "생명공학과",
-  "세르비아·크로아티아학과",
-  "수학과",
-  "스페인어통번역학과",
-  "아랍어통번역학과",
-  "아프리카학부",
-  "언어인지과학과",
-  "영어통번역학부",
-  "우크라이나학과",
-  "융합인재학부",
-  "이탈리아어통번역학과",
-  "일본어통번역학과",
-  "자유전공학부(글로벌)",
-  "전자물리학과",
-  "정보통신공학과",
-  "중국어통번역학과",
-  "중앙아시아학과",
-  "체코·슬로바키아학과",
-  "철학과",
-  "컴퓨터공학부",
-  "태국어통번역학과",
-  "통계학과",
-  "투어리즘 & 웰니스학부",
-  "폴란드학과",
-  "한국학과",
-  "화학과",
-  "환경학과",
-  "헝가리학과",
-  "AI데이터융합학부",
-  "Finance & AI융합학부",
-  "Global Business & Technology학부",
+                  "철학과",
+                "사학과",
+                "언어인지과학과",
+
+                "폴란드학과",
+                "루마니아학과",
+                "체코·슬로바키아학과",
+                "헝가리학과",
+                "세르비아·크로아티아학과",
+                "그리스·불가리아학과",
+                "중앙아시아학과",
+                "아프리카학부",
+                "우크라이나학과",
+                "한국학과",
+
+                "Global Business & Technology학부",
+                "국제금융학과",
+
+                "수학과",
+                "통계학과",
+                "전자물리학과",
+                "환경학과",
+                "생명공학과",
+                "화학과",
+
+                "컴퓨터공학부",
+                "정보통신공학과",
+                "반도체전자공학부(반도체공학전공)",
+                "반도체전자공학부(전자공학전공)",
+                "산업경영공학과",
+
+                "융합인재학부",
+
+                "디지털콘텐츠학부",
+                "투어리즘 & 웰니스학부",
+                "글로벌스포츠산업학부",
+
+                "AI데이터융합학부",
+                "Finance & AI융합학부",
+
+                "바이오메디컬공학부",
+                "기후변화융합학부",
+                "자유전공학부(글로벌)",
+
+                "인문대학[통합모집]",
+                "국가전략언어계열",
+                "경상대학[통합모집]",
+                "자연과학대학[통합모집]",
+                "공과계열",
+                "Culture & Technology융합대학[통합모집]",
+                "AI융합대학[통합모집]"
 ];
 
 export default function SignupPage() {
@@ -87,7 +94,9 @@ export default function SignupPage() {
   const nicknameValid = nickname.trim().length >= 2;
   const duplicatedNicknames = ["admin", "test", "관리자", "hufs"];
   const nicknameDuplicated = duplicatedNicknames.includes(nickname.trim());
-  const selectedMajor = majorOptions.find((item) => item.name === major);
+  const fallbackMajorOptions = majors.map((name, index) => ({ id: index + 1, name }));
+  const displayMajorOptions = majorOptions.length ? majorOptions : fallbackMajorOptions;
+  const selectedMajor = displayMajorOptions.find((item) => item.name === major);
   const majorId = selectedMajor?.id;
 
   useEffect(() => {
@@ -105,7 +114,7 @@ export default function SignupPage() {
 
   const canNext = useMemo(() => {
     if (step === 1) return emailChecked && codeChecked;
-    if (step === 2) return Boolean(majorId);
+    if (step === 2) return Boolean(major);
     if (step === 3) return passwordSame && passwordCheckTried;
     if (step === 4) {
       return name.length >= 2 && nicknameChecked && agree1 && agree2;
@@ -116,7 +125,7 @@ export default function SignupPage() {
     step,
     emailChecked,
     codeChecked,
-    majorId,
+    major,
     passwordSame,
     passwordCheckTried,
     name,
@@ -163,6 +172,11 @@ const verifyEmailCode = async () => {
     if (canNext) {
       if (step === 4) {
         setSubmitError("");
+
+        if (!majorOptions.length) {
+          setSubmitError("학과 목록을 불러오지 못했습니다. 백엔드 전공 목록을 확인해주세요.");
+          return;
+        }
 
         try {
           await apiFetch("/api/auth/signup", {
@@ -290,7 +304,7 @@ const verifyEmailCode = async () => {
 
               {majorOpen && (
                 <ul className="select-list">
-              {(majorOptions.length ? majorOptions : majors.map((name, index) => ({ id: index + 1, name }))).map((item) => (
+              {displayMajorOptions.map((item) => (
                     <li key={item.id}>
                       <button
                         type="button"
