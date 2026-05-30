@@ -32,19 +32,38 @@ body {
 }
 
 .page {
-  min-height: 100vh;
+  width: 100%;
+  min-height: 100svh;
   display: grid;
   place-items: center;
+  background: #e9e9e9;
+  padding: 24px 28px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.page::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: min(504px, 100vw);
+  background: #dfe8ff;
+  transform: translateX(-50%);
+  z-index: 0;
 }
 
 .page > .card {
-  width: 360px;
+  width: min(448px, calc(100vw - 56px));
   min-height: 620px;
   background: white;
   border: 2px solid #91a8ff;
   border-radius: 10px;
-  box-shadow: 0 0 0 14px #dfe8ff;
-  padding: 48px 24px 36px;
+  box-shadow: none;
+  padding: 48px 28px 36px;
+  position: relative;
+  z-index: 1;
 }
 
 .page h1 {

@@ -15,7 +15,7 @@ function ResetPasswordPage() {
   const [passwordCheck, setPasswordCheck] = useState("");
   const [passwordCheckTried, setPasswordCheckTried] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [passwordResetFailed, setPasswordResetFailed] = useState(false);
+  const [passwordResetError, setPasswordResetError] = useState("");
 
   const emailValid = /^[^\s@]+@hufs\.ac\.kr$/i.test(email.trim());
   const passwordMatched =
@@ -60,7 +60,7 @@ function ResetPasswordPage() {
   };
 
   const handleNext = async () => {
-    setPasswordResetFailed(false);
+    setPasswordResetError("");
 
     if (step === 3) {
       try {
@@ -69,7 +69,9 @@ function ResetPasswordPage() {
           body: { new_password: password },
         });
       } catch (error) {
-        setPasswordResetFailed(true);
+        setPasswordResetError(
+          error.message || "기존 비밀번호와 다른 비밀번호를 입력해주세요."
+        );
         return;
       }
     }
@@ -188,6 +190,7 @@ function ResetPasswordPage() {
                 onChange={(event) => {
                   setPassword(event.target.value);
                   setPasswordCheckTried(false);
+                  setPasswordResetError("");
                 }}
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)}>
@@ -204,6 +207,7 @@ function ResetPasswordPage() {
                   onChange={(event) => {
                     setPasswordCheck(event.target.value);
                     setPasswordCheckTried(false);
+                    setPasswordResetError("");
                   }}
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}>
@@ -223,8 +227,8 @@ function ResetPasswordPage() {
                   : "비밀번호가 일치하지 않습니다."}
               </p>
             )}
-            {passwordResetFailed && (
-              <p className="error-text">비밀번호 변경에 실패했습니다.</p>
+            {passwordResetError && (
+              <p className="error-text">{passwordResetError}</p>
             )}
 
             <button
