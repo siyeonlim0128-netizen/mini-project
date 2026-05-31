@@ -39,9 +39,7 @@ const DUMMY_POSTS = [
 ];
 
 function MainPage({
-  initialTab = 'home',
   onCreateClick,
-  onHomeClick,
   onLikesClick,
   onMessagesClick,
   onMyPageClick,
@@ -51,17 +49,6 @@ function MainPage({
   const [activeSort, setActiveSort] = useState('최신순');
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [likedPosts, setLikedPosts] = useState([]);
-  const [currentTab, setCurrentTab] = useState(initialTab);
-
-  const moveHome = () => {
-    setCurrentTab('home');
-    onHomeClick?.();
-  };
-
-  const moveLikes = () => {
-    setCurrentTab('likes');
-    onLikesClick?.();
-  };
 
   const toggleLike = (postId) => {
     if (likedPosts.includes(postId)) {
@@ -81,59 +68,6 @@ function MainPage({
   const searchedPosts = filteredPosts.filter((post) =>
     post.title.includes(searchText)
   );
-
-  const likedPostsList = DUMMY_POSTS.filter((post) =>
-    likedPosts.includes(post.id)
-  );
-
-  if (currentTab === 'likes') {
-    return (
-      <div className={styles.container}>
-        <header className={styles.header}>
-          <h1 className={styles.logoCenter}>관심상품</h1>
-        </header>
-        <div className={styles.postList}>
-          {likedPostsList.length > 0 ? (
-            likedPostsList.map((post) => (
-              <div key={post.id} className={styles.postCard}>
-                <div className={styles.postImage}>
-                  <span className={styles.imagePlaceholder}>사진</span>
-                </div>
-                <div className={styles.postInfo}>
-                  <p className={styles.postTitle}>{post.title}</p>
-                  <p className={styles.postPrice}>{post.price}</p>
-                </div>
-                <button className={styles.likeButton} onClick={() => toggleLike(post.id)}>❤️</button>
-              </div>
-            ))
-          ) : (
-            <div className={styles.emptyState}>
-              <p>관심상품이 없습니다.</p>
-              <p className={styles.emptySubText}>홈에서 하트를 눌러 추가해보세요!</p>
-            </div>
-          )}
-        </div>
-        <nav className={styles.bottomNav}>
-          <button className={styles.navItem} onClick={moveHome}>
-            <svg className={styles.navSvg} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
-            <span className={styles.navLabel}>홈버튼</span>
-          </button>
-          <button className={`${styles.navItem} ${styles.navItemActive}`}>
-            <svg className={styles.navSvg} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 21C12 21 4 13.5 4 8.5C4 5.46 6.46 3 9.5 3C11.06 3 12 4 12 4S12.94 3 14.5 3C17.54 3 20 5.46 20 8.5C20 13.5 12 21 12 21Z"/></svg>
-            <span className={styles.navLabel}>관심상품</span>
-          </button>
-          <button className={styles.navItem} onClick={onMessagesClick}>
-            <svg className={styles.navSvg} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
-            <span className={styles.navLabel}>메세지</span>
-          </button>
-          <button className={styles.navItem} onClick={onMyPageClick}>
-            <svg className={styles.navSvg} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg>
-            <span className={styles.navLabel}>마이페이지</span>
-          </button>
-        </nav>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.container}>
@@ -234,7 +168,7 @@ function MainPage({
           <svg className={styles.navSvg} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
           <span className={styles.navLabel}>홈버튼</span>
         </button>
-        <button className={styles.navItem} onClick={moveLikes}>
+        <button className={styles.navItem} onClick={onLikesClick}>
           <svg className={styles.navSvg} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 21C12 21 4 13.5 4 8.5C4 5.46 6.46 3 9.5 3C11.06 3 12 4 12 4S12.94 3 14.5 3C17.54 3 20 5.46 20 8.5C20 13.5 12 21 12 21Z"/></svg>
           <span className={styles.navLabel}>관심상품</span>
         </button>

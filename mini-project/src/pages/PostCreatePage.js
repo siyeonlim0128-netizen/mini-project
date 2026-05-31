@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './PostCreatePage.module.css';
 import owlSuccess from '../assets/owl_wink_heart.svg';
 import owlContact from '../assets/owl_contact.svg';
@@ -15,6 +15,10 @@ function PostCreatePage({ onBack }) {
   const [isFree, setIsFree] = useState(false);
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, []);
 
   const handleSubmit = () => {
     if (!title || !category) {
