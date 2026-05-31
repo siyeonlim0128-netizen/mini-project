@@ -7,6 +7,7 @@ const FONT = "'Intel One Mono', 'Courier New', monospace";
 const BG = "#D4E1FD";
 const BORDER = "#7999E9";
 const BLUE = "#3a5fa8";
+const BASE_URL = "https://boo-be-production.up.railway.app";
 
 const injectStyles = () => {
   if (document.getElementById("login-styles")) return;
@@ -31,25 +32,41 @@ const injectStyles = () => {
   document.head.appendChild(style);
 };
 
-const VALID_EMAIL = "user@hufs.ac.kr";
-const VALID_PASSWORD = "password123";
-
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [attempted, setAttempted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   injectStyles();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setAttempted(true);
-    if (email !== VALID_EMAIL || password !== VALID_PASSWORD) {
-      setError("입력하신 이메일 또는 비밀번호가 일치하지 않습니다.");
-    } else {
-      setError("");
-      navigate("/main");
+    if (!email || !password) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("accessToken", data.accessToken);
+        setError("");
+        navigate("/main");
+      } else {
+        setError("입력하신 이메일 또는 비밀번호가 일치하지 않습니다.");
+      }
+    } catch (err) {
+      setError("서버 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,11 +85,7 @@ export default function Login() {
       {/* 이전 버튼 */}
       <button
         onClick={() => navigate("/")}
-        style={{
-          position: "absolute", top: "24px", left: "24px",
-          background: "none", border: "none",
-          cursor: "pointer", padding: 0,
-        }}
+        style={{ position: "absolute", top: "24px", left: "24px", background: "none", border: "none", cursor: "pointer", padding: 0 }}
       >
         <img src={BackArrow} alt="이전" style={{ width: "40px", height: "40px" }} />
       </button>
@@ -110,10 +123,7 @@ export default function Login() {
 
       {/* 폼 영역 */}
       <div style={{ width: "100%", display: "flex", flexDirection: "column" }}>
-        <label style={{
-          fontSize: "13px", color: BLUE, fontWeight: "700",
-          marginBottom: "6px", letterSpacing: "0.02em",
-        }}>
+        <label style={{ fontSize: "13px", color: BLUE, fontWeight: "700", marginBottom: "6px", letterSpacing: "0.02em" }}>
           이메일 입력
         </label>
         <input
@@ -132,10 +142,7 @@ export default function Login() {
           }}
         />
 
-        <label style={{
-          fontSize: "13px", color: BLUE, fontWeight: "700",
-          marginBottom: "6px", marginTop: "16px", letterSpacing: "0.02em",
-        }}>
+        <label style={{ fontSize: "13px", color: BLUE, fontWeight: "700", marginBottom: "6px", marginTop: "16px", letterSpacing: "0.02em" }}>
           비밀번호 입력
         </label>
         <input
@@ -157,18 +164,21 @@ export default function Login() {
         <button
           className="login-btn"
           onClick={handleLogin}
+          disabled={loading}
           style={{
             marginTop: "28px", width: "100%", padding: "14px",
             borderRadius: "50px", border: `3px solid ${BORDER}`,
             background: "#fff", color: "#000",
             fontSize: "14px", fontFamily: FONT, fontWeight: "700",
-            cursor: "pointer", transition: "background 0.15s, transform 0.1s",
+            cursor: loading ? "not-allowed" : "pointer",
+            transition: "background 0.15s, transform 0.1s",
             display: "flex", alignItems: "center", justifyContent: "center",
+            opacity: loading ? 0.7 : 1,
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = BG)}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
+          onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = BG; }}
+          onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#fff"; }}
         >
-          로그인
+          {loading ? "로그인 중..." : "로그인"}
         </button>
 
         {error && (

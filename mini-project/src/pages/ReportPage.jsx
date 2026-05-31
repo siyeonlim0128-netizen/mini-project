@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import BackArrow from '../assets/arrow-left-circle.svg';
 
 const FONT = "'Intel One Mono', 'Courier New', monospace";
@@ -8,21 +8,48 @@ const BORDER = "#7999E9";
 const BLUE = "#3a5fa8";
 const RED = "#e53e3e";
 const BROWN = "#9e8b7b";
+const BASE_URL = "https://boo-be-production.up.railway.app";
 
 export default function ReportPage() {
   const navigate = useNavigate();
-  const [target, setTarget] = useState("");
+  const location = useLocation();
+  const { targetUserId, postId } = location.state || {};
+
   const [reason, setReason] = useState("");
   const [step, setStep] = useState("form");
 
   const handleSubmit = () => {
-    if (!target.trim() || !reason.trim()) return;
+    if (!reason.trim()) return;
     setStep("confirm");
   };
 
-  const handleConfirm = () => {
-    setStep("done");
-    setTimeout(() => navigate(-1), 3000);
+  const handleConfirm = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await fetch(`${BASE_URL}/api/reports`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          target_user_id: targetUserId,
+          post_id: postId ? Number(postId) : undefined,
+          reason,
+        }),
+      });
+
+      if (response.ok) {
+        setStep("done");
+        setTimeout(() => navigate(-1), 3000);
+      } else {
+        setStep("form");
+        alert("신고 처리 중 오류가 발생했습니다.");
+      }
+    } catch (err) {
+      setStep("form");
+      alert("서버 오류가 발생했습니다.");
+    }
   };
 
   return (
@@ -33,10 +60,7 @@ export default function ReportPage() {
       padding: "20px 20px 32px",
     }}>
       {/* 상단 바 */}
-      <div style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        marginBottom: "24px",
-      }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
         <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
           <img src={BackArrow} alt="이전" style={{ width: "38px", height: "38px" }} />
         </button>
@@ -54,19 +78,6 @@ export default function ReportPage() {
         <p style={{ fontSize: "13px", fontWeight: "700", color: BLUE, marginBottom: "16px", lineHeight: "1.7" }}>
           사용자를 신고하는 사유를<br />작성해주세요.
         </p>
-
-        <input
-          value={target}
-          onChange={(e) => setTarget(e.target.value)}
-          placeholder="신고 대상 닉네임을 작성해주세요."
-          style={{
-            width: "100%", padding: "12px 16px",
-            border: `3px solid ${BORDER}`, borderRadius: "50px",
-            fontSize: "13px", fontFamily: FONT, outline: "none",
-            boxSizing: "border-box", marginBottom: "12px",
-            color: "#333", fontWeight: "700",
-          }}
-        />
 
         <textarea
           value={reason}
@@ -96,21 +107,11 @@ export default function ReportPage() {
             <div style={{ display: "flex", gap: "12px" }}>
               <button
                 onClick={() => setStep("form")}
-                style={{
-                  padding: "10px 24px", borderRadius: "50px",
-                  border: "none", background: "#fff",
-                  color: "#333", fontFamily: FONT,
-                  fontWeight: "700", fontSize: "14px", cursor: "pointer",
-                }}
+                style={{ padding: "10px 24px", borderRadius: "50px", border: "none", background: "#fff", color: "#333", fontFamily: FONT, fontWeight: "700", fontSize: "14px", cursor: "pointer" }}
               >아니요</button>
               <button
                 onClick={handleConfirm}
-                style={{
-                  padding: "10px 24px", borderRadius: "50px",
-                  border: "none", background: "#fff",
-                  color: RED, fontFamily: FONT,
-                  fontWeight: "700", fontSize: "14px", cursor: "pointer",
-                }}
+                style={{ padding: "10px 24px", borderRadius: "50px", border: "none", background: "#fff", color: RED, fontFamily: FONT, fontWeight: "700", fontSize: "14px", cursor: "pointer" }}
               >네</button>
             </div>
           </div>
@@ -137,7 +138,7 @@ export default function ReportPage() {
             borderRadius: "50px", border: `3px solid ${RED}`,
             background: RED, color: "#fff",
             fontSize: "14px", fontFamily: FONT, fontWeight: "700",
-            cursor: "pointer", transition: "opacity 0.15s",
+            cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
             letterSpacing: "0.05em",
             pointerEvents: step !== "form" ? "none" : "auto",

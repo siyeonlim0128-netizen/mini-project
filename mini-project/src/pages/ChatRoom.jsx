@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 import Boo2 from "../assets/Boo2.svg";
 import BackArrow from '../assets/arrow-left-circle.svg';
 
@@ -9,45 +11,88 @@ const BLUE = "#3a5fa8";
 const BORDER = "#b8ccf5";
 const MY_BUBBLE = "#b8ccf5";
 const OTHER_BUBBLE = "#fff";
-
-const DUMMY_CHATS = {
-  1: { nickname: "햄스터", messages: [
-    { id: 1, mine: false, text: "안녕하세요!" },
-    { id: 2, mine: true, text: "네 안녕하세요!" },
-    { id: 3, mine: false, text: "혹시 아직 판매 중인가요?" },
-    { id: 4, mine: true, text: "네 판매 중입니다!" },
-  ]},
-  2: { nickname: "사과", messages: [
-    { id: 1, mine: false, text: "가격 조정 가능한가요?" },
-    { id: 2, mine: true, text: "조금은 가능해요!" },
-  ]},
-  3: { nickname: "복숭아", messages: [] },
-  4: { nickname: "포도", messages: [] },
-  5: { nickname: "딸기딸기", messages: [] },
-};
+const BASE_URL = "https://boo-be-production.up.railway.app";
 
 export default function ChatRoom() {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const chat = DUMMY_CHATS[id] || DUMMY_CHATS[1];
-
-  const [messages, setMessages] = useState(chat.messages);
+  const { id } = useParams(); // roomId
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [roomInfo, setRoomInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
   const bottomRef = useRef(null);
+  const stompClient = useRef(null);
+  const myId = Number(localStorage.getItem("userId"));
 
+  // 기존 메시지 불러오기
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await fetch(`${BASE_URL}/api/chat-rooms/${id}/messages`, {
+          headers: { "Authorization": `Bearer ${token}` },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setMessages(data.data);
+        }
+      } catch (err) {
+        console.error("메시지 불러오기 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMessages();
+  }, [id]);
+
+  // 웹소켓 연결
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+
+    const client = new Client({
+      webSocketFactory: () => new SockJS(`${BASE_URL}/ws/chat`),
+      connectHeaders: { Authorization: `Bearer ${token}` },
+      onConnect: () => {
+        // 채팅방 구독
+        client.subscribe(`/topic/chat/${id}`, (message) => {
+          const received = JSON.parse(message.body);
+          setMessages((prev) => [...prev, received]);
+        });
+      },
+      onStompError: (frame) => {
+        console.error("STOMP 오류:", frame);
+      },
+    });
+
+    client.activate();
+    stompClient.current = client;
+
+    return () => {
+      client.deactivate();
+    };
+  }, [id]);
+
+  // 새 메시지 오면 스크롤 아래로
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const sendMessage = () => {
-    if (!input.trim()) return;
-    setMessages((prev) => [...prev, { id: Date.now(), mine: true, text: input.trim() }]);
+    if (!input.trim() || !stompClient.current?.connected) return;
+
+    stompClient.current.publish({
+      destination: `/app/chat/${id}`,
+      body: JSON.stringify({ message: input.trim() }),
+    });
     setInput("");
   };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") sendMessage();
   };
+
+  // 상대방 닉네임 (메시지 목록에서 추출)
+  const opponentNickname = messages.find((m) => m.senderId !== myId)?.senderNickname || "상대방";
 
   return (
     <div style={{
@@ -62,15 +107,11 @@ export default function ChatRoom() {
         borderBottom: `1.5px solid ${BORDER}`,
         background: BG,
       }}>
-        <button
-            onClick={() => navigate("/messages")}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
-        >
-            <img src={BackArrow} alt="이전" style={{ width: "36px", height: "36px" }} />
+        <button onClick={() => navigate("/messages")} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+          <img src={BackArrow} alt="이전" style={{ width: "36px", height: "36px" }} />
         </button>
-
         <span style={{ fontSize: "16px", fontWeight: "700", color: BLUE }}>
-          {chat.nickname}
+          {loading ? "..." : opponentNickname}
         </span>
         <img src={Boo2} alt="부엉이" style={{ width: "36px", height: "36px", objectFit: "contain" }} />
       </div>
@@ -80,26 +121,33 @@ export default function ChatRoom() {
         flex: 1, overflowY: "auto", padding: "16px",
         display: "flex", flexDirection: "column", gap: "10px",
       }}>
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            style={{
-              display: "flex",
-              justifyContent: msg.mine ? "flex-end" : "flex-start",
-            }}
-          >
-            <div style={{
-              maxWidth: "65%", padding: "10px 14px",
-              borderRadius: msg.mine ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
-              background: msg.mine ? MY_BUBBLE : OTHER_BUBBLE,
-              border: msg.mine ? "none" : `1.5px solid ${BORDER}`,
-              fontSize: "13px", fontWeight: "700", color: "#333",
-              lineHeight: "1.5",
-            }}>
-              {msg.text}
-            </div>
+        {loading ? (
+          <div style={{ textAlign: "center", color: BLUE, fontSize: "13px", fontWeight: "700", marginTop: "40px" }}>
+            불러오는 중...
           </div>
-        ))}
+        ) : messages.length === 0 ? (
+          <div style={{ textAlign: "center", color: "#aac0e8", fontSize: "13px", fontWeight: "700", marginTop: "40px" }}>
+            첫 메시지를 보내보세요!
+          </div>
+        ) : (
+          messages.map((msg) => {
+            const isMine = msg.senderId === myId;
+            return (
+              <div key={msg.messageId || msg.id} style={{ display: "flex", justifyContent: isMine ? "flex-end" : "flex-start" }}>
+                <div style={{
+                  maxWidth: "65%", padding: "10px 14px",
+                  borderRadius: isMine ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                  background: isMine ? MY_BUBBLE : OTHER_BUBBLE,
+                  border: isMine ? "none" : `1.5px solid ${BORDER}`,
+                  fontSize: "13px", fontWeight: "700", color: "#333",
+                  lineHeight: "1.5",
+                }}>
+                  {msg.message || msg.text}
+                </div>
+              </div>
+            );
+          })
+        )}
         <div ref={bottomRef} />
       </div>
 
