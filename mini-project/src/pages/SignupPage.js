@@ -233,7 +233,10 @@ const verifyEmailCode = async () => {
 
             <div className="row">
               <input
+                className={!email ? "placeholder-center" : ""}
                 value={email}
+                type="email"
+                placeholder="example@hufs.ac.kr"
                 onChange={(e) => {
                   setEmail(e.target.value);
                   setEmailChecked(false);

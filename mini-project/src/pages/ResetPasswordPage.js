@@ -116,6 +116,7 @@ function ResetPasswordPage() {
             <label>학교 이메일</label>
             <div className="row">
               <input
+                className={!email ? "placeholder-center" : ""}
                 value={email}
                 onChange={(event) => {
                   setEmail(event.target.value);
