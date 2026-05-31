@@ -106,7 +106,7 @@ export default function PostDetail() {
           <img src={BackArrow} alt="이전" style={{ width: "38px", height: "38px" }} />
         </button>
         <button
-          onClick={() => navigate("/report")}
+          onClick={() => navigate("/report", { state: { targetUserId: post?.authorId, postId: id } })}
           style={{
             background: "#e53e3e", border: "none", borderRadius: "50px",
             padding: "7px 18px", color: "#fff",
