@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   UserRoundCog,
   FileText,
@@ -12,6 +12,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import "./MyPage.css";
+import { apiFetch } from "../api";
 
 const getMyPosts = () => {
   const savedPosts = localStorage.getItem("myPosts");
@@ -112,16 +113,30 @@ const majors = [
 
 const NAV_PATHS = {
   home: "/main",
-  favorite: "/favorites",
+  favorite: "/wishlist",
   message: "/messages",
   mypage: "/mypage",
 };
 
 function ProfileSummary() {
-  const userName = localStorage.getItem("name") || "이름";
-  const userNickname = localStorage.getItem("nickname") || "닉네임";
-  const userMajor = localStorage.getItem("major") || "본전공";
+  const [profile, setProfile] = useState(null);
+  const userName = profile?.name || localStorage.getItem("name") || "이름";
+  const userNickname = profile?.nickname || localStorage.getItem("nickname") || "닉네임";
+  const userMajor = profile?.major?.name || localStorage.getItem("major") || "본전공";
   const userProfileImage = localStorage.getItem("userProfileImage");
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await apiFetch("/api/user/me", { auth: true });
+        setProfile(response?.data || null);
+      } catch (error) {
+        setProfile(null);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   return (
     <section className="card profile-card">
@@ -141,15 +156,15 @@ function ProfileSummary() {
 
       <div className="stats">
         <div>
-          <strong>4</strong>
+          <strong>{profile?.sales_post_count ?? 4}</strong>
           <span>판매글</span>
         </div>
         <div>
-          <strong>12</strong>
+          <strong>{profile?.transaction_count ?? 12}</strong>
           <span>거래횟수</span>
         </div>
         <div>
-          <strong>6</strong>
+          <strong>{profile?.wish_count ?? 6}</strong>
           <span>좋아요</span>
         </div>
       </div>
@@ -164,15 +179,31 @@ function MenuList({ onMove }) {
     setModalType(null);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await apiFetch("/api/auth/logout", { method: "POST", auth: true });
+    } catch (error) {
+      // Even if the server token is already expired, clear local login state.
+    }
+
+    localStorage.removeItem("accessToken");
     setModalType(null);
     alert("로그아웃되었습니다.");
+    window.location.href = "/login";
   };
 
-  const handleWithdraw = () => {
+  const handleWithdraw = async () => {
+    try {
+      await apiFetch("/api/user/delete", { method: "DELETE", auth: true });
+    } catch (error) {
+      alert(error.message);
+      return;
+    }
+
     localStorage.clear();
     setModalType(null);
     alert("탈퇴 처리되었습니다.");
+    window.location.href = "/";
   };
 
   const modalMessage =
@@ -328,11 +359,38 @@ function EditProfilePage({ onMove }) {
   const [nicknameChecked, setNicknameChecked] = useState(false);
   const [nicknameTried, setNicknameTried] = useState(false);
   const [editMajorOpen, setEditMajorOpen] = useState(false);
+  const [majorOptions, setMajorOptions] = useState([]);
+  const [saveError, setSaveError] = useState("");
 
   const nicknameChanged = editNickname.trim() !== originalNickname.trim();
   const canSave = !nicknameChanged || nicknameChecked;
+  const selectedMajor = majorOptions.find((item) => item.name === editMajor);
 
   const duplicatedNicknames = ["admin", "test", "관리자", "hufs"];
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const [profileResponse, majorsResponse] = await Promise.all([
+          apiFetch("/api/user/me", { auth: true }),
+          apiFetch("/api/majors"),
+        ]);
+        const profile = profileResponse?.data;
+
+        setMajorOptions(majorsResponse?.data || []);
+
+        if (profile) {
+          setEditName(profile.name || "");
+          setEditNickname(profile.nickname || "");
+          setEditMajor(profile.major?.name || "");
+        }
+      } catch (error) {
+        setMajorOptions(majors.map((name, index) => ({ id: index + 1, name })));
+      }
+    };
+
+    fetchInitialData();
+  }, []);
 
   const handleNicknameCheck = () => {
     setNicknameTried(true);
@@ -365,13 +423,29 @@ function EditProfilePage({ onMove }) {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!canSave) return;
 
-    localStorage.setItem("name", editName);
-    localStorage.setItem("nickname", editNickname);
-    localStorage.setItem("major", editMajor);
-    localStorage.setItem("userProfileImage", profileImage);
+    setSaveError("");
+
+    try {
+      await apiFetch("/api/user/update", {
+        method: "PUT",
+        auth: true,
+        body: {
+          nickname: editNickname,
+          major_id: selectedMajor?.id,
+        },
+      });
+
+      localStorage.setItem("name", editName);
+      localStorage.setItem("nickname", editNickname);
+      localStorage.setItem("major", editMajor);
+      localStorage.setItem("userProfileImage", profileImage);
+    } catch (error) {
+      setSaveError(error.message);
+      return;
+    }
 
     onMove("main");
   };
@@ -440,16 +514,19 @@ function EditProfilePage({ onMove }) {
 
           {editMajorOpen && (
             <ul className="select-list">
-              {majors.map((item) => (
-                <li key={item}>
+              {(majorOptions.length
+                ? majorOptions
+                : majors.map((name, index) => ({ id: index + 1, name }))
+              ).map((item) => (
+                <li key={item.id}>
                   <button
                     type="button"
                     onClick={() => {
-                      setEditMajor(item);
+                      setEditMajor(item.name);
                       setEditMajorOpen(false);
                     }}
                   >
-                    {item}
+                    {item.name}
                   </button>
                 </li>
               ))}
@@ -469,6 +546,7 @@ function EditProfilePage({ onMove }) {
       </section>
 
       <section className="edit-submit-card">
+        {saveError && <p className="edit-error">{saveError}</p>}
         <button
           className="edit-submit-button"
           onClick={handleSave}
@@ -525,16 +603,50 @@ function MyPostsPage({ onMove }) {
   const [myPosts, setMyPosts] = useState(getMyPosts);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteDone, setDeleteDone] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  useEffect(() => {
+    const fetchMyPosts = async () => {
+      try {
+        const response = await apiFetch("/api/user/me/goods", { auth: true });
+        const posts = (response?.data || []).map((post) => ({
+          id: post.goods_id,
+          category: "",
+          description: `${post.title || ""}${post.price ? ` · ${post.price}원` : ""}`,
+          image: post.thumbnail_url,
+          likes: 0,
+          comments: 0,
+        }));
+
+        setMyPosts(posts);
+      } catch (error) {
+        setMyPosts(getMyPosts());
+      }
+    };
+
+    fetchMyPosts();
+  }, []);
 
   const closeDeleteConfirm = () => {
     setDeleteTarget(null);
   };
 
-  const confirmDeletePost = () => {
+  const confirmDeletePost = async () => {
     if (!deleteTarget) return;
 
-    const nextPosts = removeStoredPost(deleteTarget.id, myPosts);
-    setMyPosts(nextPosts);
+    setDeleteError("");
+
+    try {
+      await apiFetch(`/api/goods/${deleteTarget.id}`, {
+        method: "DELETE",
+        auth: true,
+      });
+    } catch (error) {
+      setDeleteError(error.message);
+      return;
+    }
+
+    setMyPosts(removeStoredPost(deleteTarget.id, myPosts));
     setDeleteTarget(null);
     setDeleteDone(true);
   };
@@ -563,6 +675,7 @@ function MyPostsPage({ onMove }) {
         <div className="post-modal-overlay">
           <div className="post-delete-modal">
             <p>정말로 삭제하시겠습니까?</p>
+            {deleteError && <p className="edit-error">{deleteError}</p>}
 
             <div className="post-delete-actions">
               <button type="button" onClick={closeDeleteConfirm}>
