@@ -449,7 +449,9 @@ const verifyEmailCode = async () => {
             src={Boo1}
             alt="HUFS 마스코트"
           />
-            <button onClick={() => setStep(1)}>닫기</button>
+            <button type="button" onClick={() => (window.location.href = "/login")}>
+              닫기
+            </button>
           </div>
         )}
 

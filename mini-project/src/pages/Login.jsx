@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Boo3 from '../assets/Boo3.svg';
 import BackArrow from '../assets/arrow-left-circle.svg';
+import { apiFetch } from "../api";
 
 const FONT = "'Intel One Mono', 'Courier New', monospace";
 const BG = "#D4E1FD";
@@ -31,9 +32,6 @@ const injectStyles = () => {
   document.head.appendChild(style);
 };
 
-const VALID_EMAIL = "user@hufs.ac.kr";
-const VALID_PASSWORD = "password123";
-
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -43,13 +41,28 @@ export default function Login() {
 
   injectStyles();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setAttempted(true);
-    if (email !== VALID_EMAIL || password !== VALID_PASSWORD) {
-      setError("입력하신 이메일 또는 비밀번호가 일치하지 않습니다.");
-    } else {
+
+    if (!email || !password) {
+      setError("이메일과 비밀번호를 입력해주세요.");
+      return;
+    }
+
+    try {
+      const response = await apiFetch("/api/auth/login", {
+        method: "POST",
+        body: { email, password },
+      });
+
+      if (response?.accessToken) {
+        localStorage.setItem("accessToken", response.accessToken);
+      }
+
       setError("");
       navigate("/main");
+    } catch (error) {
+      setError(error.message || "이메일 또는 비밀번호가 일치하지 않습니다.");
     }
   };
 

@@ -113,7 +113,7 @@ const majors = [
 
 const NAV_PATHS = {
   home: "/main",
-  favorite: "/favorites",
+  favorite: "/wishlist",
   message: "/messages",
   mypage: "/mypage",
 };
@@ -203,7 +203,7 @@ function MenuList({ onMove }) {
     localStorage.clear();
     setModalType(null);
     alert("탈퇴 처리되었습니다.");
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   const modalMessage =
