@@ -74,6 +74,7 @@ export default function SignupPage() {
   const [codeTried, setCodeTried] = useState(false);
 
   const [major, setMajor] = useState("");
+  const [majorId, setMajorId] = useState(null);
   const [majorOpen, setMajorOpen] = useState(false);
 
   const [password, setPassword] = useState("");
@@ -96,8 +97,6 @@ export default function SignupPage() {
   const nicknameDuplicated = duplicatedNicknames.includes(nickname.trim());
   const fallbackMajorOptions = majors.map((name, index) => ({ id: index + 1, name }));
   const displayMajorOptions = majorOptions.length ? majorOptions : fallbackMajorOptions;
-  const selectedMajor = displayMajorOptions.find((item) => item.name === major);
-  const majorId = selectedMajor?.id;
 
   useEffect(() => {
     const fetchMajors = async () => {
@@ -310,6 +309,7 @@ const verifyEmailCode = async () => {
                         type="button"
                         onClick={() => {
                           setMajor(item.name);
+                          setMajorId(item.id);
                           setMajorOpen(false);
                         }}
                       >
