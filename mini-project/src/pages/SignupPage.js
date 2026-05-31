@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { Check, Eye, EyeOff } from "lucide-react";
+import { BookUp2, Check, Eye, EyeOff } from "lucide-react";
 import "./SignupPage.css";
-import booImage from "../components/Boo8.svg";
+import Boo1 from "../assets/Boo1.svg";
 
 const steps = ["이메일", "학과", "비밀번호", "정보입력", "완료"];
 
@@ -402,7 +402,7 @@ const verifyEmailCode = async () => {
             </h2>
             <img
             className="complete-image"
-            src={booImage}
+            src={Boo1}
             alt="HUFS 마스코트"
           />
             <button onClick={() => setStep(1)}>닫기</button>
