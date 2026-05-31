@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { BookUp2, Check, Eye, EyeOff } from "lucide-react";
+import { Check, Eye, EyeOff } from "lucide-react";
 import "./SignupPage.css";
 import Boo1 from "../assets/Boo1.svg";
 
