@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import "./ResetPasswordPage.css";
+import { apiFetch } from "../api";
 import Boo2 from "../assets/Boo2.svg";
 
 function ResetPasswordPage() {
@@ -14,6 +15,7 @@ function ResetPasswordPage() {
   const [passwordCheck, setPasswordCheck] = useState("");
   const [passwordCheckTried, setPasswordCheckTried] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordResetError, setPasswordResetError] = useState("");
 
   const emailValid = /^[^\s@]+@hufs\.ac\.kr$/i.test(email.trim());
   const passwordMatched =
@@ -27,18 +29,10 @@ function ResetPasswordPage() {
     if (!emailValid) return;
 
     try {
-      const response = await fetch("http://localhost:4000/api/send-code", {
+      await apiFetch("/api/auth/password/email/send", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
+        body: { email },
       });
-
-      if (!response.ok) {
-        setEmailSendFailed(true);
-        return;
-      }
 
       setCode("");
       setCodeTried(false);
@@ -54,23 +48,34 @@ function ResetPasswordPage() {
     if (code.length !== 6) return;
 
     try {
-      const response = await fetch("http://localhost:4000/api/verify-code", {
+      await apiFetch("/api/auth/email/verify", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, code }),
+        body: { email, verification_code: code },
       });
 
-      if (response.ok) {
-        setStep(3);
-      }
+      setStep(3);
     } catch (error) {
       // codeTried already shows the same mismatch message.
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    setPasswordResetError("");
+
+    if (step === 3) {
+      try {
+        await apiFetch("/api/auth/password", {
+          method: "PATCH",
+          body: { new_password: password },
+        });
+      } catch (error) {
+        setPasswordResetError(
+          error.message || "기존 비밀번호와 다른 비밀번호를 입력해주세요."
+        );
+        return;
+      }
+    }
+
     if (step < 4) setStep(step + 1);
   };
 
@@ -185,6 +190,7 @@ function ResetPasswordPage() {
                 onChange={(event) => {
                   setPassword(event.target.value);
                   setPasswordCheckTried(false);
+                  setPasswordResetError("");
                 }}
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)}>
@@ -201,6 +207,7 @@ function ResetPasswordPage() {
                   onChange={(event) => {
                     setPasswordCheck(event.target.value);
                     setPasswordCheckTried(false);
+                    setPasswordResetError("");
                   }}
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}>
@@ -219,6 +226,9 @@ function ResetPasswordPage() {
                   ? "비밀번호가 일치합니다."
                   : "비밀번호가 일치하지 않습니다."}
               </p>
+            )}
+            {passwordResetError && (
+              <p className="error-text">{passwordResetError}</p>
             )}
 
             <button
