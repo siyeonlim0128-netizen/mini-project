@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import BackArrow from '../assets/arrow-left-circle.svg';
 
 const FONT = "'Intel One Mono', 'Courier New', monospace";
 const BG = "#D4E1FD";
-const BORDER = "#b8ccf5";
+const BORDER = "#7999E9";
 const BLUE = "#3a5fa8";
 const LIGHT_BLUE = "#7da3e8";
 
-// 더미 게시글 데이터
 const DUMMY_POSTS = {
   1: { name: "캠핑 텐트", price: "150,000원", category: "아웃도어", type: "sale", description: "4인용 캠핑 텐트입니다. 방수 기능이 있으며 설치가 간편합니다. 2회 사용했으며 상태 매우 좋습니다.", rating: 4, photos: 3 },
   2: { name: "블루투스 스피커", price: "45,000원", category: "전자기기", type: "rent", rentPeriod: "1주일", description: "JBL 블루투스 스피커입니다. 방수 기능 있으며 음질 좋습니다. 충전기 포함.", rating: 5, photos: 2 },
@@ -33,88 +33,81 @@ export default function PostDetail() {
       width: "100%", maxWidth: "390px", margin: "0 auto",
       minHeight: "100vh", backgroundColor: BG,
       fontFamily: FONT, display: "flex", flexDirection: "column",
-      paddingBottom: "24px",
     }}>
+
       {/* 상단 바 */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "16px 16px 8px",
+        padding: "20px 20px 12px",
       }}>
-        {/* 이전 버튼 */}
+        <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+          <img src={BackArrow} alt="이전" style={{ width: "38px", height: "38px" }} />
+        </button>
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/report")}
           style={{
-            background: "none", border: "2px solid #000",
-            borderRadius: "50%", width: "36px", height: "36px",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer", fontSize: "16px", color: "#000",
+            background: "#e53e3e", border: "none", borderRadius: "50px",
+            padding: "7px 18px", color: "#fff",
+            fontFamily: FONT, fontSize: "12px", fontWeight: "700",
+            cursor: "pointer", letterSpacing: "0.03em",
           }}
         >
-          ←
-        </button>
-        {/* 신고하기 */}
-        <button style={{
-          background: "#e53e3e", border: "none", borderRadius: "20px",
-          padding: "6px 14px", color: "#fff",
-          fontFamily: FONT, fontSize: "12px", fontWeight: "700",
-          cursor: "pointer",
-        }}>
           신고하기
         </button>
       </div>
 
       {/* 사진 슬라이더 */}
-      <div style={{ padding: "0 16px", marginBottom: "8px" }}>
+      <div style={{ padding: "0 20px", marginBottom: "16px" }}>
         <div style={{
-          background: "#fff", border: `1.5px solid ${BORDER}`,
-          borderRadius: "16px", height: "220px",
+          background: "#fff", border: `3px solid ${BORDER}`,
+          borderRadius: "20px", height: "230px",
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "0 12px", position: "relative", overflow: "hidden",
+          padding: "0 14px", position: "relative", overflow: "hidden",
         }}>
-          {/* 이전 화살표 */}
           <button
             onClick={() => setCurrentPhoto((p) => Math.max(0, p - 1))}
             style={{
-              background: "none", border: "none", fontSize: "22px",
-              color: currentPhoto === 0 ? "#c5d8f8" : BLUE, cursor: "pointer", zIndex: 1,
+              background: "none", border: "none", fontSize: "28px",
+              color: currentPhoto === 0 ? "#c5d8f8" : BLUE, cursor: "pointer",
             }}
-          >
-            ‹
-          </button>
-          {/* 사진 영역 */}
+          >‹</button>
+
           <div style={{
-            flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "18px", color: "#aac0e8", fontWeight: "700",
+            flex: 1, display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center", gap: "12px",
           }}>
-            사진 {currentPhoto + 1} / {post.photos}
+            <div style={{ fontSize: "40px" }}>📷</div>
+            <span style={{ fontSize: "13px", color: "#aac0e8", fontWeight: "700" }}>
+              {currentPhoto + 1} / {post.photos}
+            </span>
           </div>
-          {/* 다음 화살표 */}
+
           <button
             onClick={() => setCurrentPhoto((p) => Math.min(post.photos - 1, p + 1))}
             style={{
-              background: "none", border: "none", fontSize: "22px",
-              color: currentPhoto === post.photos - 1 ? "#c5d8f8" : BLUE, cursor: "pointer", zIndex: 1,
+              background: "none", border: "none", fontSize: "28px",
+              color: currentPhoto === post.photos - 1 ? "#c5d8f8" : BLUE, cursor: "pointer",
             }}
-          >
-            ›
-          </button>
+          >›</button>
 
           {/* 점 인디케이터 */}
           <div style={{
-            position: "absolute", bottom: "10px", left: "50%", transform: "translateX(-50%)",
+            position: "absolute", bottom: "12px", left: "50%", transform: "translateX(-50%)",
             display: "flex", gap: "6px",
           }}>
             {Array.from({ length: post.photos }).map((_, i) => (
               <div key={i} style={{
-                width: "6px", height: "6px", borderRadius: "50%",
+                width: i === currentPhoto ? "18px" : "7px",
+                height: "7px", borderRadius: "50px",
                 background: i === currentPhoto ? BLUE : "#c5d8f8",
+                transition: "width 0.2s",
               }} />
             ))}
           </div>
         </div>
 
         {/* 별점 */}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "8px", gap: "4px" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", gap: "2px" }}>
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
@@ -123,88 +116,87 @@ export default function PostDetail() {
               onMouseLeave={() => setHoverRating(0)}
               style={{
                 background: "none", border: "none", cursor: "pointer",
-                fontSize: "20px", padding: 0,
-                color: star <= (hoverRating || rating) ? "#f6ad55" : "#c5d8f8",
+                fontSize: "22px", padding: 0,
+                color: star <= (hoverRating || rating) ? "#f6ad55" : "#dde8f8",
+                transition: "color 0.15s, transform 0.1s",
               }}
-            >
-              ★
-            </button>
+            >★</button>
           ))}
         </div>
       </div>
 
-      {/* 상품명 + 하트 */}
+      {/* 상품 정보 카드 */}
       <div style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "4px 20px 12px",
+        margin: "0 20px 16px",
+        background: "#fff", border: `3px solid ${BORDER}`,
+        borderRadius: "20px", padding: "18px 20px",
       }}>
-        <span style={{ fontSize: "18px", fontWeight: "700", color: "#111" }}>{post.name}</span>
-        <button
-          onClick={() => setLiked((l) => !l)}
-          style={{
-            background: "none", border: "none", cursor: "pointer",
-            fontSize: "24px", transition: "transform 0.15s",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.2)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
-          {liked ? "❤️" : "🤍"}
-        </button>
-      </div>
+        {/* 상품명 + 하트 */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
+          <span style={{ fontSize: "18px", fontWeight: "700", color: BLUE }}>{post.name}</span>
+          <button
+            onClick={() => setLiked((l) => !l)}
+            style={{ background: "none", border: "none", cursor: "pointer", fontSize: "26px", padding: 0 }}
+          >
+            {liked ? "❤️" : "🤍"}
+          </button>
+        </div>
 
-      {/* 태그들 */}
-      <div style={{ padding: "0 20px", display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "16px" }}>
-        {/* 가격 태그 */}
-        <span style={{
-          border: `1.5px solid ${BORDER}`, borderRadius: "20px",
-          padding: "5px 14px", fontSize: "13px", fontWeight: "700",
-          color: BLUE, background: "#fff",
-        }}>
-          {post.price}
-        </span>
-
-        {/* 필요기간 태그 (대여일 때만) */}
-        {isRent && (
+        {/* 태그들 */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
           <span style={{
-            border: `2px solid ${LIGHT_BLUE}`, borderRadius: "20px",
-            padding: "5px 14px", fontSize: "13px", fontWeight: "700",
-            color: LIGHT_BLUE, background: "#fff",
+            border: `2px solid ${BORDER}`, borderRadius: "50px",
+            padding: "4px 14px", fontSize: "12px", fontWeight: "700",
+            color: BLUE, background: BG,
           }}>
-            필요기간: {post.rentPeriod}
+            {post.price}
           </span>
-        )}
-
-        {/* 카테고리 태그 */}
-        <span style={{
-          border: `1.5px solid ${BORDER}`, borderRadius: "20px",
-          padding: "5px 14px", fontSize: "13px", fontWeight: "700",
-          color: BLUE, background: "#fff",
-        }}>
-          {post.category}
-        </span>
-      </div>
-
-      {/* 상품 설명 */}
-      <div style={{ padding: "0 20px", marginBottom: "24px" }}>
-        <div style={{
-          background: "#fff", border: `1.5px solid ${BORDER}`,
-          borderRadius: "12px", padding: "16px",
-          fontSize: "13px", color: "#444", lineHeight: "1.7",
-          fontFamily: FONT, minHeight: "100px",
-        }}>
-          {post.description}
+          {isRent && (
+            <span style={{
+              border: `2px solid ${LIGHT_BLUE}`, borderRadius: "50px",
+              padding: "4px 14px", fontSize: "12px", fontWeight: "700",
+              color: LIGHT_BLUE, background: "#eef4ff",
+            }}>
+              필요기간: {post.rentPeriod}
+            </span>
+          )}
+          <span style={{
+            border: `2px solid ${BORDER}`, borderRadius: "50px",
+            padding: "4px 14px", fontSize: "12px", fontWeight: "700",
+            color: BLUE, background: BG,
+          }}>
+            {post.category}
+          </span>
         </div>
       </div>
 
-      {/* 구매하기 / 대여하기 버튼 */}
-      <div style={{ padding: "0 20px" }}>
-        <button style={{
-          width: "100%", padding: "14px",
-          borderRadius: "50px", border: `2px solid ${LIGHT_BLUE}`,
-          background: "#fff", color: BLUE,
-          fontSize: "17px", fontFamily: FONT, fontWeight: "700",
-          cursor: "pointer", transition: "background 0.15s",
-        }}
+      {/* 상품 설명 카드 */}
+      <div style={{
+        margin: "0 20px 24px",
+        background: "#fff", border: `3px solid ${BORDER}`,
+        borderRadius: "20px", padding: "18px 20px",
+      }}>
+        <p style={{
+          fontSize: "13px", color: "#555", lineHeight: "1.8",
+          fontFamily: FONT, margin: 0, fontWeight: "700",
+        }}>
+          {post.description}
+        </p>
+      </div>
+
+      {/* 구매/대여 버튼 */}
+      <div style={{ padding: "0 20px", marginTop: "auto", paddingBottom: "32px" }}>
+        <button
+          onClick={() => navigate(`/message/${id}`)}
+          style={{
+            width: "100%", padding: "15px",
+            borderRadius: "50px", border: `3px solid ${BORDER}`,
+            background: "#fff", color: "#000",
+            fontSize: "15px", fontFamily: FONT, fontWeight: "700",
+            cursor: "pointer", transition: "background 0.15s",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            letterSpacing: "0.05em",
+          }}
           onMouseEnter={(e) => (e.currentTarget.style.background = BG)}
           onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
         >

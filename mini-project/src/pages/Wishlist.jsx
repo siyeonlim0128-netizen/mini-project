@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const FONT = "'Intel One Mono', 'Courier New', monospace";
 const BG = "#D4E1FD";
+const BORDER = "#7999E9";
 const BLUE = "#3a5fa8";
 const LIGHT_BLUE = "#7da3e8";
 
@@ -12,6 +13,10 @@ const DUMMY_WISHLIST = [
   { id: 3, name: "자전거 헬멧", price: "30,000원", category: "스포츠" },
   { id: 4, name: "미니 선풍기", price: "12,000원", category: "가전" },
   { id: 5, name: "등산 스틱", price: "25,000원", category: "아웃도어" },
+  { id: 6, name: "등산 스틱", price: "25,000원", category: "아웃도어" },
+  { id: 7, name: "등산 스틱", price: "25,000원", category: "아웃도어" },
+  { id: 8, name: "등산 스틱", price: "25,000원", category: "아웃도어" },
+  { id: 9, name: "등산 스틱", price: "25,000원", category: "아웃도어" },
 ];
 
 export default function Wishlist() {
@@ -28,6 +33,7 @@ export default function Wishlist() {
       minHeight: "100vh", backgroundColor: BG,
       fontFamily: FONT, display: "flex", flexDirection: "column",
       alignItems: "center", padding: "32px 20px 24px",
+      overflowY: "visible",
     }}>
       {/* 제목 */}
       <h1 style={{
@@ -40,14 +46,17 @@ export default function Wishlist() {
       {/* 흰 박스 래퍼 */}
       <div style={{
         width: "90%", background: "#fff",
-        border: "3px solid #7999E9", borderRadius: "16px",
+        border: `3px solid ${BORDER}`, borderRadius: "16px",
         padding: "16px", display: "flex", flexDirection: "column",
-        gap: "12px", flex: 1,
+        gap: "12px",
+        minHeight: "500px",
+        maxHeight: "70vh",
+        overflowY: "auto",
       }}>
         {wishlist.length === 0 ? (
           <div style={{
             textAlign: "center", color: LIGHT_BLUE,
-            fontSize: "14px", marginTop: "60px", fontWeight: "700",
+            fontSize: "14px", padding: "40px 0", fontWeight: "700",
           }}>
             관심 상품이 없습니다.
           </div>
@@ -56,7 +65,7 @@ export default function Wishlist() {
             <div
               key={product.id}
               style={{
-                background: "#fff", border: "3px solid #7999E9",
+                background: "#fff", border: `3px solid ${BORDER}`,
                 borderRadius: "12px", padding: "14px",
                 display: "flex", alignItems: "center", gap: "12px",
                 cursor: "pointer",
@@ -80,36 +89,19 @@ export default function Wishlist() {
                 <div style={{ fontSize: "11px", color: LIGHT_BLUE, marginTop: "2px" }}>{product.category}</div>
               </div>
 
-              {/* X + 하트 버튼 */}
-              <div
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}
-                onClick={(e) => e.stopPropagation()}
+              {/* 하트 버튼 */}
+              <button
+                onClick={(e) => { e.stopPropagation(); removeItem(product.id); }}
+                style={{
+                  background: "none", border: "none", cursor: "pointer",
+                  fontSize: "22px", lineHeight: 1, padding: 0,
+                  transition: "transform 0.15s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.2)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
               >
-                {/* X 버튼 */}
-                <button
-                  onClick={() => removeItem(product.id)}
-                  style={{
-                    background: "none", border: "none", cursor: "pointer",
-                    fontSize: "14px", color: "#aac0e8", fontWeight: "700",
-                    lineHeight: 1, padding: "2px 4px",
-                  }}
-                >
-                  ✕
-                </button>
-                {/* 하트 - 누르면 삭제 */}
-                <button
-                  onClick={() => removeItem(product.id)}
-                  style={{
-                    background: "none", border: "none", cursor: "pointer",
-                    fontSize: "22px", lineHeight: 1, padding: 0,
-                    transition: "transform 0.15s",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.2)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                >
-                  ❤️
-                </button>
-              </div>
+                ❤️
+              </button>
             </div>
           ))
         )}
@@ -120,10 +112,11 @@ export default function Wishlist() {
         onClick={() => navigate("/main")}
         style={{
           marginTop: "32px", padding: "12px 48px",
-          borderRadius: "50px", border: `2px solid ${LIGHT_BLUE}`,
-          background: "#fff", color: BLUE, fontSize: "16px",
-          fontFamily: FONT, fontWeight: "700", cursor: "pointer",
-          transition: "background 0.15s",
+          borderRadius: "50px", border: `3px solid ${BORDER}`,
+          background: "#fff", color: "#000",
+          fontSize: "14px", fontFamily: FONT, fontWeight: "700",
+          cursor: "pointer", transition: "background 0.15s",
+          display: "flex", alignItems: "center", justifyContent: "center",
         }}
         onMouseEnter={(e) => (e.currentTarget.style.background = BG)}
         onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}

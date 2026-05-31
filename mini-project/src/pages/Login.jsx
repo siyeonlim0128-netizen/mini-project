@@ -1,148 +1,36 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Boo2 from "../components/Boo2.svg";
+import Boo3 from '../assets/Boo3.svg';
+import BackArrow from '../assets/arrow-left-circle.svg';
 
-const styles = {
-  page: {
-    minHeight: "100vh",
-    width: "100%",
-    maxWidth: "390px",
-    margin: "0 auto",
-    backgroundColor: "#D4E1FD",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    fontFamily: "'Intel One Mono', 'Courier New', monospace",
-    position: "relative",
-    padding: "0 24px",
-    boxSizing: "border-box",
-  },
-  backButton: {
-    position: "absolute",
-    top: "24px",
-    left: "24px",
-    background: "none",
-    border: "2px solid #000000",
-    borderRadius: "50%",
-    width: "40px",
-    height: "40px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-    color: "#000000",
-    fontSize: "18px",
-    transition: "background 0.2s, color 0.2s",
-    padding: 0,
-  },
-  owlWrapper: {
-    marginBottom: "36px",
-    display: "flex",
-    justifyContent: "center",
-  },
-  owl: {
-    width: "170px",
-    height: "170px",
-    objectFit: "contain",
-    filter: "drop-shadow(0px 4px 12px rgba(74, 108, 179, 0.25))",
+const FONT = "'Intel One Mono', 'Courier New', monospace";
+const BG = "#D4E1FD";
+const BORDER = "#7999E9";
+const BLUE = "#3a5fa8";
 
-  },
-  card: {
-    width: "100%",
-    maxWidth: "360px",
-    display: "flex",
-    flexDirection: "column",
-    gap: "0px",
-  },
-  fieldLabel: {
-    fontSize: "13px",
-    color: "#4a6cb3",
-    fontFamily: "'Intel One Mono', 'Courier New', monospace",
-    fontWeight: "700",
-    marginBottom: "6px",
-    marginTop: "16px",
-    letterSpacing: "0.02em",
-  },
-  input: {
-    width: "100%",
-    padding: "14px 16px",
-    border: "1.5px solid #b8ccf5",
-    backgroundColor: "#ffffff",
-    fontSize: "14px",
-    fontFamily: "'Intel One Mono', 'Courier New', monospace",
-    fontWeight: "700",
-    color: "#2c3e6b",
-    outline: "none",
-    boxSizing: "border-box",
-    transition: "border-color 0.2s, box-shadow 0.2s",
-  },
-  inputError: {
-    borderColor: "#e53e3e",
-  },
-  loginButton: {
-    marginTop: "28px",
-    width: "100%",
-    padding: "16px",
-    borderRadius: "50px",
-    border: "2px solid #7da3e8",
-    backgroundColor: "#ffffff",
-    color: "#3a5fa8",
-
-    fontFamily: "'Intel One Mono', 'Courier New', monospace",
-    fontWeight: "700",
-    cursor: "pointer",
-    letterSpacing: "0.05em",
-    transition: "background 0.2s, color 0.2s, transform 0.1s",
-    boxShadow: "0 2px 8px rgba(100, 149, 220, 0.18)",
-  },
-  errorMessage: {
-    marginTop: "14px",
-    textAlign: "center",
-    color: "#e53e3e",
-    fontSize: "13px",
-    fontFamily: "'Intel One Mono', 'Courier New', monospace",
-    letterSpacing: "0.01em",
-    lineHeight: "1.5",
-    minHeight: "20px",
-  },
-};
-
-// Inject keyframe animation
-const injectKeyframes = () => {
-  if (document.getElementById("owl-float-style")) return;
+const injectStyles = () => {
+  if (document.getElementById("login-styles")) return;
   const style = document.createElement("style");
-  style.id = "owl-float-style";
+  style.id = "login-styles";
   style.textContent = `
     @import url('https://fonts.googleapis.com/css2?family=Intel+One+Mono:wght@400;600;700&display=swap');
 
     @keyframes owlFloat {
       0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-8px); }
+      50% { transform: translateY(-12px); }
     }
+    .login-owl { animation: owlFloat 3s ease-in-out infinite; }
 
     .login-input:focus {
-      border-color: #6b8fd4 !important;
-      box-shadow: 0 0 0 3px rgba(107, 143, 212, 0.18) !important;
+      border-color: #7999E9 !important;
+      box-shadow: 0 0 0 3px rgba(121, 153, 233, 0.2) !important;
     }
-
-    .login-btn:hover {
-      background: #d4e1fd !important;
-      transform: scale(1.02);
-    }
-
-    .login-btn:active {
-      transform: scale(0.98);
-    }
-
-    .back-btn:hover {
-      background: rgba(107, 143, 212, 0.15) !important;
-    }
+    .login-btn:hover { background: #D4E1FD !important; transform: scale(1.02); }
+    .login-btn:active { transform: scale(0.98); }
   `;
   document.head.appendChild(style);
 };
 
-// Dummy credential check — replace with real API call
 const VALID_EMAIL = "user@hufs.ac.kr";
 const VALID_PASSWORD = "password123";
 
@@ -153,7 +41,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [attempted, setAttempted] = useState(false);
 
-  injectKeyframes();
+  injectStyles();
 
   const handleLogin = () => {
     setAttempted(true);
@@ -161,8 +49,7 @@ export default function Login() {
       setError("입력하신 이메일 또는 비밀번호가 일치하지 않습니다.");
     } else {
       setError("");
-      // TODO: navigate to main page after successful login
-      // navigate("/main");
+      navigate("/main");
     }
   };
 
@@ -170,73 +57,130 @@ export default function Login() {
     if (e.key === "Enter") handleLogin();
   };
 
-  const inputStyle = (hasError) => ({
-    ...styles.input,
-    ...(hasError ? styles.inputError : {}),
-  });
-
   return (
-    <div style={styles.page}>
-      {/* Back button */}
+    <div style={{
+      width: "100%", maxWidth: "390px", margin: "0 auto",
+      minHeight: "100vh", backgroundColor: BG,
+      fontFamily: FONT, display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      padding: "0 32px", boxSizing: "border-box", position: "relative",
+    }}>
+      {/* 이전 버튼 */}
       <button
-        className="back-btn"
-        style={styles.backButton}
         onClick={() => navigate("/")}
-        aria-label="이전 페이지로"
+        style={{
+          position: "absolute", top: "24px", left: "24px",
+          background: "none", border: "none",
+          cursor: "pointer", padding: 0,
+        }}
       >
-        ←
+        <img src={BackArrow} alt="이전" style={{ width: "40px", height: "40px" }} />
       </button>
 
-      {/* Owl mascot */}
-      <div style={styles.owlWrapper}>
-        <img src={Boo2} alt="HUFS 부엉이 마스코트" style={styles.owl} />
+      {/* 말풍선 */}
+      <div style={{ position: "relative", marginBottom: "8px" }}>
+        <div style={{
+          background: "#fff", border: `2px solid ${BORDER}`,
+          borderRadius: "20px", padding: "8px 16px",
+          fontSize: "14px", fontWeight: "700", color: BLUE, fontFamily: FONT,
+        }}>
+          HUFS LOGIN
+        </div>
+        <div style={{
+          position: "absolute", bottom: "-10px", left: "50%",
+          transform: "translateX(-50%)",
+          width: 0, height: 0,
+          borderLeft: "8px solid transparent",
+          borderRight: "8px solid transparent",
+          borderTop: `10px solid ${BORDER}`,
+        }} />
       </div>
 
-      {/* Login form */}
-      <div style={styles.card}>
-        <label style={styles.fieldLabel}>이메일 입력</label>
+      {/* 부엉이 */}
+      <img
+        src={Boo3}
+        alt="HUFS 부엉이 마스코트"
+        className="login-owl"
+        style={{
+          width: "170px", height: "170px",
+          objectFit: "contain", marginBottom: "32px",
+          filter: "drop-shadow(0px 4px 12px rgba(74, 108, 179, 0.25))",
+        }}
+      />
+
+      {/* 폼 영역 */}
+      <div style={{ width: "100%", display: "flex", flexDirection: "column" }}>
+        <label style={{
+          fontSize: "13px", color: BLUE, fontWeight: "700",
+          marginBottom: "6px", letterSpacing: "0.02em",
+        }}>
+          이메일 입력
+        </label>
         <input
           className="login-input"
           type="email"
-          style={inputStyle(attempted && !email)}
           value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            setError("");
-            setAttempted(false);
-          }}
+          onChange={(e) => { setEmail(e.target.value); setError(""); setAttempted(false); }}
           onKeyDown={handleKeyDown}
-          placeholder=""
           autoComplete="email"
+          style={{
+            width: "100%", padding: "14px 16px",
+            border: `3px solid ${attempted && !email ? "#e53e3e" : BORDER}`,
+            borderRadius: "12px", backgroundColor: "#fff",
+            fontSize: "14px", fontFamily: FONT, fontWeight: "700",
+            color: "#2c3e6b", outline: "none", boxSizing: "border-box",
+          }}
         />
 
-        <label style={styles.fieldLabel}>비밀번호 입력</label>
+        <label style={{
+          fontSize: "13px", color: BLUE, fontWeight: "700",
+          marginBottom: "6px", marginTop: "16px", letterSpacing: "0.02em",
+        }}>
+          비밀번호 입력
+        </label>
         <input
           className="login-input"
           type="password"
-          style={inputStyle(attempted && !password)}
           value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            setError("");
-            setAttempted(false);
-          }}
+          onChange={(e) => { setPassword(e.target.value); setError(""); setAttempted(false); }}
           onKeyDown={handleKeyDown}
-          placeholder=""
           autoComplete="current-password"
+          style={{
+            width: "100%", padding: "14px 16px",
+            border: `3px solid ${attempted && !password ? "#e53e3e" : BORDER}`,
+            borderRadius: "12px", backgroundColor: "#fff",
+            fontSize: "14px", fontFamily: FONT, fontWeight: "700",
+            color: "#2c3e6b", outline: "none", boxSizing: "border-box",
+          }}
         />
 
         <button
           className="login-btn"
-          style={styles.loginButton}
           onClick={handleLogin}
+          style={{
+            marginTop: "28px", width: "100%", padding: "14px",
+            borderRadius: "50px", border: `3px solid ${BORDER}`,
+            background: "#fff", color: "#000",
+            fontSize: "14px", fontFamily: FONT, fontWeight: "700",
+            cursor: "pointer", transition: "background 0.15s, transform 0.1s",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = BG)}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
         >
           로그인
         </button>
 
-        {error && <p style={styles.errorMessage}>{error}</p>}
+        {error && (
+          <p style={{
+            marginTop: "14px", textAlign: "center",
+            color: "#e53e3e", fontSize: "13px",
+            fontFamily: FONT, lineHeight: "1.5",
+          }}>
+            {error}
+          </p>
+        )}
       </div>
     </div>
   );
-
 }
