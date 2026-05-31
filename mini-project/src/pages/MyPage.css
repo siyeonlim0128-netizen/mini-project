@@ -43,6 +43,7 @@ body,
 }
 
 .phone {
+  font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
   width: min(504px, 100vw);
   height: 100svh;
   max-height: 100svh;
