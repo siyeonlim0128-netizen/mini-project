@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import "./ResetPasswordPage.css";
 import { apiFetch } from "../api";
-import Boo9 from "../assets/owl_wink_heart.svg";
+import Boo2 from "../assets/Boo2.svg";
 
 function ResetPasswordPage() {
   const [step, setStep] = useState(1);
@@ -258,7 +258,7 @@ function ResetPasswordPage() {
               <br />
               완료되었습니다.
             </h3>
-            <img src={Boo9} alt="완료 캐릭터" />
+            <img src={Boo2} alt="완료 캐릭터" />
             <button type="button" onClick={() => (window.location.href = "/login")}>
               닫기
             </button>
