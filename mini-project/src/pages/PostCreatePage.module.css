@@ -1,5 +1,6 @@
 .container {
-  max-width: 430px;
+  width: 100%;
+  max-width: 390px;
   margin: 0 auto;
   min-height: 100vh;
   background-color: #D4E1FD;
@@ -218,7 +219,7 @@
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 430px;
+  max-width: 390px;
   display: flex;
   gap: 12px;
   padding: 14px 16px 24px;
@@ -263,7 +264,8 @@
 }
 
 .successContainer {
-  max-width: 430px;
+  width: 100%;
+  max-width: 390px;
   margin: 0 auto;
   min-height: 100vh;
   background-color: #D4E1FD;
@@ -274,6 +276,7 @@
   justify-content: center;
   font-family: 'Intel One Mono', monospace;
   padding: 30px;
+  box-sizing: border-box;
 }
 
 .successCard {
@@ -332,7 +335,8 @@
 }
 
 .contactModal {
-  max-width: 430px;
+  width: 100%;
+  max-width: 390px;
   margin: 0 auto;
   min-height: 100vh;
   background: #D4E1FD;
@@ -343,6 +347,7 @@
   justify-content: center;
   font-family: 'Intel One Mono', monospace;
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .contactModalContent {
@@ -469,7 +474,7 @@
   color: #7999E9;
 }
 
-@media (max-width: 430px) {
+@media (max-width: 390px) {
   .container {
     border-left: none;
     border-right: none;
