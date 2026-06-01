@@ -19,7 +19,10 @@ const getMyPosts = () => {
 
   if (savedPosts) {
     try {
-      return JSON.parse(savedPosts);
+      return JSON.parse(savedPosts).map((post) => ({
+        ...post,
+        isLocal: post.isLocal ?? true,
+      }));
     } catch {
       return [];
     }
@@ -42,6 +45,7 @@ const getMyPosts = () => {
         image,
         likes: Number(localStorage.getItem(`postLikes${id}`)) || 0,
         comments: Number(localStorage.getItem(`postComments${id}`)) || 0,
+        isLocal: true,
       };
     })
     .filter(Boolean);
@@ -616,9 +620,10 @@ function MyPostsPage({ onMove }) {
           image: post.thumbnail_url,
           likes: 0,
           comments: 0,
+          isLocal: false,
         }));
 
-        setMyPosts(posts);
+        setMyPosts([...getMyPosts(), ...posts]);
       } catch (error) {
         setMyPosts(getMyPosts());
       }
@@ -636,14 +641,16 @@ function MyPostsPage({ onMove }) {
 
     setDeleteError("");
 
-    try {
-      await apiFetch(`/api/goods/${deleteTarget.id}`, {
-        method: "DELETE",
-        auth: true,
-      });
-    } catch (error) {
-      setDeleteError(error.message);
-      return;
+    if (!deleteTarget.isLocal) {
+      try {
+        await apiFetch(`/api/goods/${deleteTarget.id}`, {
+          method: "DELETE",
+          auth: true,
+        });
+      } catch (error) {
+        setDeleteError(error.message);
+        return;
+      }
     }
 
     setMyPosts(removeStoredPost(deleteTarget.id, myPosts));

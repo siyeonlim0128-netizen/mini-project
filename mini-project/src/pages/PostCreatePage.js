@@ -5,6 +5,37 @@ import owlContact from '../assets/owl_contact.svg';
 
 const CATEGORIES = ['전공책', '교양책', '생활용품', '분실물', '대여', '기타'];
 
+const savePostToMyPosts = ({ title, category, price, isFree, location, description }) => {
+  const savedPosts = localStorage.getItem("myPosts");
+  let currentPosts = [];
+
+  if (savedPosts) {
+    try {
+      currentPosts = JSON.parse(savedPosts);
+    } catch {
+      currentPosts = [];
+    }
+  }
+
+  const priceText = isFree ? "무료나눔" : price ? `${price}원` : "";
+  const detailLines = [title, priceText, location, description].filter(Boolean);
+
+  const nextPost = {
+    id: Date.now(),
+    category,
+    title,
+    price: priceText,
+    location,
+    description: detailLines.join("\n"),
+    image: "",
+    likes: 0,
+    comments: 0,
+    isLocal: true,
+  };
+
+  localStorage.setItem("myPosts", JSON.stringify([nextPost, ...currentPosts]));
+};
+
 function PostCreatePage({ onBack }) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showContact, setShowContact] = useState(false);
@@ -25,6 +56,15 @@ function PostCreatePage({ onBack }) {
       alert('제목과 카테고리는 필수입니다!');
       return;
     }
+    savePostToMyPosts({
+      title,
+      category,
+      price,
+      isFree,
+      location,
+      description,
+    });
+
     setIsSubmitted(true);
   };
 
