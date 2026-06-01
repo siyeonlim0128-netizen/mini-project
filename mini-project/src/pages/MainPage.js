@@ -77,6 +77,23 @@ const normalizePost = (post) => {
   };
 };
 
+const mergeLocalWishlistState = (backendPosts) => {
+  const localWishlistById = new Map(
+    getLocalWishlist().map((item) => [String(getPostId(item)), item])
+  );
+
+  return backendPosts.map((post) => {
+    const localPost = localWishlistById.get(String(post.id));
+    if (!localPost) return post;
+
+    return {
+      ...post,
+      isWished: true,
+      interestCount: Math.max(post.interestCount, getInterestCount(localPost)),
+    };
+  });
+};
+
 const extractPostList = (response) => {
   const data = response?.data;
   if (Array.isArray(data?.posts)) return data.posts;
@@ -115,12 +132,13 @@ function MainPage({
         const backendPosts = extractPostList(response)
           .map(normalizePost)
           .filter((post) => post.id);
+        const syncedPosts = mergeLocalWishlistState(backendPosts);
 
         if (!mounted) return;
 
-        setPosts(backendPosts);
-        saveLocalPostSnapshots(backendPosts);
-        backendPosts
+        setPosts(syncedPosts);
+        saveLocalPostSnapshots(syncedPosts);
+        syncedPosts
           .filter((post) => post.isWished)
           .forEach((post) => saveLocalWishlistItem(post));
         const localWishlistIds = getLocalWishlist()
@@ -129,7 +147,7 @@ function MainPage({
         setLikedPosts(
           Array.from(
             new Set([
-              ...backendPosts
+              ...syncedPosts
                 .filter((post) => post.isWished)
                 .map((post) => post.id),
               ...localWishlistIds,
@@ -173,7 +191,16 @@ function MainPage({
     );
 
     if (shouldLike) {
-      saveLocalWishlistItem({ ...post, interestCount: post.interestCount + 1 });
+      const nextInterestCount = post.interestCount + 1;
+      saveLocalWishlistItem({
+        ...post,
+        isWished: true,
+        is_wished: true,
+        wished: true,
+        wish_count: nextInterestCount,
+        wishCount: nextInterestCount,
+        interestCount: nextInterestCount,
+      });
     } else {
       removeLocalWishlistItem(postId);
     }

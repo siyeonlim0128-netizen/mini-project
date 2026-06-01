@@ -163,16 +163,26 @@ export default function PostDetail() {
   // 찜 추가/해제
   const toggleLike = async () => {
     const shouldLike = !liked;
+    const nextInterestCount = Math.max(0, interestCount + (shouldLike ? 1 : -1));
+    const nextPost = {
+      ...post,
+      postId: id,
+      id,
+      isWished: shouldLike,
+      is_wished: shouldLike,
+      wished: shouldLike,
+      wish_count: nextInterestCount,
+      wishCount: nextInterestCount,
+      interestCount: nextInterestCount,
+      thumbnailUrl: post?.thumbnailUrl || post?.thumbnail_url || post?.images?.[0],
+    };
+
     setLiked(shouldLike);
-    setInterestCount((count) => Math.max(0, count + (shouldLike ? 1 : -1)));
+    setInterestCount(nextInterestCount);
+    setPost(nextPost);
 
     if (shouldLike) {
-      saveLocalWishlistItem({
-        ...post,
-        postId: id,
-        id,
-        thumbnailUrl: post?.thumbnailUrl || post?.thumbnail_url || post?.images?.[0],
-      });
+      saveLocalWishlistItem(nextPost);
     } else {
       removeLocalWishlistItem(id);
     }
