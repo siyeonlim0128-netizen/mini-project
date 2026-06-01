@@ -14,6 +14,14 @@ const BG = "#D4E1FD";
 const BORDER = "#7999E9";
 const BLUE = "#3a5fa8";
 const LIGHT_BLUE = "#7da3e8";
+const CATEGORY_BY_ID = {
+  1: "전공책",
+  2: "교양책",
+  3: "의류",
+  4: "분실물",
+  5: "대여",
+  6: "기타",
+};
 
 const getPostId = (product) =>
   product?.postId ??
@@ -37,8 +45,25 @@ const getSourceProduct = (product) =>
   product?.goodsResponse ||
   product;
 
-const getCategory = (product) =>
-  product?.category || product?.categoryName || product?.category_name || "기타";
+const getCategory = (product) => {
+  if (typeof product?.category === "string") return product.category;
+  const categoryId =
+    product?.categoryId ||
+    product?.category_id ||
+    product?.category?.id ||
+    product?.category?.categoryId ||
+    product?.category?.category_id;
+
+  return (
+    product?.categoryName ||
+    product?.category_name ||
+    product?.category?.name ||
+    product?.category?.categoryName ||
+    product?.category?.category_name ||
+    CATEGORY_BY_ID[Number(categoryId)] ||
+    "기타"
+  );
+};
 
 const isRentalProduct = (product) => getCategory(product) === "대여";
 

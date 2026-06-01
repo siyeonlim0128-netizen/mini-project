@@ -22,13 +22,47 @@ const CATEGORIES = [
   '기타',
 ];
 
+const CATEGORY_BY_ID = {
+  1: '전공책',
+  2: '교양책',
+  3: '의류',
+  4: '분실물',
+  5: '대여',
+  6: '기타',
+};
+
 const SORT_OPTIONS = ['최신순', '관심순', '가격 낮은 순'];
 
 const getPostId = (post) =>
   post?.postId ?? post?.goodsId ?? post?.goods_id ?? post?.post_id ?? post?.id;
 
-const getCategory = (post) =>
-  post?.category || post?.categoryName || post?.category_name || '기타';
+const getLocalMyPosts = () => {
+  try {
+    return JSON.parse(localStorage.getItem('myPosts') || '[]');
+  } catch {
+    return [];
+  }
+};
+
+const getCategory = (post) => {
+  if (typeof post?.category === 'string') return post.category;
+  const categoryId =
+    post?.categoryId ||
+    post?.category_id ||
+    post?.category?.id ||
+    post?.category?.categoryId ||
+    post?.category?.category_id;
+
+  return (
+    post?.categoryName ||
+    post?.category_name ||
+    post?.category?.name ||
+    post?.category?.categoryName ||
+    post?.category?.category_name ||
+    CATEGORY_BY_ID[Number(categoryId)] ||
+    '기타'
+  );
+};
 
 const isRentalPost = (post) => getCategory(post) === '대여';
 
@@ -37,8 +71,8 @@ const getIsWished = (post) =>
 
 const getInterestCount = (post) =>
   Number(
-    post?.wish_count ??
-      post?.wishCount ??
+    post?.wishCount ??
+      post?.wish_count ??
       post?.wishlistCount ??
       post?.wishlist_count ??
       post?.wishListCount ??
@@ -100,6 +134,20 @@ const mergeLocalWishlistState = (backendPosts) => {
   });
 };
 
+const mergeLocalMyPosts = (backendPosts) => {
+  const backendIds = new Set(backendPosts.map((post) => String(post.id)));
+  const localOnlyPosts = getLocalMyPosts()
+    .map(normalizePost)
+    .filter((post) => post.id && !backendIds.has(String(post.id)));
+
+  return [...localOnlyPosts, ...backendPosts];
+};
+
+const isLocalMyPost = (postId) =>
+  getLocalMyPosts().some(
+    (post) => String(getPostId(post)) === String(postId)
+  );
+
 const extractPostList = (response) => {
   const data = response?.data;
   if (Array.isArray(data?.posts)) return data.posts;
@@ -138,7 +186,7 @@ function MainPage({
         const backendPosts = extractPostList(response)
           .map(normalizePost)
           .filter((post) => post.id);
-        const syncedPosts = mergeLocalWishlistState(backendPosts);
+        const syncedPosts = mergeLocalWishlistState(mergeLocalMyPosts(backendPosts));
 
         if (!mounted) return;
 
@@ -187,8 +235,18 @@ function MainPage({
       return;
     }
 
+    if (isLocalMyPost(postId) || post?.isMine || post?.mine || post?.isOwner || post?.owner) {
+      alert('본인 게시글에는 찜할 수 없습니다.');
+      return;
+    }
+
     const isLiked = likedPosts.some((id) => String(id) === String(postId));
     const shouldLike = !isLiked;
+    const previousInterestCount = Number(post.interestCount || 0);
+    const nextInterestCount = Math.max(
+      0,
+      previousInterestCount + (shouldLike ? 1 : -1)
+    );
 
     setLikedPosts((prev) =>
       shouldLike
@@ -197,7 +255,6 @@ function MainPage({
     );
 
     if (shouldLike) {
-      const nextInterestCount = post.interestCount + 1;
       saveLocalWishlistItem({
         ...post,
         isWished: true,
@@ -216,6 +273,7 @@ function MainPage({
         String(item.id) === String(postId)
           ? {
               ...item,
+              isWished: shouldLike,
               interestCount: Math.max(
                 0,
                 item.interestCount + (shouldLike ? 1 : -1)
@@ -228,6 +286,70 @@ function MainPage({
     try {
       await requestWish(postId, shouldLike);
     } catch (error) {
+      if (error?.status === 409 && shouldLike) {
+        const serverInterestCount =
+          Number(error?.data?.wishCount ?? error?.data?.wish_count) ||
+          nextInterestCount;
+
+        setLikedPosts((prev) => Array.from(new Set([...prev, postId])));
+        setPosts((prevPosts) =>
+          prevPosts.map((item) =>
+            String(item.id) === String(postId)
+              ? {
+                  ...item,
+                  isWished: true,
+                  interestCount: Math.max(
+                    Number(item.interestCount || 0),
+                    serverInterestCount
+                  ),
+                }
+              : item
+          )
+        );
+        saveLocalWishlistItem({
+          ...post,
+          isWished: true,
+          is_wished: true,
+          wished: true,
+          wishCount: serverInterestCount,
+          wish_count: serverInterestCount,
+          interestCount: serverInterestCount,
+        });
+        return;
+      }
+
+      setLikedPosts((prev) =>
+        shouldLike
+          ? prev.filter((id) => String(id) !== String(postId))
+          : Array.from(new Set([...prev, postId]))
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((item) =>
+          String(item.id) === String(postId)
+            ? {
+                ...item,
+                isWished: isLiked,
+                interestCount: previousInterestCount,
+              }
+            : item
+        )
+      );
+
+      if (shouldLike) {
+        removeLocalWishlistItem(postId);
+      } else {
+        saveLocalWishlistItem({
+          ...post,
+          isWished: true,
+          is_wished: true,
+          wished: true,
+          wishCount: previousInterestCount,
+          wish_count: previousInterestCount,
+          interestCount: previousInterestCount,
+        });
+      }
+
+      if (error?.message) alert(error.message);
       console.warn('관심상품 백엔드 요청 실패:', error);
     }
   };

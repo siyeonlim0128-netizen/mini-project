@@ -56,6 +56,11 @@ const getSenderNickname = (message) =>
 const getMessageText = (message) =>
   firstValue(message?.message, message?.text, message?.content, message?.body) || "";
 
+const normalizeMessage = (message) => ({
+  ...message,
+  isRead: Boolean(firstValue(message?.isRead, message?.read, false)),
+});
+
 const extractMessages = (responseData) => {
   const data = responseData?.data;
   if (Array.isArray(data)) return data;
@@ -103,6 +108,7 @@ const createMyMessage = (messageText, roomId) => {
     senderEmail: currentUser.email,
     senderNickname: currentUser.nickname,
     isMine: true,
+    isRead: false,
     createdAt: new Date().toISOString(),
   };
 };
@@ -128,7 +134,7 @@ export default function ChatRoom() {
         });
         const data = await response.json();
         if (response.ok) {
-          setMessages(extractMessages(data));
+          setMessages(extractMessages(data).map(normalizeMessage));
         }
       } catch (err) {
         console.error("메시지 불러오기 실패:", err);
@@ -154,7 +160,7 @@ export default function ChatRoom() {
         client.subscribe(`/topic/chat/${id}`, (message) => {
           let received;
           try {
-            received = JSON.parse(message.body);
+            received = normalizeMessage(JSON.parse(message.body));
           } catch {
             return;
           }
@@ -241,6 +247,7 @@ export default function ChatRoom() {
         message: messageText,
         content: messageText,
         clientMessageId: myMessage.clientMessageId,
+        isRead: false,
       }),
     });
   };

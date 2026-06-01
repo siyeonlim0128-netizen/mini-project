@@ -15,6 +15,14 @@ const BORDER = "#7999E9";
 const BLUE = "#3a5fa8";
 const LIGHT_BLUE = "#7da3e8";
 const BASE_URL = "https://boo-be-production.up.railway.app";
+const CATEGORY_BY_ID = {
+  1: "전공책",
+  2: "교양책",
+  3: "의류",
+  4: "분실물",
+  5: "대여",
+  6: "기타",
+};
 
 const firstValue = (...values) =>
   values.find((value) => value !== undefined && value !== null && String(value) !== "");
@@ -30,8 +38,25 @@ const getLocalMyPosts = () => {
 const getPostId = (post) =>
   post?.postId ?? post?.goodsId ?? post?.goods_id ?? post?.post_id ?? post?.id;
 
-const getCategory = (post) =>
-  post?.category || post?.categoryName || post?.category_name || "기타";
+const getCategory = (post) => {
+  if (typeof post?.category === "string") return post.category;
+  const categoryId =
+    post?.categoryId ||
+    post?.category_id ||
+    post?.category?.id ||
+    post?.category?.categoryId ||
+    post?.category?.category_id;
+
+  return (
+    post?.categoryName ||
+    post?.category_name ||
+    post?.category?.name ||
+    post?.category?.categoryName ||
+    post?.category?.category_name ||
+    CATEGORY_BY_ID[Number(categoryId)] ||
+    "기타"
+  );
+};
 
 const formatPrice = (post) => {
   if (getCategory(post) === "대여") return "";
@@ -46,8 +71,8 @@ const getIsWished = (post) =>
 const getInterestCount = (post) =>
   Number(
     firstValue(
-      post?.wish_count,
       post?.wishCount,
+      post?.wish_count,
       post?.wishlistCount,
       post?.wishlist_count,
       post?.wishListCount,
@@ -172,6 +197,13 @@ export default function PostDetail() {
 
   // 찜 추가/해제
   const toggleLike = async () => {
+    if (isCurrentUserPost(post, id)) {
+      alert("본인 게시글에는 찜할 수 없습니다.");
+      return;
+    }
+
+    const previousLiked = liked;
+    const previousInterestCount = interestCount;
     const shouldLike = !liked;
     const nextInterestCount = Math.max(0, interestCount + (shouldLike ? 1 : -1));
     const nextPost = {
@@ -200,18 +232,69 @@ export default function PostDetail() {
     try {
       await requestWish(id, shouldLike);
     } catch (err) {
+      if (err?.status === 409 && shouldLike) {
+        const serverInterestCount =
+          Number(err?.data?.wishCount ?? err?.data?.wish_count) ||
+          nextInterestCount;
+        const wishedPost = {
+          ...nextPost,
+          isWished: true,
+          is_wished: true,
+          wished: true,
+          wishCount: serverInterestCount,
+          wish_count: serverInterestCount,
+          interestCount: serverInterestCount,
+        };
+
+        setLiked(true);
+        setInterestCount(serverInterestCount);
+        setPost(wishedPost);
+        saveLocalWishlistItem(wishedPost);
+        return;
+      }
+
+      setLiked(previousLiked);
+      setInterestCount(previousInterestCount);
+      setPost({
+        ...post,
+        isWished: previousLiked,
+        is_wished: previousLiked,
+        wished: previousLiked,
+        wishCount: previousInterestCount,
+        wish_count: previousInterestCount,
+        interestCount: previousInterestCount,
+      });
+
+      if (previousLiked) {
+        saveLocalWishlistItem({
+          ...post,
+          isWished: true,
+          is_wished: true,
+          wished: true,
+          wishCount: previousInterestCount,
+          wish_count: previousInterestCount,
+          interestCount: previousInterestCount,
+        });
+      } else {
+        removeLocalWishlistItem(id);
+      }
+
+      if (err?.message) alert(err.message);
       console.warn("찜 처리 백엔드 요청 실패:", err);
     }
   };
 
   const handlePurchase = () => {
     if (isCurrentUserPost(post, id)) return;
-    alert("구매 요청은 메세지로 판매자와 이야기해 주세요.");
+    alert(`${isRent ? "대여" : "구매"} 요청은 메세지로 판매자와 이야기해 주세요.`);
   };
 
   // 채팅방 생성 후 이동
   const handleMessage = async () => {
-    if (isCurrentUserPost(post, id)) return;
+    if (isCurrentUserPost(post, id)) {
+      alert("본인 게시글에는 채팅할 수 없습니다.");
+      return;
+    }
 
     try {
       const token = localStorage.getItem("accessToken");
@@ -230,11 +313,11 @@ export default function PostDetail() {
         const roomId = getRoomId(data);
         navigate(roomId ? `/message/${roomId}` : "/messages");
       } else {
-        navigate("/messages");
+        alert(data?.message || "채팅방을 만들 수 없습니다.");
       }
     } catch (err) {
       console.error("채팅방 생성 실패:", err);
-      navigate("/messages");
+      alert("채팅방을 만들 수 없습니다.");
     }
   };
 
@@ -422,7 +505,7 @@ export default function PostDetail() {
         </p>
       </div>
 
-      {/* 구매하기 / 메세지 보내기 버튼 */}
+      {/* 구매하기/대여하기 / 메세지 보내기 버튼 */}
       <div style={{ padding: "0 20px", marginTop: "auto", paddingBottom: "32px" }}>
         {isOwnPost ? (
           <button
@@ -455,7 +538,7 @@ export default function PostDetail() {
               onMouseEnter={(e) => (e.currentTarget.style.background = BG)}
               onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
             >
-              구매하기
+              {isRent ? "대여하기" : "구매하기"}
             </button>
             <button
               onClick={handleMessage}

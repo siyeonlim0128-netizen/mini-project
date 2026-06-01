@@ -26,6 +26,19 @@ const normalizeCategory = (category, index) => ({
     '',
 });
 
+const mergeCategories = (backendCategories) => {
+  const categoryMap = new Map();
+
+  [...backendCategories, ...FALLBACK_CATEGORIES].forEach((category) => {
+    if (!category?.name) return;
+    if (!categoryMap.has(category.name)) {
+      categoryMap.set(category.name, category);
+    }
+  });
+
+  return Array.from(categoryMap.values());
+};
+
 const parsePrice = (value) => {
   const numberOnly = String(value).replace(/[^\d]/g, '');
   return numberOnly ? Number(numberOnly) : 0;
@@ -60,6 +73,11 @@ function PostCreatePage({ onBack }) {
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const selectedCategory = categories.find(
+    (category) => String(category.id) === String(categoryId)
+  );
+  const isRentalSelected = selectedCategory?.name === '대여';
+
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, []);
@@ -73,7 +91,7 @@ function PostCreatePage({ onBack }) {
           .filter((category) => category.id && category.name);
 
         if (backendCategories.length > 0) {
-          setCategories(backendCategories);
+          setCategories(mergeCategories(backendCategories));
         }
       } catch (error) {
         setCategories(FALLBACK_CATEGORIES);
@@ -97,10 +115,7 @@ function PostCreatePage({ onBack }) {
     setSubmitError('');
     setIsSubmitting(true);
 
-    const selectedCategory = categories.find(
-      (category) => String(category.id) === String(categoryId)
-    );
-    const numericPrice = isFree ? 0 : parsePrice(price);
+    const numericPrice = isRentalSelected || isFree ? 0 : parsePrice(price);
     const localPost = {
       id: `local-${Date.now()}`,
       category: selectedCategory?.name || '내 글',
@@ -110,6 +125,7 @@ function PostCreatePage({ onBack }) {
       image: null,
       likes: 0,
       comments: 0,
+      isRental: isRentalSelected,
     };
     const payload = {
       title: title.trim(),
@@ -120,13 +136,15 @@ function PostCreatePage({ onBack }) {
       itemCondition: rating || 1,
       condition: rating || 1,
       price: numericPrice,
+      isRental: isRentalSelected,
+      rental: isRentalSelected,
       tradeLocation: location.trim(),
       place: location.trim(),
       contactMethod: 'MESSAGE',
       description: description.trim(),
       imageUrls: [],
-      free: isFree,
-      isFree,
+      free: !isRentalSelected && isFree,
+      isFree: !isRentalSelected && isFree,
     };
 
     try {
@@ -144,8 +162,17 @@ function PostCreatePage({ onBack }) {
         createdPost?.id;
 
       saveLocalMyPost({
+        ...createdPost,
         ...localPost,
         id: createdPostId || localPost.id,
+        postId: createdPostId || localPost.id,
+        categoryId: Number(categoryId),
+        category_id: Number(categoryId),
+        categoryName: selectedCategory?.name,
+        category: selectedCategory?.name || localPost.category,
+        isRental: isRentalSelected,
+        rental: isRentalSelected,
+        isFree: !isRentalSelected && isFree,
       });
     } catch (error) {
       saveLocalMyPost(localPost);
@@ -271,28 +298,37 @@ function PostCreatePage({ onBack }) {
           </div>
         </div>
 
-        <div className={styles.fieldGroup}>
-          <label className={styles.label}>가격</label>
-          <div className={styles.priceRow}>
-            <input
-              type="text"
-              className={styles.inputBox}
-              placeholder="가격을 입력해주세요"
-              value={isFree ? '' : price}
-              onChange={(e) => setPrice(e.target.value)}
-              disabled={isFree}
-            />
-            <label className={styles.freeLabel}>
-              <input
-                type="checkbox"
-                checked={isFree}
-                onChange={(e) => setIsFree(e.target.checked)}
-                className={styles.checkbox}
-              />
-              무료나눔
-            </label>
+        {isRentalSelected ? (
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>대여 방식</label>
+            <div className={styles.rentalNotice}>
+              대여 글은 가격 없이 등록돼요.
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>가격</label>
+            <div className={styles.priceRow}>
+              <input
+                type="text"
+                className={styles.inputBox}
+                placeholder="가격을 입력해주세요"
+                value={isFree ? '' : price}
+                onChange={(e) => setPrice(e.target.value)}
+                disabled={isFree}
+              />
+              <label className={styles.freeLabel}>
+                <input
+                  type="checkbox"
+                  checked={isFree}
+                  onChange={(e) => setIsFree(e.target.checked)}
+                  className={styles.checkbox}
+                />
+                무료나눔
+              </label>
+            </div>
+          </div>
+        )}
 
         <div className={styles.fieldGroup}>
           <label className={styles.label}>거래 희망 장소</label>
@@ -335,7 +371,7 @@ function PostCreatePage({ onBack }) {
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
-            {isSubmitting ? '등록 중...' : '등록하기'}
+            {isSubmitting ? '등록 중...' : isRentalSelected ? '대여 등록하기' : '등록하기'}
           </button>
         </div>
       </div>

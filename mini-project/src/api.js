@@ -144,7 +144,11 @@ export async function apiFetch(path, options = {}) {
   const data = text ? JSON.parse(text) : null;
 
   if (!response.ok) {
-    throw new Error(data?.message || "요청에 실패했습니다.");
+    const error = new Error(data?.message || "요청에 실패했습니다.");
+    error.status = response.status;
+    error.field = data?.field;
+    error.data = data;
+    throw error;
   }
 
   return data;
@@ -164,6 +168,9 @@ export async function requestWish(postId, shouldLike) {
       return await apiFetch(path, { method, auth: true });
     } catch (error) {
       lastError = error;
+      if (error?.status === 400 || error?.status === 409) {
+        throw error;
+      }
     }
   }
 
@@ -181,6 +188,9 @@ export async function requestWish(postId, shouldLike) {
       });
     } catch (error) {
       lastError = error;
+      if (error?.status === 400 || error?.status === 409) {
+        throw error;
+      }
     }
   }
 

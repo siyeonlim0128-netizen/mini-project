@@ -156,6 +156,18 @@
   cursor: pointer;
 }
 
+.rentalNotice {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #7999E9;
+  border-radius: 12px;
+  background: #eef4ff;
+  color: #3a5fa8;
+  font-size: 13px;
+  font-weight: 700;
+  box-sizing: border-box;
+}
+
 .checkbox {
   width: 18px;
   height: 18px;
