@@ -5,64 +5,12 @@ import {
   Flag,
   LogOut,
   Trash2,
-  Home,
   Heart,
   MessageCircle,
-  UserRound,
   ChevronLeft,
 } from "lucide-react";
 import "./MyPage.css";
-import { apiFetch } from "../api";
-
-const getMyPosts = () => {
-  const savedPosts = localStorage.getItem("myPosts");
-
-  if (savedPosts) {
-    try {
-      return JSON.parse(savedPosts);
-    } catch {
-      return [];
-    }
-  }
-
-  return [1, 2, 3]
-    .map((id) => {
-      const category = localStorage.getItem(`postCategory${id}`);
-      const description = localStorage.getItem(`postDescription${id}`);
-      const image = localStorage.getItem(`postImage${id}`);
-
-      if (!category && !description && !image) {
-        return null;
-      }
-
-      return {
-        id,
-        category: category || "전공책",
-        description: description || "",
-        image,
-        likes: Number(localStorage.getItem(`postLikes${id}`)) || 0,
-        comments: Number(localStorage.getItem(`postComments${id}`)) || 0,
-      };
-    })
-    .filter(Boolean);
-};
-
-const saveMyPosts = (posts) => {
-  localStorage.setItem("myPosts", JSON.stringify(posts));
-};
-
-const removeStoredPost = (postId, posts) => {
-  const nextPosts = posts.filter((post) => post.id !== postId);
-
-  saveMyPosts(nextPosts);
-  localStorage.removeItem(`postCategory${postId}`);
-  localStorage.removeItem(`postDescription${postId}`);
-  localStorage.removeItem(`postImage${postId}`);
-  localStorage.removeItem(`postLikes${postId}`);
-  localStorage.removeItem(`postComments${postId}`);
-
-  return nextPosts;
-};
+import { apiFetch, getAccessToken } from "../api";
 
 const majors = [
   "국제금융학과",
@@ -111,11 +59,48 @@ const majors = [
   "Global Business & Technology학부",
 ];
 
-const NAV_PATHS = {
-  home: "/main",
-  favorite: "/wishlist",
-  message: "/messages",
-  mypage: "/mypage",
+const extractMyGoods = (response) => {
+  const data = response?.data;
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.goods)) return data.goods;
+  if (Array.isArray(data?.posts)) return data.posts;
+  return [];
+};
+
+const normalizeMyPost = (post) => ({
+  id: post?.goods_id ?? post?.goodsId ?? post?.postId ?? post?.id,
+  category: post?.category_name ?? post?.categoryName ?? post?.category ?? "내 글",
+  description: `${post?.title || "제목 없음"}${
+    post?.price ? ` · ${Number(post.price).toLocaleString()}원` : ""
+  }`,
+  image:
+    post?.thumbnail_url ??
+    post?.thumbnailUrl ??
+    post?.imageUrl ??
+    post?.image ??
+    null,
+  likes: post?.wish_count ?? post?.likes ?? 0,
+  comments: post?.comment_count ?? post?.comments ?? 0,
+});
+
+const getLocalMyPosts = () => {
+  try {
+    return JSON.parse(localStorage.getItem("myPosts") || "[]");
+  } catch {
+    return [];
+  }
+};
+
+const saveLocalMyPosts = (posts) => {
+  localStorage.setItem("myPosts", JSON.stringify(posts));
+};
+
+const mergeMyPosts = (backendPosts, localPosts) => {
+  const backendIds = new Set(backendPosts.map((post) => String(post.id)));
+  return [
+    ...localPosts.filter((post) => !backendIds.has(String(post.id))),
+    ...backendPosts,
+  ];
 };
 
 function ProfileSummary() {
@@ -287,49 +272,11 @@ function MenuList({ onMove }) {
   );
 }
 
-function BottomNav({ activeTab = "mypage", onMove }) {
-  const moveToTab = (tab) => {
-    if (tab === "mypage") {
-      window.history.pushState(null, "", NAV_PATHS.mypage);
-      onMove("main");
-      return;
-    }
-
-    window.location.href = NAV_PATHS[tab];
-  };
-
+function CloseNav() {
   return (
     <nav className="bottom-nav">
-      <button
-        className={activeTab === "home" ? "active" : ""}
-        onClick={() => moveToTab("home")}
-      >
-        <Home size={30} strokeWidth={2.8} />
-        <span>홈버튼</span>
-      </button>
-
-      <button
-        className={activeTab === "favorite" ? "active" : ""}
-        onClick={() => moveToTab("favorite")}
-      >
-        <Heart size={32} strokeWidth={2.8} />
-        <span>관심상품</span>
-      </button>
-
-      <button
-        className={activeTab === "message" ? "active" : ""}
-        onClick={() => moveToTab("message")}
-      >
-        <MessageCircle size={32} strokeWidth={2.8} />
-        <span>메세지</span>
-      </button>
-
-      <button
-        className={activeTab === "mypage" ? "active" : ""}
-        onClick={() => moveToTab("mypage")}
-      >
-        <UserRound size={30} strokeWidth={2.8} />
-        <span>마이페이지</span>
+      <button type="button" className="close-nav-button" onClick={() => window.location.href = "/main"}>
+        닫기
       </button>
     </nav>
   );
@@ -340,7 +287,7 @@ function MainMyPage({ onMove }) {
     <div className="phone main-phone">
       <ProfileSummary />
       <MenuList onMove={onMove} />
-      <BottomNav activeTab="mypage" onMove={onMove} />
+      <CloseNav />
     </div>
   );
 }
@@ -600,31 +547,57 @@ function MyPostCard({ post, onDeleteRequest }) {
 }
 
 function MyPostsPage({ onMove }) {
-  const [myPosts, setMyPosts] = useState(getMyPosts);
+  const [myPosts, setMyPosts] = useState(getLocalMyPosts);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(true);
+  const [postsError, setPostsError] = useState("");
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteDone, setDeleteDone] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchMyPosts = async () => {
+      setIsLoadingPosts(true);
+      setPostsError("");
+
+      if (!getAccessToken()) {
+        const localPosts = getLocalMyPosts();
+        setMyPosts(localPosts);
+        if (localPosts.length === 0) {
+          setPostsError("로그인이 필요한 기능입니다.");
+        }
+        setIsLoadingPosts(false);
+        return;
+      }
+
       try {
         const response = await apiFetch("/api/user/me/goods", { auth: true });
-        const posts = (response?.data || []).map((post) => ({
-          id: post.goods_id,
-          category: "",
-          description: `${post.title || ""}${post.price ? ` · ${post.price}원` : ""}`,
-          image: post.thumbnail_url,
-          likes: 0,
-          comments: 0,
-        }));
+        const posts = extractMyGoods(response)
+          .map(normalizeMyPost)
+          .filter((post) => post.id);
 
-        setMyPosts(posts);
+        if (mounted) {
+          setMyPosts(mergeMyPosts(posts, getLocalMyPosts()));
+        }
       } catch (error) {
-        setMyPosts(getMyPosts());
+        if (mounted) {
+          const localPosts = getLocalMyPosts();
+          setMyPosts(localPosts);
+          if (localPosts.length === 0) {
+            setPostsError(error.message || "내가 쓴 글을 불러오지 못했습니다.");
+          }
+        }
+      } finally {
+        if (mounted) setIsLoadingPosts(false);
       }
     };
 
     fetchMyPosts();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const closeDeleteConfirm = () => {
@@ -637,16 +610,28 @@ function MyPostsPage({ onMove }) {
     setDeleteError("");
 
     try {
-      await apiFetch(`/api/goods/${deleteTarget.id}`, {
-        method: "DELETE",
-        auth: true,
-      });
+      if (!String(deleteTarget.id).startsWith("local-")) {
+        await apiFetch(`/api/goods/${deleteTarget.id}`, {
+          method: "DELETE",
+          auth: true,
+        });
+      }
     } catch (error) {
       setDeleteError(error.message);
       return;
     }
 
-    setMyPosts(removeStoredPost(deleteTarget.id, myPosts));
+    setMyPosts((posts) => {
+      const nextPosts = posts.filter(
+        (post) => String(post.id) !== String(deleteTarget.id)
+      );
+      saveLocalMyPosts(
+        getLocalMyPosts().filter(
+          (post) => String(post.id) !== String(deleteTarget.id)
+        )
+      );
+      return nextPosts;
+    });
     setDeleteTarget(null);
     setDeleteDone(true);
   };
@@ -662,13 +647,21 @@ function MyPostsPage({ onMove }) {
       </header>
 
       <div className="post-list">
-        {myPosts.map((post) => (
-          <MyPostCard
-            key={post.id}
-            post={post}
-            onDeleteRequest={setDeleteTarget}
-          />
-        ))}
+        {isLoadingPosts ? (
+          <p className="posts-empty">내가 쓴 글을 불러오는 중입니다.</p>
+        ) : postsError ? (
+          <p className="posts-empty">{postsError}</p>
+        ) : myPosts.length > 0 ? (
+          myPosts.map((post) => (
+            <MyPostCard
+              key={post.id}
+              post={post}
+              onDeleteRequest={setDeleteTarget}
+            />
+          ))
+        ) : (
+          <p className="posts-empty">등록한 게시글이 없습니다.</p>
+        )}
       </div>
 
       {deleteTarget && (

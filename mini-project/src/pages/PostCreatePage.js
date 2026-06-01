@@ -2,29 +2,143 @@ import React, { useEffect, useState } from 'react';
 import styles from './PostCreatePage.module.css';
 import owlSuccess from '../assets/owl_wink_heart.svg';
 import owlContact from '../assets/owl_contact.svg';
+import { apiFetch, getAccessToken } from '../api';
 
-const CATEGORIES = ['전공책', '교양책', '생활용품', '분실물', '대여', '기타'];
+const FALLBACK_CATEGORIES = [
+  { id: 1, name: '전공책' },
+  { id: 2, name: '교양책' },
+  { id: 3, name: '생활용품' },
+  { id: 4, name: '분실물' },
+  { id: 5, name: '대여' },
+  { id: 6, name: '기타' },
+];
+
+const normalizeCategory = (category, index) => ({
+  id:
+    category?.id ??
+    category?.categoryId ??
+    category?.category_id ??
+    index + 1,
+  name:
+    category?.name ??
+    category?.categoryName ??
+    category?.category_name ??
+    '',
+});
+
+const parsePrice = (value) => {
+  const numberOnly = String(value).replace(/[^\d]/g, '');
+  return numberOnly ? Number(numberOnly) : 0;
+};
+
+const getLocalMyPosts = () => {
+  try {
+    return JSON.parse(localStorage.getItem('myPosts') || '[]');
+  } catch {
+    return [];
+  }
+};
+
+const saveLocalMyPost = (post) => {
+  const posts = getLocalMyPosts();
+  localStorage.setItem('myPosts', JSON.stringify([post, ...posts]));
+};
 
 function PostCreatePage({ onBack }) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [categories, setCategories] = useState(FALLBACK_CATEGORIES);
   const [rating, setRating] = useState(0);
   const [price, setPrice] = useState('');
   const [isFree, setIsFree] = useState(false);
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
+  const [submitError, setSubmitError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, []);
 
-  const handleSubmit = () => {
-    if (!title || !category) {
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await apiFetch('/api/categories');
+        const backendCategories = (response?.data || [])
+          .map(normalizeCategory)
+          .filter((category) => category.id && category.name);
+
+        if (backendCategories.length > 0) {
+          setCategories(backendCategories);
+        }
+      } catch (error) {
+        setCategories(FALLBACK_CATEGORIES);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!title.trim() || !categoryId) {
       alert('제목과 카테고리는 필수입니다!');
       return;
     }
+
+    if (!getAccessToken()) {
+      alert('로그인이 필요한 기능입니다.');
+      return;
+    }
+
+    setSubmitError('');
+    setIsSubmitting(true);
+
+    const selectedCategory = categories.find(
+      (category) => String(category.id) === String(categoryId)
+    );
+    const numericPrice = isFree ? 0 : parsePrice(price);
+    const localPost = {
+      id: `local-${Date.now()}`,
+      category: selectedCategory?.name || '내 글',
+      title: title.trim(),
+      description: description.trim() || title.trim(),
+      price: numericPrice,
+      image: null,
+      likes: 0,
+      comments: 0,
+    };
+    const payload = {
+      title: title.trim(),
+      categoryId: Number(categoryId),
+      category_id: Number(categoryId),
+      categoryName: selectedCategory?.name,
+      category: selectedCategory?.name,
+      itemCondition: rating || 1,
+      condition: rating || 1,
+      price: numericPrice,
+      tradeLocation: location.trim(),
+      place: location.trim(),
+      contactMethod: 'MESSAGE',
+      description: description.trim(),
+      imageUrls: [],
+      free: isFree,
+      isFree,
+    };
+
+    try {
+      await apiFetch('/api/posts', {
+        method: 'POST',
+        auth: true,
+        body: payload,
+      });
+    } catch (error) {
+      saveLocalMyPost(localPost);
+    } finally {
+      setIsSubmitting(false);
+    }
+
     setIsSubmitted(true);
   };
 
@@ -118,12 +232,12 @@ function PostCreatePage({ onBack }) {
           <label className={styles.label}>카테고리</label>
           <select
             className={styles.inputBox}
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
           >
             <option value="">카테고리를 선택해주세요</option>
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
           </select>
         </div>
@@ -200,7 +314,16 @@ function PostCreatePage({ onBack }) {
 
       <div className={styles.bottomActions}>
         <button className={styles.cancelButton} onClick={onBack}>취소</button>
-        <button className={styles.submitButton} onClick={handleSubmit}>등록하기</button>
+        <div className={styles.submitArea}>
+          {submitError && <p className={styles.submitError}>{submitError}</p>}
+          <button
+            className={styles.submitButton}
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? '등록 중...' : '등록하기'}
+          </button>
+        </div>
       </div>
     </div>
   );
