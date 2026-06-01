@@ -30,6 +30,16 @@ const getLocalMyPosts = () => {
 const getPostId = (post) =>
   post?.postId ?? post?.goodsId ?? post?.goods_id ?? post?.post_id ?? post?.id;
 
+const getCategory = (post) =>
+  post?.category || post?.categoryName || post?.category_name || "기타";
+
+const formatPrice = (post) => {
+  if (getCategory(post) === "대여") return "";
+  if (post?.isFree || post?.is_free) return "무료나눔";
+  if (typeof post?.price === "number") return `${post.price.toLocaleString()}원`;
+  return post?.price || "";
+};
+
 const getIsWished = (post) =>
   Boolean(firstValue(post?.isWished, post?.is_wished, post?.wished, false));
 
@@ -228,7 +238,8 @@ export default function PostDetail() {
     }
   };
 
-  const isRent = post?.category === "대여";
+  const isRent = getCategory(post) === "대여";
+  const displayPrice = formatPrice(post);
   const images = post?.images || [];
   const isOwnPost = isCurrentUserPost(post, id);
 
@@ -363,16 +374,18 @@ export default function PostDetail() {
         </div>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-          <span style={{ border: `2px solid ${BORDER}`, borderRadius: "50px", padding: "4px 14px", fontSize: "12px", fontWeight: "700", color: BLUE, background: BG }}>
-            {post?.isFree ? "무료나눔" : `${post?.price?.toLocaleString()}원`}
-          </span>
+          {displayPrice && (
+            <span style={{ border: `2px solid ${BORDER}`, borderRadius: "50px", padding: "4px 14px", fontSize: "12px", fontWeight: "700", color: BLUE, background: BG }}>
+              {displayPrice}
+            </span>
+          )}
           {isRent && post?.startDate && (
             <span style={{ border: `2px solid ${LIGHT_BLUE}`, borderRadius: "50px", padding: "4px 14px", fontSize: "12px", fontWeight: "700", color: LIGHT_BLUE, background: "#eef4ff" }}>
               {post.startDate} ~ {post.endDate}
             </span>
           )}
           <span style={{ border: `2px solid ${BORDER}`, borderRadius: "50px", padding: "4px 14px", fontSize: "12px", fontWeight: "700", color: BLUE, background: BG }}>
-            {post?.category}
+            {getCategory(post)}
           </span>
           {post?.tradeLocation && (
             <span style={{ border: `2px solid ${BORDER}`, borderRadius: "50px", padding: "4px 14px", fontSize: "12px", fontWeight: "700", color: BLUE, background: BG }}>

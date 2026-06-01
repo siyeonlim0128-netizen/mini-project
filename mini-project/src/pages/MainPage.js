@@ -27,6 +27,11 @@ const SORT_OPTIONS = ['최신순', '관심순', '가격 낮은 순'];
 const getPostId = (post) =>
   post?.postId ?? post?.goodsId ?? post?.goods_id ?? post?.post_id ?? post?.id;
 
+const getCategory = (post) =>
+  post?.category || post?.categoryName || post?.category_name || '기타';
+
+const isRentalPost = (post) => getCategory(post) === '대여';
+
 const getIsWished = (post) =>
   Boolean(post?.isWished ?? post?.is_wished ?? post?.wished ?? false);
 
@@ -53,6 +58,7 @@ const getNumericPrice = (price) => {
 };
 
 const formatPrice = (post) => {
+  if (isRentalPost(post)) return '';
   if (post?.isFree || post?.is_free) return '무료나눔';
   if (typeof post?.price === 'number') return `${post.price.toLocaleString()}원`;
   return post?.price || '';
@@ -65,7 +71,7 @@ const normalizePost = (post) => {
     id,
     title: post?.title || post?.name || '제목 없음',
     price: formatPrice(post),
-    category: post?.category || post?.categoryName || post?.category_name || '기타',
+    category: getCategory(post),
     image:
       post?.thumbnailUrl ||
       post?.thumbnail_url ||
@@ -239,7 +245,7 @@ function MainPage({
 
   const sortedPosts = [...searchedPosts].sort((a, b) => {
     if (activeSort === '관심순') {
-      return b.interestCount - a.interestCount;
+      return Number(b.interestCount || 0) - Number(a.interestCount || 0);
     }
 
     if (activeSort === '가격 낮은 순') {
@@ -354,7 +360,7 @@ function MainPage({
                 </div>
                 <div className={styles.postInfo}>
                   <p className={styles.postTitle}>{post.title}</p>
-                  <p className={styles.postPrice}>{post.price}</p>
+                  {post.price && <p className={styles.postPrice}>{post.price}</p>}
                   <p className={styles.interestCount} aria-label={`관심 ${post.interestCount}명`}>
                     <span className={styles.interestIcon}>♥</span>
                     <span>{post.interestCount}</span>

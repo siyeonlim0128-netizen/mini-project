@@ -20,36 +20,70 @@ const getPostId = (product) =>
   product?.goodsId ??
   product?.goods_id ??
   product?.post_id ??
+  product?.post?.id ??
+  product?.post?.postId ??
+  product?.post?.post_id ??
+  product?.goods?.id ??
+  product?.goods?.goodsId ??
+  product?.goods?.goods_id ??
   product?.id;
 
+const getSourceProduct = (product) =>
+  product?.post ||
+  product?.goods ||
+  product?.item ||
+  product?.product ||
+  product?.postResponse ||
+  product?.goodsResponse ||
+  product;
+
+const getCategory = (product) =>
+  product?.category || product?.categoryName || product?.category_name || "기타";
+
+const isRentalProduct = (product) => getCategory(product) === "대여";
+
+const formatPrice = (product) => {
+  if (isRentalProduct(product)) return "";
+  if (product?.isFree || product?.is_free) return "무료나눔";
+  if (typeof product?.price === "number") return `${product.price.toLocaleString()}원`;
+  return product?.price || "";
+};
+
 const normalizeProduct = (product) => {
-  const postId = getPostId(product);
-  const isFree = Boolean(product?.isFree || product?.is_free);
-  const price =
-    typeof product?.price === "number"
-      ? `${product.price.toLocaleString()}원`
-      : product?.price || "0원";
+  const sourceProduct = getSourceProduct(product);
+  const postId = getPostId(product) || getPostId(sourceProduct);
+  const isFree = Boolean(sourceProduct?.isFree || sourceProduct?.is_free);
+  const category = getCategory(sourceProduct);
+  const price = formatPrice(sourceProduct);
 
   return {
     postId,
-    title: product?.title || product?.name || "제목 없음",
+    title: sourceProduct?.title || sourceProduct?.name || "제목 없음",
     price,
     isFree,
+    category,
+    isRent: category === "대여",
     thumbnailUrl:
-      product?.thumbnailUrl ||
-      product?.thumbnail_url ||
-      product?.image ||
-      product?.images?.[0] ||
+      sourceProduct?.thumbnailUrl ||
+      sourceProduct?.thumbnail_url ||
+      sourceProduct?.image ||
+      sourceProduct?.images?.[0] ||
       null,
   };
 };
 
 const extractWishlist = (response) => {
   const data = response?.data;
+  if (Array.isArray(data?.content)) return data.content;
   if (Array.isArray(data?.wishLists)) return data.wishLists;
+  if (Array.isArray(data?.wish_lists)) return data.wish_lists;
+  if (Array.isArray(data?.wishList)) return data.wishList;
   if (Array.isArray(data?.wishlist)) return data.wishlist;
   if (Array.isArray(data?.wishes)) return data.wishes;
+  if (Array.isArray(data?.items)) return data.items;
   if (Array.isArray(data)) return data;
+  if (Array.isArray(response?.wishLists)) return response.wishLists;
+  if (Array.isArray(response?.wishes)) return response.wishes;
   return [];
 };
 
@@ -80,21 +114,18 @@ const applyLatestPostInfo = (product, latestPosts) => {
   return {
     ...product,
     title: latestPost.title || product.title,
-    price: latestPost.price || product.price,
+    price: latestPost.price ?? product.price,
+    category: latestPost.category || product.category,
+    isRent: latestPost.category === "대여" || product.isRent,
     thumbnailUrl: latestPost.image || latestPost.thumbnailUrl || product.thumbnailUrl,
   };
 };
 
-const filterCurrentPosts = (products, latestPosts) => {
-  if (latestPosts.length === 0) return products;
-  return products.filter((product) => findLatestPost(product, latestPosts));
-};
-
 const getLocalWishlistProducts = (latestPosts) =>
-  filterCurrentPosts(
-    getLocalWishlist().map(normalizeProduct),
-    latestPosts
-  ).map((product) => applyLatestPostInfo(product, latestPosts));
+  getLocalWishlist()
+    .map(normalizeProduct)
+    .filter((product) => product.postId)
+    .map((product) => applyLatestPostInfo(product, latestPosts));
 
 export default function Wishlist() {
   const navigate = useNavigate();
@@ -115,13 +146,11 @@ export default function Wishlist() {
         const latestPosts = getLocalPostSnapshots();
         const localWishlist = getLocalWishlistProducts(latestPosts);
         const response = await apiFetch("/api/wish_lists", { auth: true });
-        const backendWishlist = filterCurrentPosts(
-          extractWishlist(response)
-            .map(normalizeProduct)
-            .filter((product) => product.postId),
-          latestPosts
-        ).map((product) => applyLatestPostInfo(product, latestPosts));
-        setWishlist(localWishlist.length ? localWishlist : mergeWishlist(backendWishlist, localWishlist));
+        const backendWishlist = extractWishlist(response)
+          .map(normalizeProduct)
+          .filter((product) => product.postId)
+          .map((product) => applyLatestPostInfo(product, latestPosts));
+        setWishlist(mergeWishlist(backendWishlist, localWishlist));
         setError("");
       } catch (err) {
         const localWishlist = getLocalWishlistProducts(getLocalPostSnapshots());
@@ -208,9 +237,11 @@ export default function Wishlist() {
 
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: "15px", fontWeight: "700", color: BLUE }}>{product.title}</div>
-                <div style={{ fontSize: "12px", color: "#6b8fd4", marginTop: "4px" }}>
-                  {product.isFree ? "무료나눔" : product.price}
-                </div>
+                {product.price && (
+                  <div style={{ fontSize: "12px", color: "#6b8fd4", marginTop: "4px" }}>
+                    {product.price}
+                  </div>
+                )}
               </div>
 
               <button
