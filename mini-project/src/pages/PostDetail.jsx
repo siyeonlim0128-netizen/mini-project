@@ -30,11 +30,14 @@ const getLocalMyPosts = () => {
 const getPostId = (post) =>
   post?.postId ?? post?.goodsId ?? post?.goods_id ?? post?.post_id ?? post?.id;
 
+const getIsWished = (post) =>
+  Boolean(firstValue(post?.isWished, post?.is_wished, post?.wished, false));
+
 const getInterestCount = (post) =>
   Number(
     firstValue(
-      post?.wishCount,
       post?.wish_count,
+      post?.wishCount,
       post?.wishlistCount,
       post?.wishlist_count,
       post?.wishListCount,
@@ -140,10 +143,11 @@ export default function PostDetail() {
         });
         const data = await response.json();
         if (response.ok) {
-          setPost(data.data);
-          setLiked(Boolean(data.data.isWished || data.data.is_wished || data.data.wished));
-          setInterestCount(getInterestCount(data.data));
-          setRating(data.data.itemCondition || 0);
+          const postData = data.data || data;
+          setPost(postData);
+          setLiked(getIsWished(postData));
+          setInterestCount(getInterestCount(postData));
+          setRating(postData.itemCondition || 0);
         } else {
           setError("게시글을 불러오지 못했습니다.");
         }

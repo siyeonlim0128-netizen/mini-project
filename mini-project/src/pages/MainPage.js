@@ -27,10 +27,13 @@ const SORT_OPTIONS = ['최신순', '관심순', '가격 낮은 순'];
 const getPostId = (post) =>
   post?.postId ?? post?.goodsId ?? post?.goods_id ?? post?.post_id ?? post?.id;
 
+const getIsWished = (post) =>
+  Boolean(post?.isWished ?? post?.is_wished ?? post?.wished ?? false);
+
 const getInterestCount = (post) =>
   Number(
-    post?.wishCount ??
-      post?.wish_count ??
+    post?.wish_count ??
+      post?.wishCount ??
       post?.wishlistCount ??
       post?.wishlist_count ??
       post?.wishListCount ??
@@ -69,7 +72,7 @@ const normalizePost = (post) => {
       post?.image ||
       post?.images?.[0] ||
       null,
-    isWished: Boolean(post?.isWished || post?.is_wished || post?.wished),
+    isWished: getIsWished(post),
     interestCount: getInterestCount(post),
   };
 };
