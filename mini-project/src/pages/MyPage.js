@@ -124,10 +124,12 @@ const NAV_PATHS = {
 
 function ProfileSummary() {
   const [profile, setProfile] = useState(null);
+  const localPostCount = getMyPosts().length;
   const userName = profile?.name || localStorage.getItem("name") || "이름";
   const userNickname = profile?.nickname || localStorage.getItem("nickname") || "닉네임";
   const userMajor = profile?.major?.name || localStorage.getItem("major") || "본전공";
   const userProfileImage = localStorage.getItem("userProfileImage");
+  const salesPostCount = Math.max(profile?.sales_post_count ?? 0, localPostCount);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -160,8 +162,8 @@ function ProfileSummary() {
 
       <div className="stats">
         <div>
-          <strong>{profile?.sales_post_count ?? 4}</strong>
-          <span>판매글</span>
+          <strong>{salesPostCount}</strong>
+          <span>내 글</span>
         </div>
         <div>
           <strong>{profile?.transaction_count ?? 12}</strong>
