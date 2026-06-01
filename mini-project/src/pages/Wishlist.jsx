@@ -1,12 +1,50 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiFetch, getAccessToken } from "../api";
 
 const FONT = "'Intel One Mono', 'Courier New', monospace";
 const BG = "#D4E1FD";
 const BORDER = "#7999E9";
 const BLUE = "#3a5fa8";
 const LIGHT_BLUE = "#7da3e8";
-const BASE_URL = "https://boo-be-production.up.railway.app";
+
+const getPostId = (product) =>
+  product?.postId ??
+  product?.goodsId ??
+  product?.goods_id ??
+  product?.post_id ??
+  product?.id;
+
+const normalizeProduct = (product) => {
+  const postId = getPostId(product);
+  const isFree = Boolean(product?.isFree || product?.is_free);
+  const price =
+    typeof product?.price === "number"
+      ? `${product.price.toLocaleString()}원`
+      : product?.price || "0원";
+
+  return {
+    postId,
+    title: product?.title || product?.name || "제목 없음",
+    price,
+    isFree,
+    thumbnailUrl:
+      product?.thumbnailUrl ||
+      product?.thumbnail_url ||
+      product?.image ||
+      product?.images?.[0] ||
+      null,
+  };
+};
+
+const extractWishlist = (response) => {
+  const data = response?.data;
+  if (Array.isArray(data?.wishLists)) return data.wishLists;
+  if (Array.isArray(data?.wishlist)) return data.wishlist;
+  if (Array.isArray(data?.wishes)) return data.wishes;
+  if (Array.isArray(data)) return data;
+  return [];
+};
 
 export default function Wishlist() {
   const navigate = useNavigate();
@@ -14,42 +52,45 @@ export default function Wishlist() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // 찜 목록 불러오기
   useEffect(() => {
     const fetchWishlist = async () => {
+      if (!getAccessToken()) {
+        setWishlist([]);
+        setLoading(false);
+        return;
+      }
+
       try {
-        const token = localStorage.getItem("accessToken");
-        const response = await fetch(`${BASE_URL}/api/wish_lists`, {
-          headers: { "Authorization": `Bearer ${token}` },
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setWishlist(data.data);
-        } else {
-          setError("찜 목록을 불러오지 못했습니다.");
-        }
+        const response = await apiFetch("/api/wish_lists", { auth: true });
+        const backendWishlist = extractWishlist(response)
+          .map(normalizeProduct)
+          .filter((product) => product.postId);
+        setWishlist(backendWishlist);
+        setError("");
       } catch (err) {
-        setError("서버 오류가 발생했습니다.");
+        setWishlist([]);
+        setError("관심상품 목록을 불러오지 못했습니다.");
       } finally {
         setLoading(false);
       }
     };
+
     fetchWishlist();
   }, []);
 
-  // 찜 해제
   const removeItem = async (postId) => {
+    if (!getAccessToken()) return;
+
     try {
-      const token = localStorage.getItem("accessToken");
-      const response = await fetch(`${BASE_URL}/api/wishes/${postId}`, {
+      await apiFetch(`/api/wishes/${postId}`, {
         method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` },
+        auth: true,
       });
-      if (response.ok) {
-        setWishlist((prev) => prev.filter((p) => p.postId !== postId));
-      }
+      setWishlist((prev) =>
+        prev.filter((product) => String(product.postId) !== String(postId))
+      );
     } catch (err) {
-      console.error("찜 해제 실패:", err);
+      alert("관심상품 삭제에 실패했습니다.");
     }
   };
 
@@ -61,15 +102,13 @@ export default function Wishlist() {
       alignItems: "center", padding: "32px 20px 24px",
       overflowY: "visible",
     }}>
-      {/* 제목 */}
       <h1 style={{
         fontSize: "22px", fontWeight: "700", color: BLUE,
         marginBottom: "24px", letterSpacing: "0.05em",
       }}>
-        관심 상품
+        관심상품
       </h1>
 
-      {/* 흰 박스 래퍼 */}
       <div style={{
         width: "90%", background: "#fff",
         border: `3px solid ${BORDER}`, borderRadius: "16px",
@@ -86,7 +125,7 @@ export default function Wishlist() {
           </div>
         ) : wishlist.length === 0 ? (
           <div style={{ textAlign: "center", color: LIGHT_BLUE, fontSize: "14px", padding: "40px 0", fontWeight: "700" }}>
-            관심 상품이 없습니다.
+            관심상품이 없습니다.
           </div>
         ) : (
           wishlist.map((product) => (
@@ -100,7 +139,6 @@ export default function Wishlist() {
               }}
               onClick={() => navigate(`/post/${product.postId}`)}
             >
-              {/* 썸네일 */}
               <div style={{
                 width: "64px", height: "64px", borderRadius: "10px",
                 background: "#c5d8f8", flexShrink: 0,
@@ -109,20 +147,18 @@ export default function Wishlist() {
                 fontSize: "11px", color: "#6b8fd4", fontFamily: FONT,
               }}>
                 {product.thumbnailUrl
-                  ? <img src={product.thumbnailUrl} alt="썸네일" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ? <img src={product.thumbnailUrl} alt="상품 사진" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   : "사진"
                 }
               </div>
 
-              {/* 상품 정보 */}
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: "15px", fontWeight: "700", color: BLUE }}>{product.title}</div>
                 <div style={{ fontSize: "12px", color: "#6b8fd4", marginTop: "4px" }}>
-                  {product.isFree ? "무료나눔" : `${product.price?.toLocaleString()}원`}
+                  {product.isFree ? "무료나눔" : product.price}
                 </div>
               </div>
 
-              {/* 하트 버튼 */}
               <button
                 onClick={(e) => { e.stopPropagation(); removeItem(product.postId); }}
                 style={{
@@ -140,7 +176,6 @@ export default function Wishlist() {
         )}
       </div>
 
-      {/* 닫기 버튼 */}
       <button
         onClick={() => navigate("/main")}
         style={{

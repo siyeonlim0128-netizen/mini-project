@@ -41,6 +41,8 @@ function AppRoutes() {
       <Route path="/favorites" element={<Wishlist />} />
       <Route path="/wishlist" element={<Wishlist />} />
       <Route path="/postdetail" element={<PostDetail />} />
+      <Route path="/post/:id" element={<PostDetail />} />
+      <Route path="/postdetail/:id" element={<PostDetail />} />
       <Route path="/mypage" element={<MyPage />} />
       <Route path="/posts/create" element={<PostCreateRoute />} />
       <Route path="/posts/new" element={<PostCreateRoute />} />
