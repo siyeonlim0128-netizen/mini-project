@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import BackArrow from '../assets/arrow-left-circle.svg';
+import { isCurrentUserValue } from "../api";
 
 const FONT = "'Intel One Mono', 'Courier New', monospace";
 const BG = "#D4E1FD";
@@ -8,6 +9,46 @@ const BORDER = "#7999E9";
 const BLUE = "#3a5fa8";
 const LIGHT_BLUE = "#7da3e8";
 const BASE_URL = "https://boo-be-production.up.railway.app";
+
+const firstValue = (...values) =>
+  values.find((value) => value !== undefined && value !== null && String(value) !== "");
+
+const getOpponentNickname = (chat) => {
+  const buyerValue = firstValue(
+    chat.buyerId,
+    chat.buyer_id,
+    chat.buyerUserId,
+    chat.buyer_user_id,
+    chat.buyerEmail,
+    chat.buyer_email
+  );
+  const sellerValue = firstValue(
+    chat.sellerId,
+    chat.seller_id,
+    chat.sellerUserId,
+    chat.seller_user_id,
+    chat.sellerEmail,
+    chat.seller_email
+  );
+
+  const buyerNickname = firstValue(
+    chat.buyerNickname,
+    chat.buyer_nickname,
+    chat.buyerName,
+    chat.buyer_name
+  );
+  const sellerNickname = firstValue(
+    chat.sellerNickname,
+    chat.seller_nickname,
+    chat.sellerName,
+    chat.seller_name
+  );
+
+  if (isCurrentUserValue(buyerValue)) return sellerNickname || "상대방";
+  if (isCurrentUserValue(sellerValue)) return buyerNickname || "상대방";
+
+  return sellerNickname || buyerNickname || "상대방";
+};
 
 export default function MessageList() {
   const navigate = useNavigate();
@@ -36,9 +77,6 @@ export default function MessageList() {
     };
     fetchChats();
   }, []);
-
-  // 현재 로그인한 유저 ID (토큰 디코딩 또는 마이페이지 API로 가져와야 하지만 일단 localStorage 활용)
-  const myId = Number(localStorage.getItem("userId"));
 
   return (
     <div style={{
@@ -79,12 +117,13 @@ export default function MessageList() {
         ) : (
           chats.map((chat) => {
             // 내가 구매자면 판매자 닉네임, 내가 판매자면 구매자 닉네임 표시
-            const opponentNickname = myId === chat.buyerId ? chat.sellerNickname : chat.buyerNickname;
+            const opponentNickname = getOpponentNickname(chat);
+            const roomId = chat.roomId ?? chat.room_id ?? chat.id;
 
             return (
               <button
-                key={chat.roomId}
-                onClick={() => navigate(`/message/${chat.roomId}`)}
+                key={roomId}
+                onClick={() => navigate(`/message/${roomId}`)}
                 style={{
                   width: "100%", padding: "18px",
                   border: `3px solid ${BORDER}`, borderRadius: "50px",

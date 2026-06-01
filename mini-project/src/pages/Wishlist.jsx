@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiFetch, getAccessToken } from "../api";
+import {
+  apiFetch,
+  getAccessToken,
+  getLocalPostSnapshots,
+  getLocalWishlist,
+  removeLocalWishlistItem,
+  requestWish,
+} from "../api";
 
 const FONT = "'Intel One Mono', 'Courier New', monospace";
 const BG = "#D4E1FD";
@@ -46,6 +53,49 @@ const extractWishlist = (response) => {
   return [];
 };
 
+const mergeWishlist = (backendWishlist, localWishlist) => {
+  const seenIds = new Set();
+
+  return [...localWishlist, ...backendWishlist].filter((product) => {
+    const postId = getPostId(product);
+    if (!postId || seenIds.has(String(postId))) return false;
+
+    seenIds.add(String(postId));
+    return true;
+  });
+};
+
+const findLatestPost = (product, latestPosts) => {
+  const postId = getPostId(product);
+  return latestPosts.find(
+    (post) => String(getPostId(post)) === String(postId)
+  );
+};
+
+const applyLatestPostInfo = (product, latestPosts) => {
+  const latestPost = findLatestPost(product, latestPosts);
+
+  if (!latestPost) return product;
+
+  return {
+    ...product,
+    title: latestPost.title || product.title,
+    price: latestPost.price || product.price,
+    thumbnailUrl: latestPost.image || latestPost.thumbnailUrl || product.thumbnailUrl,
+  };
+};
+
+const filterCurrentPosts = (products, latestPosts) => {
+  if (latestPosts.length === 0) return products;
+  return products.filter((product) => findLatestPost(product, latestPosts));
+};
+
+const getLocalWishlistProducts = (latestPosts) =>
+  filterCurrentPosts(
+    getLocalWishlist().map(normalizeProduct),
+    latestPosts
+  ).map((product) => applyLatestPostInfo(product, latestPosts));
+
 export default function Wishlist() {
   const navigate = useNavigate();
   const [wishlist, setWishlist] = useState([]);
@@ -55,21 +105,28 @@ export default function Wishlist() {
   useEffect(() => {
     const fetchWishlist = async () => {
       if (!getAccessToken()) {
-        setWishlist([]);
+        const latestPosts = getLocalPostSnapshots();
+        setWishlist(getLocalWishlistProducts(latestPosts));
         setLoading(false);
         return;
       }
 
       try {
+        const latestPosts = getLocalPostSnapshots();
+        const localWishlist = getLocalWishlistProducts(latestPosts);
         const response = await apiFetch("/api/wish_lists", { auth: true });
-        const backendWishlist = extractWishlist(response)
-          .map(normalizeProduct)
-          .filter((product) => product.postId);
-        setWishlist(backendWishlist);
+        const backendWishlist = filterCurrentPosts(
+          extractWishlist(response)
+            .map(normalizeProduct)
+            .filter((product) => product.postId),
+          latestPosts
+        ).map((product) => applyLatestPostInfo(product, latestPosts));
+        setWishlist(localWishlist.length ? localWishlist : mergeWishlist(backendWishlist, localWishlist));
         setError("");
       } catch (err) {
-        setWishlist([]);
-        setError("관심상품 목록을 불러오지 못했습니다.");
+        const localWishlist = getLocalWishlistProducts(getLocalPostSnapshots());
+        setWishlist(localWishlist);
+        setError(localWishlist.length ? "" : "관심상품 목록을 불러오지 못했습니다.");
       } finally {
         setLoading(false);
       }
@@ -79,18 +136,15 @@ export default function Wishlist() {
   }, []);
 
   const removeItem = async (postId) => {
-    if (!getAccessToken()) return;
+    removeLocalWishlistItem(postId);
+    setWishlist((prev) =>
+      prev.filter((product) => String(product.postId) !== String(postId))
+    );
 
     try {
-      await apiFetch(`/api/wishes/${postId}`, {
-        method: "DELETE",
-        auth: true,
-      });
-      setWishlist((prev) =>
-        prev.filter((product) => String(product.postId) !== String(postId))
-      );
+      if (getAccessToken()) await requestWish(postId, false);
     } catch (err) {
-      alert("관심상품 삭제에 실패했습니다.");
+      console.warn("관심상품 삭제 백엔드 요청 실패:", err);
     }
   };
 

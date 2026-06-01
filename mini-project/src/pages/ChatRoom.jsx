@@ -4,6 +4,7 @@ import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import Boo2 from "../assets/Boo2.svg";
 import BackArrow from '../assets/arrow-left-circle.svg';
+import { isCurrentUserValue } from "../api";
 
 const FONT = "'Intel One Mono', 'Courier New', monospace";
 const BG = "#D4E1FD";
@@ -13,16 +14,50 @@ const MY_BUBBLE = "#b8ccf5";
 const OTHER_BUBBLE = "#fff";
 const BASE_URL = "https://boo-be-production.up.railway.app";
 
+const firstValue = (...values) =>
+  values.find((value) => value !== undefined && value !== null && String(value) !== "");
+
+const getSenderValue = (message) =>
+  firstValue(
+    message.senderId,
+    message.sender_id,
+    message.userId,
+    message.user_id,
+    message.memberId,
+    message.member_id,
+    message.writerId,
+    message.writer_id,
+    message.senderEmail,
+    message.sender_email,
+    message.email
+  );
+
+const isMineMessage = (message) =>
+  Boolean(
+    message.isMine ||
+      message.mine ||
+      message.me ||
+      message.sender === "me" ||
+      isCurrentUserValue(getSenderValue(message))
+  );
+
+const getSenderNickname = (message) =>
+  firstValue(
+    message.senderNickname,
+    message.sender_nickname,
+    message.nickname,
+    message.senderName,
+    message.sender_name
+  );
+
 export default function ChatRoom() {
   const navigate = useNavigate();
   const { id } = useParams(); // roomId
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [roomInfo, setRoomInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const bottomRef = useRef(null);
   const stompClient = useRef(null);
-  const myId = Number(localStorage.getItem("userId"));
 
   // 기존 메시지 불러오기
   useEffect(() => {
@@ -92,7 +127,8 @@ export default function ChatRoom() {
   };
 
   // 상대방 닉네임 (메시지 목록에서 추출)
-  const opponentNickname = messages.find((m) => m.senderId !== myId)?.senderNickname || "상대방";
+  const opponentNickname =
+    getSenderNickname(messages.find((message) => !isMineMessage(message))) || "상대방";
 
   return (
     <div style={{
@@ -130,10 +166,10 @@ export default function ChatRoom() {
             첫 메시지를 보내보세요!
           </div>
         ) : (
-          messages.map((msg) => {
-            const isMine = msg.senderId === myId;
+          messages.map((msg, index) => {
+            const isMine = isMineMessage(msg);
             return (
-              <div key={msg.messageId || msg.id} style={{ display: "flex", justifyContent: isMine ? "flex-end" : "flex-start" }}>
+              <div key={msg.messageId || msg.id || `${msg.createdAt || msg.sentAt || "message"}-${index}`} style={{ display: "flex", justifyContent: isMine ? "flex-end" : "flex-start" }}>
                 <div style={{
                   maxWidth: "65%", padding: "10px 14px",
                   borderRadius: isMine ? "18px 18px 4px 18px" : "18px 18px 18px 4px",

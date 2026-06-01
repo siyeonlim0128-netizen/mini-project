@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import BackArrow from '../assets/arrow-left-circle.svg';
+import {
+  getCurrentUser,
+  isCurrentUserValue,
+  removeLocalWishlistItem,
+  requestWish,
+  saveLocalWishlistItem,
+} from "../api";
 
 const FONT = "'Intel One Mono', 'Courier New', monospace";
 const BG = "#D4E1FD";
@@ -8,6 +15,53 @@ const BORDER = "#7999E9";
 const BLUE = "#3a5fa8";
 const LIGHT_BLUE = "#7da3e8";
 const BASE_URL = "https://boo-be-production.up.railway.app";
+
+const firstValue = (...values) =>
+  values.find((value) => value !== undefined && value !== null && String(value) !== "");
+
+const isCurrentUserPost = (post) => {
+  if (!post) return false;
+  if (post.isMine || post.mine || post.isOwner || post.owner) return true;
+
+  const author = post.author || post.seller || post.user || post.member || post.writer || {};
+  const ownerValue = firstValue(
+    post.authorId,
+    post.author_id,
+    post.sellerId,
+    post.seller_id,
+    post.userId,
+    post.user_id,
+    post.memberId,
+    post.member_id,
+    post.writerId,
+    post.writer_id,
+    post.authorEmail,
+    post.author_email,
+    post.sellerEmail,
+    post.seller_email,
+    author.id,
+    author.userId,
+    author.user_id,
+    author.memberId,
+    author.member_id,
+    author.email
+  );
+
+  if (isCurrentUserValue(ownerValue)) return true;
+
+  const currentUser = getCurrentUser();
+  const ownerNickname = firstValue(
+    post.authorNickname,
+    post.author_nickname,
+    post.sellerNickname,
+    post.seller_nickname,
+    post.nickname,
+    author.nickname,
+    author.name
+  );
+
+  return Boolean(currentUser.nickname && ownerNickname === currentUser.nickname);
+};
 
 export default function PostDetail() {
   const navigate = useNavigate();
@@ -48,21 +102,31 @@ export default function PostDetail() {
 
   // 찜 추가/해제
   const toggleLike = async () => {
-    try {
-      const token = localStorage.getItem("accessToken");
-      const method = liked ? "DELETE" : "POST";
-      const response = await fetch(`${BASE_URL}/api/wishes/${id}`, {
-        method,
-        headers: { "Authorization": `Bearer ${token}` },
+    const shouldLike = !liked;
+    setLiked(shouldLike);
+
+    if (shouldLike) {
+      saveLocalWishlistItem({
+        ...post,
+        postId: id,
+        id,
+        thumbnailUrl: post?.thumbnailUrl || post?.thumbnail_url || post?.images?.[0],
       });
-      if (response.ok) setLiked((l) => !l);
+    } else {
+      removeLocalWishlistItem(id);
+    }
+
+    try {
+      await requestWish(id, shouldLike);
     } catch (err) {
-      console.error("찜 처리 실패:", err);
+      console.warn("찜 처리 백엔드 요청 실패:", err);
     }
   };
 
   // 채팅방 생성 후 이동
   const handleBuy = async () => {
+    if (isCurrentUserPost(post)) return;
+
     try {
       const token = localStorage.getItem("accessToken");
       const response = await fetch(`${BASE_URL}/api/chat-rooms/${id}`, {
@@ -80,6 +144,7 @@ export default function PostDetail() {
 
   const isRent = post?.category === "대여";
   const images = post?.images || [];
+  const isOwnPost = isCurrentUserPost(post);
 
   if (loading) return (
     <div style={{ width: "100%", maxWidth: "390px", margin: "0 auto", minHeight: "100vh", backgroundColor: BG, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontSize: "14px", color: BLUE, fontWeight: "700" }}>
@@ -105,16 +170,20 @@ export default function PostDetail() {
         <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
           <img src={BackArrow} alt="이전" style={{ width: "38px", height: "38px" }} />
         </button>
-        <button
-          onClick={() => navigate("/report", { state: { targetUserId: post?.authorId, postId: id } })}
-          style={{
-            background: "#e53e3e", border: "none", borderRadius: "50px",
-            padding: "7px 18px", color: "#fff",
-            fontFamily: FONT, fontSize: "12px", fontWeight: "700", cursor: "pointer",
-          }}
-        >
-          신고하기
-        </button>
+        {isOwnPost ? (
+          <div style={{ width: "78px" }} />
+        ) : (
+          <button
+            onClick={() => navigate("/report", { state: { targetUserId: post?.authorId, postId: id } })}
+            style={{
+              background: "#e53e3e", border: "none", borderRadius: "50px",
+              padding: "7px 18px", color: "#fff",
+              fontFamily: FONT, fontSize: "12px", fontWeight: "700", cursor: "pointer",
+            }}
+          >
+            신고하기
+          </button>
+        )}
       </div>
 
       {/* 사진 슬라이더 */}
@@ -213,22 +282,39 @@ export default function PostDetail() {
 
       {/* 구매/대여 버튼 */}
       <div style={{ padding: "0 20px", marginTop: "auto", paddingBottom: "32px" }}>
-        <button
-          onClick={handleBuy}
-          style={{
-            width: "100%", padding: "15px",
-            borderRadius: "50px", border: `3px solid ${BORDER}`,
-            background: "#fff", color: "#000",
-            fontSize: "15px", fontFamily: FONT, fontWeight: "700",
-            cursor: "pointer", transition: "background 0.15s",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            letterSpacing: "0.05em",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = BG)}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
-        >
-          {isRent ? "대여하기" : "구매하기"}
-        </button>
+        {isOwnPost ? (
+          <button
+            disabled
+            style={{
+              width: "100%", padding: "15px",
+              borderRadius: "50px", border: `3px solid ${BORDER}`,
+              background: BG, color: BLUE,
+              fontSize: "15px", fontFamily: FONT, fontWeight: "700",
+              cursor: "not-allowed",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              letterSpacing: "0.05em",
+            }}
+          >
+            내가 등록한 글입니다
+          </button>
+        ) : (
+          <button
+            onClick={handleBuy}
+            style={{
+              width: "100%", padding: "15px",
+              borderRadius: "50px", border: `3px solid ${BORDER}`,
+              background: "#fff", color: "#000",
+              fontSize: "15px", fontFamily: FONT, fontWeight: "700",
+              cursor: "pointer", transition: "background 0.15s",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              letterSpacing: "0.05em",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = BG)}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
+          >
+            {isRent ? "대여하기" : "구매하기"}
+          </button>
+        )}
       </div>
     </div>
   );

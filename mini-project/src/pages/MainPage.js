@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { apiFetch, getAccessToken } from '../api';
+import { useNavigate } from 'react-router-dom';
+import {
+  apiFetch,
+  getAccessToken,
+  getLocalWishlist,
+  removeLocalWishlistItem,
+  requestWish,
+  saveLocalWishlistItem,
+  saveLocalPostSnapshots,
+} from '../api';
 import styles from './MainPage.module.css';
 import owlHeader from '../assets/owl_header.svg';
 
@@ -56,6 +65,7 @@ function MainPage({
   onMessagesClick,
   onMyPageClick,
 }) {
+  const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('전체 카테고리');
@@ -83,10 +93,22 @@ function MainPage({
         if (!mounted) return;
 
         setPosts(backendPosts);
+        saveLocalPostSnapshots(backendPosts);
+        backendPosts
+          .filter((post) => post.isWished)
+          .forEach((post) => saveLocalWishlistItem(post));
+        const localWishlistIds = getLocalWishlist()
+          .map(getPostId)
+          .filter(Boolean);
         setLikedPosts(
-          backendPosts
-            .filter((post) => post.isWished)
-            .map((post) => post.id)
+          Array.from(
+            new Set([
+              ...backendPosts
+                .filter((post) => post.isWished)
+                .map((post) => post.id),
+              ...localWishlistIds,
+            ])
+          )
         );
       } catch (error) {
         if (!mounted) return;
@@ -118,19 +140,22 @@ function MainPage({
     const isLiked = likedPosts.some((id) => String(id) === String(postId));
     const shouldLike = !isLiked;
 
-    try {
-      await apiFetch(`/api/wishes/${postId}`, {
-        method: shouldLike ? 'POST' : 'DELETE',
-        auth: true,
-      });
+    setLikedPosts((prev) =>
+      shouldLike
+        ? Array.from(new Set([...prev, postId]))
+        : prev.filter((id) => String(id) !== String(postId))
+    );
 
-      setLikedPosts((prev) =>
-        shouldLike
-          ? [...prev, postId]
-          : prev.filter((id) => String(id) !== String(postId))
-      );
+    if (shouldLike) {
+      saveLocalWishlistItem(post);
+    } else {
+      removeLocalWishlistItem(postId);
+    }
+
+    try {
+      await requestWish(postId, shouldLike);
     } catch (error) {
-      alert('관심상품 처리에 실패했습니다.');
+      console.warn('관심상품 백엔드 요청 실패:', error);
     }
   };
 
@@ -144,6 +169,11 @@ function MainPage({
   const searchedPosts = filteredPosts.filter((post) =>
     post.title.includes(searchText)
   );
+
+  const handlePostClick = (postId) => {
+    if (!postId) return;
+    navigate(`/post/${postId}`);
+  };
 
   return (
     <div className={styles.container}>
@@ -223,7 +253,19 @@ function MainPage({
             );
 
             return (
-              <div key={post.id} className={styles.postCard}>
+              <div
+                key={post.id}
+                className={styles.postCard}
+                role="button"
+                tabIndex={0}
+                onClick={() => handlePostClick(post.id)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handlePostClick(post.id);
+                  }
+                }}
+              >
                 <div className={styles.postImage}>
                   {post.image ? (
                     <img src={post.image} alt={post.title} />
@@ -237,7 +279,10 @@ function MainPage({
                 </div>
                 <button
                   className={styles.likeButton}
-                  onClick={() => toggleLike(post)}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    toggleLike(post);
+                  }}
                 >
                   {isLiked ? '❤️' : '🤍'}
                 </button>

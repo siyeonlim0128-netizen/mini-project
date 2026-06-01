@@ -57,7 +57,21 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("accessToken", data.accessToken);
+        const loginData = data?.data || data;
+        const accessToken = loginData?.accessToken || data?.accessToken;
+        const user = loginData?.user || loginData?.member || loginData;
+        const userId =
+          user?.userId ??
+          user?.user_id ??
+          user?.memberId ??
+          user?.member_id ??
+          user?.id;
+
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("email", user?.email || email);
+        if (userId) localStorage.setItem("userId", String(userId));
+        if (user?.nickname) localStorage.setItem("nickname", user.nickname);
+        if (user?.name) localStorage.setItem("name", user.name);
         setError("");
         navigate("/main");
       } else {

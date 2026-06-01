@@ -40,7 +40,9 @@ const getLocalMyPosts = () => {
 };
 
 const saveLocalMyPost = (post) => {
-  const posts = getLocalMyPosts();
+  const posts = getLocalMyPosts().filter(
+    (item) => String(item.id) !== String(post.id)
+  );
   localStorage.setItem('myPosts', JSON.stringify([post, ...posts]));
 };
 
@@ -128,10 +130,22 @@ function PostCreatePage({ onBack }) {
     };
 
     try {
-      await apiFetch('/api/posts', {
+      const response = await apiFetch('/api/posts', {
         method: 'POST',
         auth: true,
         body: payload,
+      });
+      const createdPost = response?.data || response;
+      const createdPostId =
+        createdPost?.postId ??
+        createdPost?.goodsId ??
+        createdPost?.goods_id ??
+        createdPost?.post_id ??
+        createdPost?.id;
+
+      saveLocalMyPost({
+        ...localPost,
+        id: createdPostId || localPost.id,
       });
     } catch (error) {
       saveLocalMyPost(localPost);
@@ -285,7 +299,7 @@ function PostCreatePage({ onBack }) {
           <input
             type="text"
             className={styles.inputBox}
-            placeholder="예) 서울캠퍼스 학생회관 앞"
+            placeholder="예) 교양관"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
           />

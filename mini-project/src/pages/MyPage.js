@@ -103,7 +103,7 @@ const mergeMyPosts = (backendPosts, localPosts) => {
   ];
 };
 
-function ProfileSummary() {
+function ProfileSummary({ onMove }) {
   const [profile, setProfile] = useState(null);
   const userName = profile?.name || localStorage.getItem("name") || "이름";
   const userNickname = profile?.nickname || localStorage.getItem("nickname") || "닉네임";
@@ -140,10 +140,10 @@ function ProfileSummary() {
       </div>
 
       <div className="stats">
-        <div>
+        <button type="button" onClick={() => onMove("posts")}>
           <strong>{profile?.sales_post_count ?? 4}</strong>
           <span>판매글</span>
-        </div>
+        </button>
         <div>
           <strong>{profile?.transaction_count ?? 12}</strong>
           <span>거래횟수</span>
@@ -285,7 +285,7 @@ function CloseNav() {
 function MainMyPage({ onMove }) {
   return (
     <div className="phone main-phone">
-      <ProfileSummary />
+      <ProfileSummary onMove={onMove} />
       <MenuList onMove={onMove} />
       <CloseNav />
     </div>
