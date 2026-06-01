@@ -3,8 +3,6 @@ import { apiFetch, getAccessToken } from '../api';
 import styles from './MainPage.module.css';
 import owlHeader from '../assets/owl_header.svg';
 
-const LOCAL_WISHLIST_KEY = 'localWishlist';
-
 const CATEGORIES = [
   '전체 카테고리',
   '전공책',
@@ -16,42 +14,6 @@ const CATEGORIES = [
 ];
 
 const SORT_OPTIONS = ['최신순', '관심순', '가격 낮은 순'];
-
-const DUMMY_POSTS = [
-  {
-    id: 1,
-    title: '경영학원론 교재 팝니다',
-    price: '12,000원',
-    category: '전공책',
-    image: null,
-  },
-  {
-    id: 2,
-    title: '과잠 L사이즈 거의 새거',
-    price: '25,000원',
-    category: '의류',
-    image: null,
-  },
-  {
-    id: 3,
-    title: '일본어 교양 교재',
-    price: '8,000원',
-    category: '교양책',
-    image: null,
-  },
-];
-
-const readLocalWishlist = () => {
-  try {
-    return JSON.parse(localStorage.getItem(LOCAL_WISHLIST_KEY) || '[]');
-  } catch (error) {
-    return [];
-  }
-};
-
-const writeLocalWishlist = (wishlist) => {
-  localStorage.setItem(LOCAL_WISHLIST_KEY, JSON.stringify(wishlist));
-};
 
 const getPostId = (post) =>
   post?.postId ?? post?.goodsId ?? post?.goods_id ?? post?.post_id ?? post?.id;
@@ -88,63 +50,51 @@ const extractPostList = (response) => {
   return [];
 };
 
-const syncLocalWishlist = (post, shouldLike) => {
-  const postId = getPostId(post);
-  if (!postId) return;
-
-  const wishlist = readLocalWishlist();
-  const exists = wishlist.some((item) => String(getPostId(item)) === String(postId));
-
-  if (shouldLike && !exists) {
-    writeLocalWishlist([...wishlist, normalizePost(post)]);
-  }
-
-  if (!shouldLike) {
-    writeLocalWishlist(
-      wishlist.filter((item) => String(getPostId(item)) !== String(postId))
-    );
-  }
-};
-
 function MainPage({
   onCreateClick,
   onLikesClick,
   onMessagesClick,
   onMyPageClick,
 }) {
-  const [posts, setPosts] = useState(DUMMY_POSTS);
+  const [posts, setPosts] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('전체 카테고리');
   const [activeSort, setActiveSort] = useState('최신순');
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [likedPosts, setLikedPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
     let mounted = true;
 
     const loadPosts = async () => {
-      const localLikedIds = readLocalWishlist().map((post) => getPostId(post));
+      setIsLoading(true);
+      setLoadError('');
 
       try {
-        const response = await apiFetch('/api/posts', { auth: Boolean(getAccessToken()) });
+        const response = await apiFetch('/api/posts', {
+          auth: Boolean(getAccessToken()),
+        });
         const backendPosts = extractPostList(response)
           .map(normalizePost)
           .filter((post) => post.id);
 
         if (!mounted) return;
 
-        if (backendPosts.length > 0) {
-          setPosts(backendPosts);
-          setLikedPosts(
-            backendPosts
-              .filter((post) => post.isWished)
-              .map((post) => post.id)
-          );
-        } else {
-          setLikedPosts(localLikedIds);
-        }
+        setPosts(backendPosts);
+        setLikedPosts(
+          backendPosts
+            .filter((post) => post.isWished)
+            .map((post) => post.id)
+        );
       } catch (error) {
-        if (mounted) setLikedPosts(localLikedIds);
+        if (!mounted) return;
+        setPosts([]);
+        setLikedPosts([]);
+        setLoadError('게시글 목록을 불러오지 못했습니다.');
+      } finally {
+        if (mounted) setIsLoading(false);
       }
     };
 
@@ -157,27 +107,30 @@ function MainPage({
 
   const toggleLike = async (post) => {
     const postId = getPostId(post);
+    const token = getAccessToken();
     if (!postId) return;
+
+    if (!token) {
+      alert('로그인이 필요한 기능입니다.');
+      return;
+    }
 
     const isLiked = likedPosts.some((id) => String(id) === String(postId));
     const shouldLike = !isLiked;
-
-    setLikedPosts((prev) =>
-      shouldLike
-        ? [...prev, postId]
-        : prev.filter((id) => String(id) !== String(postId))
-    );
-    syncLocalWishlist(post, shouldLike);
-
-    if (!getAccessToken()) return;
 
     try {
       await apiFetch(`/api/wishes/${postId}`, {
         method: shouldLike ? 'POST' : 'DELETE',
         auth: true,
       });
+
+      setLikedPosts((prev) =>
+        shouldLike
+          ? [...prev, postId]
+          : prev.filter((id) => String(id) !== String(postId))
+      );
     } catch (error) {
-      console.error('관심상품 백엔드 연동 실패:', error);
+      alert('관심상품 처리에 실패했습니다.');
     }
   };
 
@@ -255,7 +208,15 @@ function MainPage({
       </div>
 
       <div className={styles.postList}>
-        {searchedPosts.length > 0 ? (
+        {isLoading ? (
+          <div className={styles.emptyState}>
+            <p>게시글을 불러오는 중입니다.</p>
+          </div>
+        ) : loadError ? (
+          <div className={styles.emptyState}>
+            <p>{loadError}</p>
+          </div>
+        ) : searchedPosts.length > 0 ? (
           searchedPosts.map((post) => {
             const isLiked = likedPosts.some(
               (id) => String(id) === String(post.id)

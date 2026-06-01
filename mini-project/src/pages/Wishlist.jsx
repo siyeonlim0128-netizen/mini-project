@@ -7,19 +7,6 @@ const BG = "#D4E1FD";
 const BORDER = "#7999E9";
 const BLUE = "#3a5fa8";
 const LIGHT_BLUE = "#7da3e8";
-const LOCAL_WISHLIST_KEY = "localWishlist";
-
-const readLocalWishlist = () => {
-  try {
-    return JSON.parse(localStorage.getItem(LOCAL_WISHLIST_KEY) || "[]");
-  } catch (error) {
-    return [];
-  }
-};
-
-const writeLocalWishlist = (wishlist) => {
-  localStorage.setItem(LOCAL_WISHLIST_KEY, JSON.stringify(wishlist));
-};
 
 const getPostId = (product) =>
   product?.postId ??
@@ -59,19 +46,6 @@ const extractWishlist = (response) => {
   return [];
 };
 
-const mergeByPostId = (primary, fallback) => {
-  const merged = [...primary];
-
-  fallback.forEach((item) => {
-    const exists = merged.some(
-      (product) => String(product.postId) === String(item.postId)
-    );
-    if (!exists) merged.push(item);
-  });
-
-  return merged.filter((product) => product.postId);
-};
-
 export default function Wishlist() {
   const navigate = useNavigate();
   const [wishlist, setWishlist] = useState([]);
@@ -80,24 +54,22 @@ export default function Wishlist() {
 
   useEffect(() => {
     const fetchWishlist = async () => {
-      const localWishlist = readLocalWishlist().map(normalizeProduct);
-
       if (!getAccessToken()) {
-        setWishlist(localWishlist);
+        setWishlist([]);
         setLoading(false);
         return;
       }
 
       try {
         const response = await apiFetch("/api/wish_lists", { auth: true });
-        const backendWishlist = extractWishlist(response).map(normalizeProduct);
-        setWishlist(mergeByPostId(backendWishlist, localWishlist));
+        const backendWishlist = extractWishlist(response)
+          .map(normalizeProduct)
+          .filter((product) => product.postId);
+        setWishlist(backendWishlist);
         setError("");
       } catch (err) {
-        setWishlist(localWishlist);
-        if (localWishlist.length === 0) {
-          setError("관심상품 목록을 불러오지 못했습니다.");
-        }
+        setWishlist([]);
+        setError("관심상품 목록을 불러오지 못했습니다.");
       } finally {
         setLoading(false);
       }
@@ -107,15 +79,6 @@ export default function Wishlist() {
   }, []);
 
   const removeItem = async (postId) => {
-    setWishlist((prev) =>
-      prev.filter((product) => String(product.postId) !== String(postId))
-    );
-    writeLocalWishlist(
-      readLocalWishlist().filter(
-        (product) => String(getPostId(product)) !== String(postId)
-      )
-    );
-
     if (!getAccessToken()) return;
 
     try {
@@ -123,8 +86,11 @@ export default function Wishlist() {
         method: "DELETE",
         auth: true,
       });
+      setWishlist((prev) =>
+        prev.filter((product) => String(product.postId) !== String(postId))
+      );
     } catch (err) {
-      console.error("관심상품 삭제 실패:", err);
+      alert("관심상품 삭제에 실패했습니다.");
     }
   };
 
