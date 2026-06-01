@@ -15,33 +15,33 @@ const firstValue = (...values) =>
 
 const getOpponentNickname = (chat) => {
   const buyerValue = firstValue(
-    chat.buyerId,
-    chat.buyer_id,
-    chat.buyerUserId,
-    chat.buyer_user_id,
-    chat.buyerEmail,
-    chat.buyer_email
+    chat?.buyerId,
+    chat?.buyer_id,
+    chat?.buyerUserId,
+    chat?.buyer_user_id,
+    chat?.buyerEmail,
+    chat?.buyer_email
   );
   const sellerValue = firstValue(
-    chat.sellerId,
-    chat.seller_id,
-    chat.sellerUserId,
-    chat.seller_user_id,
-    chat.sellerEmail,
-    chat.seller_email
+    chat?.sellerId,
+    chat?.seller_id,
+    chat?.sellerUserId,
+    chat?.seller_user_id,
+    chat?.sellerEmail,
+    chat?.seller_email
   );
 
   const buyerNickname = firstValue(
-    chat.buyerNickname,
-    chat.buyer_nickname,
-    chat.buyerName,
-    chat.buyer_name
+    chat?.buyerNickname,
+    chat?.buyer_nickname,
+    chat?.buyerName,
+    chat?.buyer_name
   );
   const sellerNickname = firstValue(
-    chat.sellerNickname,
-    chat.seller_nickname,
-    chat.sellerName,
-    chat.seller_name
+    chat?.sellerNickname,
+    chat?.seller_nickname,
+    chat?.sellerName,
+    chat?.seller_name
   );
 
   if (isCurrentUserValue(buyerValue)) return sellerNickname || "상대방";
@@ -49,6 +49,22 @@ const getOpponentNickname = (chat) => {
 
   return sellerNickname || buyerNickname || "상대방";
 };
+
+const extractChatRooms = (responseData) => {
+  const data = responseData?.data;
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.chatRooms)) return data.chatRooms;
+  if (Array.isArray(data?.rooms)) return data.rooms;
+  if (Array.isArray(responseData?.chatRooms)) return responseData.chatRooms;
+  return [];
+};
+
+const getRoomId = (chat) =>
+  firstValue(chat?.roomId, chat?.room_id, chat?.chatRoomId, chat?.chat_room_id, chat?.id);
+
+const getPostTitle = (chat) =>
+  firstValue(chat?.postTitle, chat?.post_title, chat?.goodsTitle, chat?.goods_title, chat?.title) ||
+  "게시글";
 
 export default function MessageList() {
   const navigate = useNavigate();
@@ -65,7 +81,7 @@ export default function MessageList() {
         });
         const data = await response.json();
         if (response.ok) {
-          setChats(data.data);
+          setChats(extractChatRooms(data));
         } else {
           setError("채팅 목록을 불러오지 못했습니다.");
         }
@@ -118,12 +134,14 @@ export default function MessageList() {
           chats.map((chat) => {
             // 내가 구매자면 판매자 닉네임, 내가 판매자면 구매자 닉네임 표시
             const opponentNickname = getOpponentNickname(chat);
-            const roomId = chat.roomId ?? chat.room_id ?? chat.id;
+            const roomId = getRoomId(chat);
 
             return (
               <button
-                key={roomId}
-                onClick={() => navigate(`/message/${roomId}`)}
+                key={roomId || `${opponentNickname}-${getPostTitle(chat)}`}
+                onClick={() => {
+                  if (roomId) navigate(`/message/${roomId}`);
+                }}
                 style={{
                   width: "100%", padding: "18px",
                   border: `3px solid ${BORDER}`, borderRadius: "50px",
@@ -151,7 +169,7 @@ export default function MessageList() {
                 <div style={{ flex: 1 }}>
                   <div>{opponentNickname}</div>
                   <div style={{ fontSize: "11px", color: LIGHT_BLUE, marginTop: "2px", fontWeight: "600" }}>
-                    {chat.postTitle}
+                    {getPostTitle(chat)}
                   </div>
                 </div>
 

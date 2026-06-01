@@ -206,12 +206,13 @@
 }
 
 .postCard {
+  position: relative;
   display: flex;
   align-items: center;
   background: #ffffff;
   border: 2px solid #7999E9;
   border-radius: 20px;
-  padding: 14px;
+  padding: 14px 58px 30px 14px;
   margin-bottom: 12px;
   cursor: pointer;
   transition: transform 0.15s;
@@ -262,6 +263,26 @@
   font-weight: 700;
   color: #7999E9;
   margin: 0;
+}
+
+.interestCount {
+  position: absolute;
+  right: 28px;
+  bottom: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #A1A5AF;
+  margin: 0;
+}
+
+.interestIcon {
+  color: #C5C9D2;
+  font-size: 15px;
+  line-height: 1;
 }
 
 .emptyState {
@@ -343,18 +364,22 @@
 }
 
 .likeButton {
+  position: absolute;
+  right: 24px;
+  top: 50%;
   background: none;
   border: none;
   font-size: 22px;
   cursor: pointer;
   padding: 4px;
-  margin-left: 8px;
+  margin: 0;
+  transform: translateY(-65%);
   transition: transform 0.2s;
   flex-shrink: 0;
 }
 
 .likeButton:hover {
-  transform: scale(1.2);
+  transform: translateY(-65%) scale(1.15);
 }
 
 @media (max-width: 430px) {

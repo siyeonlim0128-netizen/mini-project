@@ -27,6 +27,28 @@ const SORT_OPTIONS = ['최신순', '관심순', '가격 낮은 순'];
 const getPostId = (post) =>
   post?.postId ?? post?.goodsId ?? post?.goods_id ?? post?.post_id ?? post?.id;
 
+const getInterestCount = (post) =>
+  Number(
+    post?.wishCount ??
+      post?.wish_count ??
+      post?.wishlistCount ??
+      post?.wishlist_count ??
+      post?.wishListCount ??
+      post?.wish_list_count ??
+      post?.interestCount ??
+      post?.interest_count ??
+      post?.wishedCount ??
+      post?.wished_count ??
+      post?.heartCount ??
+      post?.heart_count ??
+      0
+  ) || 0;
+
+const getNumericPrice = (price) => {
+  const numberOnly = String(price || '').replace(/[^\d]/g, '');
+  return numberOnly ? Number(numberOnly) : 0;
+};
+
 const formatPrice = (post) => {
   if (post?.isFree || post?.is_free) return '무료나눔';
   if (typeof post?.price === 'number') return `${post.price.toLocaleString()}원`;
@@ -48,6 +70,7 @@ const normalizePost = (post) => {
       post?.images?.[0] ||
       null,
     isWished: Boolean(post?.isWished || post?.is_wished || post?.wished),
+    interestCount: getInterestCount(post),
   };
 };
 
@@ -147,10 +170,24 @@ function MainPage({
     );
 
     if (shouldLike) {
-      saveLocalWishlistItem(post);
+      saveLocalWishlistItem({ ...post, interestCount: post.interestCount + 1 });
     } else {
       removeLocalWishlistItem(postId);
     }
+
+    setPosts((prevPosts) =>
+      prevPosts.map((item) =>
+        String(item.id) === String(postId)
+          ? {
+              ...item,
+              interestCount: Math.max(
+                0,
+                item.interestCount + (shouldLike ? 1 : -1)
+              ),
+            }
+          : item
+      )
+    );
 
     try {
       await requestWish(postId, shouldLike);
@@ -169,6 +206,18 @@ function MainPage({
   const searchedPosts = filteredPosts.filter((post) =>
     post.title.includes(searchText)
   );
+
+  const sortedPosts = [...searchedPosts].sort((a, b) => {
+    if (activeSort === '관심순') {
+      return b.interestCount - a.interestCount;
+    }
+
+    if (activeSort === '가격 낮은 순') {
+      return getNumericPrice(a.price) - getNumericPrice(b.price);
+    }
+
+    return 0;
+  });
 
   const handlePostClick = (postId) => {
     if (!postId) return;
@@ -246,8 +295,8 @@ function MainPage({
           <div className={styles.emptyState}>
             <p>{loadError}</p>
           </div>
-        ) : searchedPosts.length > 0 ? (
-          searchedPosts.map((post) => {
+        ) : sortedPosts.length > 0 ? (
+          sortedPosts.map((post) => {
             const isLiked = likedPosts.some(
               (id) => String(id) === String(post.id)
             );
@@ -276,6 +325,10 @@ function MainPage({
                 <div className={styles.postInfo}>
                   <p className={styles.postTitle}>{post.title}</p>
                   <p className={styles.postPrice}>{post.price}</p>
+                  <p className={styles.interestCount} aria-label={`관심 ${post.interestCount}명`}>
+                    <span className={styles.interestIcon}>♥</span>
+                    <span>{post.interestCount}</span>
+                  </p>
                 </div>
                 <button
                   className={styles.likeButton}
